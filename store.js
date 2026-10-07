@@ -1,14 +1,27 @@
 
 const CRStore = (() => {
   const defaults = [
-    {id:'p1',name:'Signature Polo',category:'Men',price:90,salePrice:null,sizes:['S','M','L','XL'],colors:['Navy','White','Beige'],stock:24,sku:'CR-POLO-001',badge:'NEW',active:true,images:['images/signature-polo-navy-01.jpg', 'images/signature-polo-navy-02.jpg', 'images/signature-polo-navy-03.jpg'],description:'A refined polo with clean proportions and understated Chevalier & Roth character.'},
-    {id:'p2',name:'Heritage Half-Zip',category:'Men',price:120,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige','Navy','Dark Brown'],stock:18,sku:'CR-HZ-002',badge:'BESTSELLER',active:true,images:['images/heritage-halfzip-beige-01.jpg', 'images/heritage-halfzip-beige-02.jpg', 'images/heritage-halfzip-beige-03.jpg'],description:'An elegant half-zip designed for a calm old-money wardrobe.'},
-    {id:'p3',name:'Tailored Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Stone','Black','Navy'],stock:16,sku:'CR-TR-003',badge:'',active:true,images:['images/tailored-trouser-stone-01.jpg', 'images/tailored-trouser-stone-02.jpg', 'images/tailored-trouser-stone-03.jpg'],description:'Comfortable tailored trousers with a clean leg and refined drape.'},
-    {id:'p4',name:'Maison Knit Top',category:'Women',price:95,salePrice:79,sizes:['XS','S','M','L'],colors:['Cream','Black','Brown'],stock:12,sku:'CR-WT-004',badge:'SALE',active:true,images:['images/maison-knit-top-cream-01.jpg', 'images/maison-knit-top-cream-02.jpg', 'images/maison-knit-top-cream-03.jpg'],description:'A minimalist knit top with polished lines and a premium visual language.'}
+    {id:'p1',name:'Heritage Half-Zip',category:'Men',price:120,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige','Navy','Dark Brown'],stock:24,sku:'CR-HZ-001',badge:'NEW',active:true,images:['images/signature-polo-navy-01.jpg','images/signature-polo-navy-02.jpg','images/signature-polo-navy-03.jpg'],description:'An elegant half-zip designed for a calm old-money wardrobe. Soft, refined and easy to combine with tailored trousers or denim.'},
+    {id:'p2',name:'Heritage Men’s Trouser',category:'Men',price:110,salePrice:null,sizes:['30','32','34','36'],colors:['Beige','Navy','Black'],stock:18,sku:'CR-MTR-002',badge:'BESTSELLER',active:true,images:['images/heritage-halfzip-beige-01.jpg','images/heritage-halfzip-beige-02.jpg','images/heritage-halfzip-beige-03.jpg'],description:'A refined men’s trouser with a clean tailored line, comfortable fit and timeless finish. Designed for elegant everyday wear and smarter occasions.'},
+    {id:'p3',name:'Maison Women’s Top',category:'Women',price:0,salePrice:null,sizes:['XS','S','M','L'],colors:['Cream','White','Black'],stock:16,sku:'CR-WTOP-003',badge:'NEW',active:true,images:['images/tailored-trouser-stone-01.jpg','images/tailored-trouser-stone-02.jpg','images/tailored-trouser-stone-03.jpg'],description:'A refined women’s top with a clean neckline, elegant proportions and a soft, minimal silhouette. Designed to pair easily with tailored trousers and skirts.'},
+    {id:'p4',name:'Maison Women’s Trouser',category:'Women',price:110,salePrice:null,sizes:['XS','S','M','L'],colors:['Cream','Black','Brown'],stock:12,sku:'CR-WTR-004',badge:'',active:true,images:['images/maison-knit-top-cream-01.jpg','images/maison-knit-top-cream-02.jpg','images/maison-knit-top-cream-03.jpg'],description:'An elegant women’s trouser with a clean, flattering cut and comfortable tailored fit. Created for a polished everyday look with a quiet-luxury feel.'}
   ];
   const defaultCodes=[{code:'WELCOME10',percent:10,active:true,start:'',end:'',maxUses:100,uses:0,minOrder:0,products:[],categories:[]}];
   const get=(k,d)=>{try{const v=localStorage.getItem('cr_'+k);return v?JSON.parse(v):d}catch{return d}};
   const set=(k,v)=>localStorage.setItem('cr_'+k,JSON.stringify(v));
+  (function(){
+    if(localStorage.getItem('cr_catalog_update_v2')==='1') return;
+    const ps=get('products',defaults);
+    const u={
+      p1:{name:'Heritage Half-Zip',category:'Men',price:120,salePrice:null,sku:'CR-HZ-001',badge:'NEW',description:'An elegant half-zip designed for a calm old-money wardrobe. Soft, refined and easy to combine with tailored trousers or denim.',sizes:['S','M','L','XL'],colors:['Beige','Navy','Dark Brown']},
+      p2:{name:'Heritage Men’s Trouser',category:'Men',price:110,salePrice:null,sku:'CR-MTR-002',badge:'BESTSELLER',description:'A refined men’s trouser with a clean tailored line, comfortable fit and timeless finish. Designed for elegant everyday wear and smarter occasions.',sizes:['30','32','34','36'],colors:['Beige','Navy','Black']},
+      p3:{name:'Maison Women’s Top',category:'Women',price:0,salePrice:null,sku:'CR-WTOP-003',badge:'NEW',description:'A refined women’s top with a clean neckline, elegant proportions and a soft, minimal silhouette. Designed to pair easily with tailored trousers and skirts.',sizes:['XS','S','M','L'],colors:['Cream','White','Black']},
+      p4:{name:'Maison Women’s Trouser',category:'Women',price:110,salePrice:null,sku:'CR-WTR-004',badge:'',description:'An elegant women’s trouser with a clean, flattering cut and comfortable tailored fit. Created for a polished everyday look with a quiet-luxury feel.',sizes:['XS','S','M','L'],colors:['Cream','Black','Brown']}
+    };
+    set('products',ps.map(p=>u[p.id]?{...p,...u[p.id]}:p));
+    localStorage.setItem('cr_catalog_update_v2','1');
+  })();
+
   const products=()=>{
     let ps=get('products',defaults);
     const imageDefaults={
