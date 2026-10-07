@@ -1,15 +1,32 @@
 
 const CRStore = (() => {
   const defaults = [
-    {id:'p1',name:'Signature Polo',category:'Men',price:90,salePrice:null,sizes:['S','M','L','XL'],colors:['Navy','White','Beige'],stock:24,sku:'CR-POLO-001',badge:'NEW',active:true,images:[],description:'A refined polo with clean proportions and understated Chevalier & Roth character.'},
-    {id:'p2',name:'Heritage Half-Zip',category:'Men',price:120,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige','Navy','Dark Brown'],stock:18,sku:'CR-HZ-002',badge:'BESTSELLER',active:true,images:[],description:'An elegant half-zip designed for a calm old-money wardrobe.'},
-    {id:'p3',name:'Tailored Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Stone','Black','Navy'],stock:16,sku:'CR-TR-003',badge:'',active:true,images:[],description:'Comfortable tailored trousers with a clean leg and refined drape.'},
-    {id:'p4',name:'Maison Knit Top',category:'Women',price:95,salePrice:79,sizes:['XS','S','M','L'],colors:['Cream','Black','Brown'],stock:12,sku:'CR-WT-004',badge:'SALE',active:true,images:[],description:'A minimalist knit top with polished lines and a premium visual language.'}
+    {id:'p1',name:'Signature Polo',category:'Men',price:90,salePrice:null,sizes:['S','M','L','XL'],colors:['Navy','White','Beige'],stock:24,sku:'CR-POLO-001',badge:'NEW',active:true,images:['images/signature-polo-navy-01.jpg', 'images/signature-polo-navy-02.jpg', 'images/signature-polo-navy-03.jpg'],description:'A refined polo with clean proportions and understated Chevalier & Roth character.'},
+    {id:'p2',name:'Heritage Half-Zip',category:'Men',price:120,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige','Navy','Dark Brown'],stock:18,sku:'CR-HZ-002',badge:'BESTSELLER',active:true,images:['images/heritage-halfzip-beige-01.jpg', 'images/heritage-halfzip-beige-02.jpg', 'images/heritage-halfzip-beige-03.jpg'],description:'An elegant half-zip designed for a calm old-money wardrobe.'},
+    {id:'p3',name:'Tailored Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Stone','Black','Navy'],stock:16,sku:'CR-TR-003',badge:'',active:true,images:['images/tailored-trouser-stone-01.jpg', 'images/tailored-trouser-stone-02.jpg', 'images/tailored-trouser-stone-03.jpg'],description:'Comfortable tailored trousers with a clean leg and refined drape.'},
+    {id:'p4',name:'Maison Knit Top',category:'Women',price:95,salePrice:79,sizes:['XS','S','M','L'],colors:['Cream','Black','Brown'],stock:12,sku:'CR-WT-004',badge:'SALE',active:true,images:['images/maison-knit-top-cream-01.jpg', 'images/maison-knit-top-cream-02.jpg', 'images/maison-knit-top-cream-03.jpg'],description:'A minimalist knit top with polished lines and a premium visual language.'}
   ];
   const defaultCodes=[{code:'WELCOME10',percent:10,active:true,start:'',end:'',maxUses:100,uses:0,minOrder:0,products:[],categories:[]}];
   const get=(k,d)=>{try{const v=localStorage.getItem('cr_'+k);return v?JSON.parse(v):d}catch{return d}};
   const set=(k,v)=>localStorage.setItem('cr_'+k,JSON.stringify(v));
-  const products=()=>get('products',defaults);
+  const products=()=>{
+    let ps=get('products',defaults);
+    const imageDefaults={
+      p1:['images/signature-polo-navy-01.jpg','images/signature-polo-navy-02.jpg','images/signature-polo-navy-03.jpg'],
+      p2:['images/heritage-halfzip-beige-01.jpg','images/heritage-halfzip-beige-02.jpg','images/heritage-halfzip-beige-03.jpg'],
+      p3:['images/tailored-trouser-stone-01.jpg','images/tailored-trouser-stone-02.jpg','images/tailored-trouser-stone-03.jpg'],
+      p4:['images/maison-knit-top-cream-01.jpg','images/maison-knit-top-cream-02.jpg','images/maison-knit-top-cream-03.jpg']
+    };
+    let changed=false;
+    ps=ps.map(p=>{
+      if((!p.images || !p.images.length) && imageDefaults[p.id]){
+        changed=true; return {...p,images:imageDefaults[p.id]};
+      }
+      return p;
+    });
+    if(changed)set('products',ps);
+    return ps;
+  };
   const saveProducts=v=>set('products',v);
   const codes=()=>get('codes',defaultCodes);
   const saveCodes=v=>set('codes',v);

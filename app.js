@@ -32,7 +32,12 @@ function cookie(){
  document.body.insertAdjacentHTML('beforeend',`<div class="cookie show" id="cookie"><p>Only necessary local storage is used by default. Optional tracking must be added later and activated only after consent.</p><div><button class="btn light" onclick="consent(false)">DECLINE</button> <button class="btn" onclick="consent(true)">ACCEPT</button></div></div>`);
 }
 function consent(v){CRStore.set('consent',v);document.getElementById('cookie')?.remove()}
-function productCard(p){return `<article class="card"><a href="product.html?id=${encodeURIComponent(p.id)}"><div class="card-media">${p.images&&p.images[0]?`<img src="${CRStore.esc(p.images[0])}" alt="${CRStore.esc(p.name)}">`:`<div class="ph">CR</div>`}</div><div class="card-body"><div class="card-title">${CRStore.esc(p.name)}</div><div class="meta"><span>${CRStore.esc(p.category)}</span><span>${CRStore.money(CRStore.price(p))}</span></div>${p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:''}</div></a></article>`}
+function productCard(p){
+  const img=(p.images&&p.images[0])?CRStore.esc(p.images[0]):'';
+  return `<article class="card"><a href="product.html?id=${encodeURIComponent(p.id)}"><div class="card-media">
+    ${img?`<img src="${img}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
+  </div><div class="card-body"><div class="card-title">${CRStore.esc(p.name)}</div><div class="meta"><span>${CRStore.esc(p.category)}</span><span>${CRStore.money(CRStore.price(p))}</span></div>${p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:''}</div></a></article>`;
+}
 function renderProducts(target, filter=null, limit=999){let ps=CRStore.products().filter(p=>p.active);if(filter)ps=ps.filter(filter);document.querySelector(target).innerHTML=ps.slice(0,limit).map(productCard).join('')}
 document.addEventListener('DOMContentLoaded',()=>{header();footer();cookie();updateCartCount()});
 window.addEventListener('cartchange',updateCartCount);

@@ -27,3 +27,20 @@ Then enter paths such as:
 - images/polo-2.jpg
 
 in the Admin product editor.
+
+
+## Bilder sofort anzeigen
+
+Lege deine Bilder in den Ordner `images/`.
+Die vier Standardprodukte sind bereits mit festen Bildpfaden verbunden.
+
+Beispiel:
+`images/signature-polo-navy-01.jpg`
+
+Die Produktbilder werden direkt auf der Startseite und im Shop angezeigt. Man muss das Produkt nicht erst öffnen.
+
+Falls du die alte Website schon einmal im Browser geöffnet hattest:
+- Windows: Strg + F5
+- oder Browser-Cache für die Seite löschen
+
+Die Website aktualisiert außerdem alte gespeicherte Produktdaten automatisch, falls dort vorher keine Bildpfade hinterlegt waren.

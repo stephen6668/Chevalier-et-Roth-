@@ -47,3 +47,18 @@ img{max-width:100%;display:block} a{color:inherit}
 .admin-body{background:#111;color:white}.admin-header{padding:20px 26px;border-bottom:1px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center}.admin-main{max-width:1300px;margin:auto;padding:30px 24px}.admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{padding:20px;border:1px solid #2c2c2c;background:#181818}.stat b{display:block;font-family:Georgia,serif;font-size:32px}.admin-panel{margin-top:22px;background:#171717;border:1px solid #2b2b2b;padding:22px}.admin-table{width:100%;border-collapse:collapse}.admin-table th,.admin-table td{padding:11px;border-bottom:1px solid #2b2b2b;text-align:left;font-size:12px}.admin-input{width:100%;padding:10px;background:#101010;color:white;border:1px solid #353535}.admin-btn{padding:10px 14px;background:var(--gold);border:0;cursor:pointer}.login-box{max-width:440px;margin:100px auto;background:#171717;border:1px solid #2b2b2b;padding:28px}
 @media(max-width:1000px){.hero,.story,.product-page,.cart-layout{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.product-info{position:static}.admin-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.header-inner{padding:0 16px;grid-template-columns:auto 1fr auto}.nav{display:none}.burger{display:block}.brand span{display:none}.hero-copy{padding:55px 22px}.hero-media{min-height:380px}.section,.page{padding:58px 18px}.grid{grid-template-columns:1fr 1fr;gap:10px}.gallery{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.newsletter form{flex-direction:column}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.cookie.show{flex-direction:column;align-items:flex-start}.admin-grid{grid-template-columns:1fr 1fr}.trust{grid-template-columns:1fr}.trust div{border-right:0;border-bottom:1px solid var(--line)}}
+
+/* IMAGE FIX: images are visible immediately on cards and product pages */
+.card-media img{display:block!important;opacity:1!important;visibility:visible!important}
+.card-media{position:relative}
+.image-fallback{position:absolute;inset:0}
+.hero-media{
+  background-image:
+    linear-gradient(rgba(34,25,18,.14),rgba(34,25,18,.14)),
+    url('images/hero-home.jpg'),
+    linear-gradient(145deg,#d6c6af,#6f5746);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+.hero-media:before{position:relative;z-index:1}
