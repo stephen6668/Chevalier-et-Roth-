@@ -44,3 +44,21 @@ Falls du die alte Website schon einmal im Browser geöffnet hattest:
 - oder Browser-Cache für die Seite löschen
 
 Die Website aktualisiert außerdem alte gespeicherte Produktdaten automatisch, falls dort vorher keine Bildpfade hinterlegt waren.
+
+
+APPWRITE LOGIN / REGISTRATION
+-----------------------------
+Project ID: 6ac779cc001f0d093856
+Endpoint: https://fra.cloud.appwrite.io/v1
+
+In Appwrite Console you must add your GitHub Pages domain as a Web platform.
+Example hostname: stephen6668.github.io
+Also enable Email/Password authentication.
+
+The customer Account page now supports registration, login and logout through Appwrite.
+
+WAITLIST
+--------
+Every product card and product page has a JOIN WAITLIST button.
+For now, the selected products are stored in the signed-in user's Appwrite account preferences. This works across devices for that user.
+To create one central admin list of all waiting customers, create an Appwrite Database/Table for the waitlist and provide its database/table ID so the site can write entries there.
