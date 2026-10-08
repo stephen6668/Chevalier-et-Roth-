@@ -92,3 +92,57 @@ Project ID:
 
 Endpoint:
 https://fra.cloud.appwrite.io/v1
+
+
+EMAIL FIX
+---------
+Die frühere E-Mail-Prüfung hatte einen Fehler im regulären Ausdruck. Diese Version akzeptiert normale gültige E-Mail-Adressen wie name@gmail.com korrekt.
+
+ADMIN WAITLIST
+--------------
+admin.html enthält jetzt eine Wartelisten-Tabelle.
+Bei der reinen GitHub-Pages-Version kann sie nur Einträge aus demselben Browser anzeigen.
+Für eine echte zentrale Liste aller Besucher benötigen wir Appwrite Database + Collection + sichere Admin-Berechtigungen.
+
+
+=================================================
+ECHTE APPWRITE-WARTELISTE + APPWRITE-ADMIN
+=================================================
+
+Eingetragene IDs:
+Project ID: 6ac779cc001f0d093856
+Database ID: 6ac7d6740035408079f7
+Waitlist Table ID: 6ac7d6e1002f38269b6a
+Admin Team ID: 6ac7d7fc0029522fc7bf
+
+WAITLIST TABLE – benötigte Columns:
+userId       Varchar/Text   required
+name         Varchar/Text   required
+email        Email oder Varchar/Text required
+productId    Varchar/Text   required
+productName  Varchar/Text   required
+size         Varchar/Text   optional
+color        Varchar/Text   optional
+status       Varchar/Text   required, default "waiting"
+
+$createdAt wird automatisch von Appwrite angelegt.
+
+TABLE SETTINGS:
+1. Row security: ON
+2. Permissions:
+   - Users / authenticated users: CREATE
+   - Admin Team 6ac7d7fc0029522fc7bf: READ, UPDATE, DELETE
+   - Normale Kunden NICHT global READ geben.
+
+ADMIN:
+Dein echtes Admin-Konto muss in Appwrite Auth existieren und Mitglied im Team
+6ac7d7fc0029522fc7bf sein. admin.html prüft diese Team-Mitgliedschaft.
+
+KUNDEN:
+Kunden müssen eingeloggt sein, bevor sie sich auf die Warteliste setzen.
+Beim Eintragen wird eine echte Row in TablesDB angelegt.
+Im Kundenkonto bleibt zusätzlich eine kleine persönliche Liste in Appwrite Preferences gespeichert,
+damit der Kunde seine eigenen Einträge bequem sehen und entfernen kann.
+
+SICHERHEIT:
+Kein API-Key und kein Admin-Passwort ist im GitHub-Code gespeichert.

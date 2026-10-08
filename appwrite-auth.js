@@ -1,26 +1,36 @@
-// Chevalier & Roth · Appwrite authentication
+
+// Chevalier & Roth · Appwrite Auth + real waitlist (TablesDB)
 const CRAppwrite = (() => {
   const endpoint = 'https://fra.cloud.appwrite.io/v1';
   const projectId = '6ac779cc001f0d093856';
+  const databaseId = '6ac7d6740035408079f7';
+  const waitlistTableId = '6ac7d6e1002f38269b6a';
+  const adminTeamId = '6ac7d7fc0029522fc7bf';
+
   let client = null;
   let account = null;
+  let tablesDB = null;
+  let teams = null;
 
   function init(){
-    if(!window.Appwrite) throw new Error('Appwrite SDK konnte nicht geladen werden. Prüfe deine Internetverbindung.');
-    if(account) return {client,account};
+    if(!window.Appwrite) throw new Error('Appwrite SDK konnte nicht geladen werden.');
+    if(account) return {client,account,tablesDB,teams};
+
     client = new Appwrite.Client()
       .setEndpoint(endpoint)
       .setProject(projectId);
+
     account = new Appwrite.Account(client);
-    return {client,account};
+    tablesDB = new Appwrite.TablesDB(client);
+    teams = new Appwrite.Teams(client);
+
+    return {client,account,tablesDB,teams};
   }
 
-  function normalizeEmail(value){
-    return String(value || '').trim().toLowerCase();
-  }
+  const normalizeEmail = value => String(value || '').trim().toLowerCase();
 
   function validateEmail(email){
-    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   function withTimeout(promise, ms=15000, label='Appwrite request'){
@@ -34,29 +44,6 @@ const CRAppwrite = (() => {
     ]);
   }
 
-  async function diagnose(){
-    const result={
-      hostname: location.hostname || '(local file)',
-      protocol: location.protocol,
-      endpoint,
-      projectId,
-      sdkLoaded: !!window.Appwrite
-    };
-    try{
-      const response=await withTimeout(fetch(endpoint+'/account',{
-        method:'GET',
-        headers:{'X-Appwrite-Project':projectId},
-        credentials:'include'
-      }),8000,'Verbindungstest');
-      result.httpStatus=response.status;
-      result.reachable=true;
-    }catch(e){
-      result.reachable=false;
-      result.error=e.message || String(e);
-    }
-    return result;
-  }
-
   function explainError(err, fallback='Unbekannter Fehler'){
     console.error('[Chevalier & Roth / Appwrite]', err);
     const code = err && (err.code ?? err.status);
@@ -64,42 +51,30 @@ const CRAppwrite = (() => {
     const message = err && err.message ? err.message : fallback;
     let friendly = message;
 
-    if(message.includes('Missing required parameter')) {
-      friendly = 'Ein Pflichtfeld wurde nicht an Appwrite übergeben. Bitte prüfe E-Mail und Passwort.';
-    } else if(type === 'user_invalid_credentials') {
-      friendly = 'E-Mail oder Passwort ist falsch.';
-    } else if(type === 'user_already_exists') {
-      friendly = 'Für diese E-Mail existiert bereits ein Konto.';
-    } else if(type === 'password_recently_used') {
-      friendly = 'Bitte verwende ein anderes Passwort.';
-    } else if(type === 'general_argument_invalid') {
-      friendly = 'Mindestens eine Eingabe ist ungültig. Bitte prüfe E-Mail, Passwort und Name.';
-    } else if(type === 'appwrite_timeout') {
-      friendly = 'Appwrite antwortet nicht. Meist ist die GitHub-Pages-Domain in Appwrite noch nicht korrekt als Web Platform eingetragen oder die Verbindung wird blockiert.';
-    } else if(message.toLowerCase().includes('failed to fetch') || message.toLowerCase().includes('networkerror')) {
-      friendly = 'Die Verbindung zu Appwrite wurde vom Browser blockiert. Prüfe die Web Platform / Domain in Appwrite.';
-    } else if(message.toLowerCase().includes('cors') || message.toLowerCase().includes('hostname')) {
-      friendly = 'Appwrite blockiert die Domain. Füge deine GitHub-Pages-Domain als Web Platform in Appwrite hinzu.';
-    }
+    if(type === 'user_invalid_credentials') friendly = 'E-Mail oder Passwort ist falsch.';
+    else if(type === 'user_already_exists') friendly = 'Für diese E-Mail existiert bereits ein Konto.';
+    else if(type === 'appwrite_timeout') friendly = 'Appwrite antwortet nicht. Prüfe deine Web Platform und Internetverbindung.';
+    else if(type === 'row_unauthorized' || code === 401 || code === 403) friendly = 'Keine Berechtigung. Prüfe die Appwrite-Permissions der Waitlist-Tabelle.';
+    else if(message.toLowerCase().includes('column')) friendly = 'Die Waitlist-Tabelle hat noch nicht alle benötigten Spalten.';
+    else if(message.toLowerCase().includes('failed to fetch')) friendly = 'Verbindung zu Appwrite fehlgeschlagen. Prüfe die Web Platform in Appwrite.';
 
     const details = [type ? `Typ: ${type}` : '', code ? `Code: ${code}` : '', message ? `Appwrite: ${message}` : ''].filter(Boolean).join(' · ');
     return {friendly, details};
   }
 
   async function currentUser(){
-    try { init(); return await withTimeout(account.get(),10000,'Account-Status'); } catch(e){ return null; }
+    init();
+    try{return await withTimeout(account.get(),10000,'Account laden')}catch(e){return null}
   }
 
   async function register({name,email,password}){
     init();
-    const safeName = String(name || '').trim();
-    const safeEmail = normalizeEmail(email);
-    const safePassword = String(password || '');
+    const safeName=String(name||'').trim();
+    const safeEmail=normalizeEmail(email);
+    const safePassword=String(password||'');
 
     if(!safeName) throw new Error('Bitte deinen Namen eingeben.');
-    if(!safeEmail) throw new Error('Bitte deine E-Mail-Adresse eingeben.');
-    if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
-    if(!safePassword) throw new Error('Bitte ein Passwort eingeben.');
+    if(!safeEmail || !validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
     if(safePassword.length < 8) throw new Error('Das Passwort muss mindestens 8 Zeichen lang sein.');
 
     await withTimeout(account.create({
@@ -107,35 +82,34 @@ const CRAppwrite = (() => {
       email: safeEmail,
       password: safePassword,
       name: safeName
-    }),15000,'Konto-Erstellung');
+    }),15000,'Konto erstellen');
 
     await withTimeout(account.createEmailPasswordSession({
       email: safeEmail,
       password: safePassword
     }),15000,'Automatischer Login');
 
-    return withTimeout(account.get(),10000,'Account laden');
+    return currentUser();
   }
 
   async function login({email,password}){
     init();
-    const safeEmail = normalizeEmail(email);
-    const safePassword = String(password || '');
-
-    if(!safeEmail) throw new Error('Bitte deine E-Mail-Adresse eingeben.');
-    if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
+    const safeEmail=normalizeEmail(email);
+    const safePassword=String(password||'');
+    if(!safeEmail || !validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
     if(!safePassword) throw new Error('Bitte dein Passwort eingeben.');
 
     await withTimeout(account.createEmailPasswordSession({
-      email: safeEmail,
-      password: safePassword
+      email:safeEmail,
+      password:safePassword
     }),15000,'Login');
-    return withTimeout(account.get(),10000,'Account laden');
+
+    return currentUser();
   }
 
   async function logout(){
     init();
-    try{ await withTimeout(account.deleteSession({sessionId:'current'}),10000,'Logout'); }catch(e){ console.warn(e); }
+    try{await withTimeout(account.deleteSession({sessionId:'current'}),10000,'Logout')}catch(e){console.warn(e)}
   }
 
   async function getPrefs(){
@@ -148,33 +122,140 @@ const CRAppwrite = (() => {
     return withTimeout(account.updatePrefs({prefs}),10000,'Preferences speichern');
   }
 
+  async function isAdmin(){
+    init();
+    const user=await currentUser();
+    if(!user) return false;
+    try{
+      await withTimeout(teams.get({teamId:adminTeamId}),10000,'Admin-Team prüfen');
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
   async function addToWaitlist({productId,productName,name,email,size='',color=''}){
+    init();
     const user=await currentUser();
     if(!user) throw new Error('Bitte zuerst einloggen oder registrieren.');
+
+    const safeName=String(name||user.name||'').trim();
+    const safeEmail=normalizeEmail(email||user.email);
+    if(!safeName) throw new Error('Bitte einen Namen eingeben.');
+    if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
+
     const prefs=await getPrefs();
     const current=Array.isArray(prefs.waitlist)?prefs.waitlist:[];
     const key=[productId,size,color].join('|');
-    const exists=current.some(x=>[x.productId,x.size||'',x.color||''].join('|')===key);
+    const existing=current.find(x=>[x.productId,x.size||'',x.color||''].join('|')===key);
+
+    // If already on the waitlist, don't create a duplicate central row.
+    if(existing && existing.rowId) return current;
+
+    const row=await withTimeout(tablesDB.createRow({
+      databaseId,
+      tableId:waitlistTableId,
+      rowId:Appwrite.ID.unique(),
+      data:{
+        userId:user.$id,
+        name:safeName,
+        email:safeEmail,
+        productId:String(productId||''),
+        productName:String(productName||''),
+        size:String(size||''),
+        color:String(color||''),
+        status:'waiting'
+      },
+      permissions:[
+        Appwrite.Permission.read(Appwrite.Role.user(user.$id)),
+        Appwrite.Permission.delete(Appwrite.Role.user(user.$id))
+      ]
+    }),15000,'Warteliste speichern');
+
     const entry={
+      rowId:row.$id,
       productId,
       productName,
-      name:String(name||user.name||'').trim(),
-      email:normalizeEmail(email||user.email),
+      name:safeName,
+      email:safeEmail,
       size,
       color,
-      createdAt:new Date().toISOString()
+      status:'waiting',
+      createdAt:row.$createdAt
     };
-    const waitlist=exists?current.map(x=>[x.productId,x.size||'',x.color||''].join('|')===key?entry:x):[...current,entry];
+
+    const waitlist=existing
+      ? current.map(x=>[x.productId,x.size||'',x.color||''].join('|')===key?entry:x)
+      : [...current,entry];
+
     await updatePrefs({...prefs,waitlist});
     return waitlist;
   }
 
   async function removeFromWaitlist(productId,size='',color=''){
+    init();
+    const user=await currentUser();
+    if(!user) throw new Error('Bitte zuerst einloggen.');
+
     const prefs=await getPrefs();
-    const waitlist=(Array.isArray(prefs.waitlist)?prefs.waitlist:[]).filter(x=>!(x.productId===productId&&(x.size||'')===size&&(x.color||'')===color));
+    const current=Array.isArray(prefs.waitlist)?prefs.waitlist:[];
+    const target=current.find(x=>x.productId===productId&&(x.size||'')===size&&(x.color||'')===color);
+
+    if(target?.rowId){
+      await withTimeout(tablesDB.deleteRow({
+        databaseId,
+        tableId:waitlistTableId,
+        rowId:target.rowId
+      }),15000,'Wartelisteneintrag löschen');
+    }
+
+    const waitlist=current.filter(x=>!(x.productId===productId&&(x.size||'')===size&&(x.color||'')===color));
     await updatePrefs({...prefs,waitlist});
     return waitlist;
   }
 
-  return {endpoint,projectId,init,currentUser,register,login,logout,getPrefs,updatePrefs,addToWaitlist,removeFromWaitlist,explainError,diagnose};
+  async function listAdminWaitlist(){
+    init();
+    if(!await isAdmin()) throw new Error('Du bist kein Mitglied des Appwrite-Admin-Teams.');
+
+    const result=await withTimeout(tablesDB.listRows({
+      databaseId,
+      tableId:waitlistTableId,
+      queries:[
+        Appwrite.Query.orderDesc('$createdAt'),
+        Appwrite.Query.limit(500)
+      ]
+    }),15000,'Warteliste laden');
+
+    return result.rows || [];
+  }
+
+  async function updateWaitlistStatus(rowId,status){
+    init();
+    if(!await isAdmin()) throw new Error('Keine Admin-Berechtigung.');
+    return withTimeout(tablesDB.updateRow({
+      databaseId,
+      tableId:waitlistTableId,
+      rowId,
+      data:{status:String(status||'waiting')}
+    }),15000,'Status aktualisieren');
+  }
+
+  async function deleteAdminWaitlistRow(rowId){
+    init();
+    if(!await isAdmin()) throw new Error('Keine Admin-Berechtigung.');
+    return withTimeout(tablesDB.deleteRow({
+      databaseId,
+      tableId:waitlistTableId,
+      rowId
+    }),15000,'Wartelisteneintrag löschen');
+  }
+
+  return {
+    endpoint,projectId,databaseId,waitlistTableId,adminTeamId,
+    init,currentUser,register,login,logout,getPrefs,updatePrefs,
+    isAdmin,addToWaitlist,removeFromWaitlist,
+    listAdminWaitlist,updateWaitlistStatus,deleteAdminWaitlistRow,
+    explainError
+  };
 })();
