@@ -62,3 +62,12 @@ WAITLIST
 Every product card and product page has a JOIN WAITLIST button.
 For now, the selected products are stored in the signed-in user's Appwrite account preferences. This works across devices for that user.
 To create one central admin list of all waiting customers, create an Appwrite Database/Table for the waitlist and provide its database/table ID so the site can write entries there.
+
+
+APPWRITE LOGIN DEBUG UPDATE
+---------------------------
+Die Login- und Registrierungsformulare validieren E-Mail/Passwort jetzt vor dem Request.
+Appwrite-Fehler werden unter dem Formular mit Fehler-Typ, Code und Originalmeldung angezeigt.
+Zusätzlich erscheint der vollständige Fehler mit F12 -> Console.
+
+Wenn ein CORS-/Domainfehler erscheint, in Appwrite die GitHub-Pages-Domain als Web Platform hinzufügen.

@@ -6,38 +6,108 @@ const CRAppwrite = (() => {
   let account = null;
 
   function init(){
-    if(!window.Appwrite) throw new Error('Appwrite SDK konnte nicht geladen werden.');
+    if(!window.Appwrite) throw new Error('Appwrite SDK konnte nicht geladen werden. Prüfe deine Internetverbindung.');
     if(account) return {client,account};
-    client = new Appwrite.Client().setEndpoint(endpoint).setProject(projectId);
+    client = new Appwrite.Client()
+      .setEndpoint(endpoint)
+      .setProject(projectId);
     account = new Appwrite.Account(client);
     return {client,account};
   }
+
+  function normalizeEmail(value){
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function validateEmail(email){
+    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+  }
+
+  function explainError(err, fallback='Unbekannter Fehler'){
+    console.error('[Chevalier & Roth / Appwrite]', err);
+    const code = err && (err.code ?? err.status);
+    const type = err && err.type;
+    const message = err && err.message ? err.message : fallback;
+    let friendly = message;
+
+    if(message.includes('Missing required parameter')) {
+      friendly = 'Ein Pflichtfeld wurde nicht an Appwrite übergeben. Bitte prüfe E-Mail und Passwort.';
+    } else if(type === 'user_invalid_credentials') {
+      friendly = 'E-Mail oder Passwort ist falsch.';
+    } else if(type === 'user_already_exists') {
+      friendly = 'Für diese E-Mail existiert bereits ein Konto.';
+    } else if(type === 'password_recently_used') {
+      friendly = 'Bitte verwende ein anderes Passwort.';
+    } else if(type === 'general_argument_invalid') {
+      friendly = 'Mindestens eine Eingabe ist ungültig. Bitte prüfe E-Mail, Passwort und Name.';
+    } else if(message.toLowerCase().includes('cors') || message.toLowerCase().includes('hostname')) {
+      friendly = 'Appwrite blockiert die Domain. Füge deine GitHub-Pages-Domain als Web Platform in Appwrite hinzu.';
+    }
+
+    const details = [type ? `Typ: ${type}` : '', code ? `Code: ${code}` : '', message ? `Appwrite: ${message}` : ''].filter(Boolean).join(' · ');
+    return {friendly, details};
+  }
+
   async function currentUser(){
     try { init(); return await account.get(); } catch(e){ return null; }
   }
+
   async function register({name,email,password}){
     init();
-    await account.create({userId: Appwrite.ID.unique(), email, password, name});
-    await account.createEmailPasswordSession({email,password});
+    const safeName = String(name || '').trim();
+    const safeEmail = normalizeEmail(email);
+    const safePassword = String(password || '');
+
+    if(!safeName) throw new Error('Bitte deinen Namen eingeben.');
+    if(!safeEmail) throw new Error('Bitte deine E-Mail-Adresse eingeben.');
+    if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
+    if(!safePassword) throw new Error('Bitte ein Passwort eingeben.');
+    if(safePassword.length < 8) throw new Error('Das Passwort muss mindestens 8 Zeichen lang sein.');
+
+    await account.create({
+      userId: Appwrite.ID.unique(),
+      email: safeEmail,
+      password: safePassword,
+      name: safeName
+    });
+    await account.createEmailPasswordSession({
+      email: safeEmail,
+      password: safePassword
+    });
     return account.get();
   }
+
   async function login({email,password}){
     init();
-    await account.createEmailPasswordSession({email,password});
+    const safeEmail = normalizeEmail(email);
+    const safePassword = String(password || '');
+
+    if(!safeEmail) throw new Error('Bitte deine E-Mail-Adresse eingeben.');
+    if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
+    if(!safePassword) throw new Error('Bitte dein Passwort eingeben.');
+
+    await account.createEmailPasswordSession({
+      email: safeEmail,
+      password: safePassword
+    });
     return account.get();
   }
+
   async function logout(){
     init();
-    try{ await account.deleteSession({sessionId:'current'}); }catch(e){}
+    try{ await account.deleteSession({sessionId:'current'}); }catch(e){ console.warn(e); }
   }
+
   async function getPrefs(){
     init();
     try{return await account.getPrefs()}catch(e){return {}}
   }
+
   async function updatePrefs(prefs){
     init();
     return account.updatePrefs({prefs});
   }
+
   async function addToWaitlist({productId,productName,name,email,size='',color=''}){
     const user=await currentUser();
     if(!user) throw new Error('Bitte zuerst einloggen oder registrieren.');
@@ -45,16 +115,26 @@ const CRAppwrite = (() => {
     const current=Array.isArray(prefs.waitlist)?prefs.waitlist:[];
     const key=[productId,size,color].join('|');
     const exists=current.some(x=>[x.productId,x.size||'',x.color||''].join('|')===key);
-    const entry={productId,productName,name:name||user.name,email:email||user.email,size,color,createdAt:new Date().toISOString()};
+    const entry={
+      productId,
+      productName,
+      name:String(name||user.name||'').trim(),
+      email:normalizeEmail(email||user.email),
+      size,
+      color,
+      createdAt:new Date().toISOString()
+    };
     const waitlist=exists?current.map(x=>[x.productId,x.size||'',x.color||''].join('|')===key?entry:x):[...current,entry];
     await updatePrefs({...prefs,waitlist});
     return waitlist;
   }
+
   async function removeFromWaitlist(productId,size='',color=''){
     const prefs=await getPrefs();
     const waitlist=(Array.isArray(prefs.waitlist)?prefs.waitlist:[]).filter(x=>!(x.productId===productId&&(x.size||'')===size&&(x.color||'')===color));
     await updatePrefs({...prefs,waitlist});
     return waitlist;
   }
-  return {endpoint,projectId,init,currentUser,register,login,logout,getPrefs,updatePrefs,addToWaitlist,removeFromWaitlist};
+
+  return {endpoint,projectId,init,currentUser,register,login,logout,getPrefs,updatePrefs,addToWaitlist,removeFromWaitlist,explainError};
 })();
