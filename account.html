@@ -21,7 +21,7 @@ async function doLogin(e){
   const password=document.getElementById('loginPassword').value;
   const msg=document.getElementById('loginMsg');
   const debug=document.getElementById('loginDebug');
-  msg.textContent='Logging in…';debug.textContent='';
+  msg.textContent='Logging in…';debug.textContent='E-Mail wird gesendet als: '+email;
   try{
     await CRAppwrite.login({email,password});
     msg.textContent='';
@@ -42,7 +42,7 @@ async function doRegister(e){
   const password=document.getElementById('regPassword').value;
   const msg=document.getElementById('regMsg');
   const debug=document.getElementById('regDebug');
-  msg.textContent='Creating account…';debug.textContent='';
+  msg.textContent='Creating account…';debug.textContent='E-Mail wird gesendet als: '+email;
   try{
     await CRAppwrite.register({name,email,password});
     msg.textContent='';

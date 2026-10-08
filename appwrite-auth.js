@@ -62,6 +62,29 @@ const CRAppwrite = (() => {
     return {friendly, details};
   }
 
+
+  async function diagnose(){
+    const result={
+      hostname: location.hostname || '(local file)',
+      endpoint,
+      projectId,
+      sdkLoaded: !!window.Appwrite
+    };
+    try{
+      init();
+      const response=await withTimeout(fetch(endpoint+'/health/version',{
+        method:'GET',
+        headers:{'X-Appwrite-Project':projectId}
+      }),8000,'Verbindungstest');
+      result.reachable=response.ok;
+      result.httpStatus=response.status;
+    }catch(e){
+      result.reachable=false;
+      result.error=e.message||String(e);
+    }
+    return result;
+  }
+
   async function currentUser(){
     init();
     try{return await withTimeout(account.get(),10000,'Account laden')}catch(e){return null}
@@ -77,17 +100,17 @@ const CRAppwrite = (() => {
     if(!safeEmail || !validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
     if(safePassword.length < 8) throw new Error('Das Passwort muss mindestens 8 Zeichen lang sein.');
 
-    await withTimeout(account.create({
-      userId: Appwrite.ID.unique(),
-      email: safeEmail,
-      password: safePassword,
-      name: safeName
-    }),15000,'Konto erstellen');
+    await withTimeout(account.create(
+      Appwrite.ID.unique(),
+      safeEmail,
+      safePassword,
+      safeName
+    ),15000,'Konto erstellen');
 
-    await withTimeout(account.createEmailPasswordSession({
-      email: safeEmail,
-      password: safePassword
-    }),15000,'Automatischer Login');
+    await withTimeout(account.createEmailPasswordSession(
+      safeEmail,
+      safePassword
+    ),15000,'Automatischer Login');
 
     return currentUser();
   }
@@ -99,17 +122,17 @@ const CRAppwrite = (() => {
     if(!safeEmail || !validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
     if(!safePassword) throw new Error('Bitte dein Passwort eingeben.');
 
-    await withTimeout(account.createEmailPasswordSession({
-      email:safeEmail,
-      password:safePassword
-    }),15000,'Login');
+    await withTimeout(account.createEmailPasswordSession(
+      safeEmail,
+      safePassword
+    ),15000,'Login');
 
     return currentUser();
   }
 
   async function logout(){
     init();
-    try{await withTimeout(account.deleteSession({sessionId:'current'}),10000,'Logout')}catch(e){console.warn(e)}
+    try{await withTimeout(account.deleteSession('current'),10000,'Logout')}catch(e){console.warn(e)}
   }
 
   async function getPrefs(){
@@ -119,7 +142,7 @@ const CRAppwrite = (() => {
 
   async function updatePrefs(prefs){
     init();
-    return withTimeout(account.updatePrefs({prefs}),10000,'Preferences speichern');
+    return withTimeout(account.updatePrefs(prefs),10000,'Preferences speichern');
   }
 
   async function isAdmin(){
@@ -127,7 +150,7 @@ const CRAppwrite = (() => {
     const user=await currentUser();
     if(!user) return false;
     try{
-      await withTimeout(teams.get({teamId:adminTeamId}),10000,'Admin-Team prüfen');
+      await withTimeout(teams.get(adminTeamId),10000,'Admin-Team prüfen');
       return true;
     }catch(e){
       return false;
@@ -253,7 +276,7 @@ const CRAppwrite = (() => {
 
   return {
     endpoint,projectId,databaseId,waitlistTableId,adminTeamId,
-    init,currentUser,register,login,logout,getPrefs,updatePrefs,
+    init,diagnose,currentUser,register,login,logout,getPrefs,updatePrefs,
     isAdmin,addToWaitlist,removeFromWaitlist,
     listAdminWaitlist,updateWaitlistStatus,deleteAdminWaitlistRow,
     explainError

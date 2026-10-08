@@ -146,3 +146,20 @@ damit der Kunde seine eigenen Einträge bequem sehen und entfernen kann.
 
 SICHERHEIT:
 Kein API-Key und kein Admin-Passwort ist im GitHub-Code gespeichert.
+
+
+APPWRITE AUTH SYNTAX FIX
+-----------------------
+Die Registrierung und der Login wurden für das eingebundene Appwrite Web SDK v17 korrigiert.
+
+Wichtig:
+account.create(...) verwendet jetzt:
+account.create(ID.unique(), email, password, name)
+
+Login verwendet:
+account.createEmailPasswordSession(email, password)
+
+Der Fehler "Missing required parameter: email" entstand, weil vorher ein Objekt an eine SDK-Version übergeben wurde,
+die an dieser Stelle Positionsparameter erwartet.
+
+Nach dem Upload auf GitHub: Strg + F5.
