@@ -23,6 +23,40 @@ const CRAppwrite = (() => {
     return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
   }
 
+  function withTimeout(promise, ms=15000, label='Appwrite request'){
+    return Promise.race([
+      promise,
+      new Promise((_, reject)=>setTimeout(()=>{
+        const e=new Error(label+' hat nach '+Math.round(ms/1000)+' Sekunden nicht geantwortet.');
+        e.type='appwrite_timeout';
+        reject(e);
+      }, ms))
+    ]);
+  }
+
+  async function diagnose(){
+    const result={
+      hostname: location.hostname || '(local file)',
+      protocol: location.protocol,
+      endpoint,
+      projectId,
+      sdkLoaded: !!window.Appwrite
+    };
+    try{
+      const response=await withTimeout(fetch(endpoint+'/account',{
+        method:'GET',
+        headers:{'X-Appwrite-Project':projectId},
+        credentials:'include'
+      }),8000,'Verbindungstest');
+      result.httpStatus=response.status;
+      result.reachable=true;
+    }catch(e){
+      result.reachable=false;
+      result.error=e.message || String(e);
+    }
+    return result;
+  }
+
   function explainError(err, fallback='Unbekannter Fehler'){
     console.error('[Chevalier & Roth / Appwrite]', err);
     const code = err && (err.code ?? err.status);
@@ -40,6 +74,10 @@ const CRAppwrite = (() => {
       friendly = 'Bitte verwende ein anderes Passwort.';
     } else if(type === 'general_argument_invalid') {
       friendly = 'Mindestens eine Eingabe ist ungültig. Bitte prüfe E-Mail, Passwort und Name.';
+    } else if(type === 'appwrite_timeout') {
+      friendly = 'Appwrite antwortet nicht. Meist ist die GitHub-Pages-Domain in Appwrite noch nicht korrekt als Web Platform eingetragen oder die Verbindung wird blockiert.';
+    } else if(message.toLowerCase().includes('failed to fetch') || message.toLowerCase().includes('networkerror')) {
+      friendly = 'Die Verbindung zu Appwrite wurde vom Browser blockiert. Prüfe die Web Platform / Domain in Appwrite.';
     } else if(message.toLowerCase().includes('cors') || message.toLowerCase().includes('hostname')) {
       friendly = 'Appwrite blockiert die Domain. Füge deine GitHub-Pages-Domain als Web Platform in Appwrite hinzu.';
     }
@@ -49,7 +87,7 @@ const CRAppwrite = (() => {
   }
 
   async function currentUser(){
-    try { init(); return await account.get(); } catch(e){ return null; }
+    try { init(); return await withTimeout(account.get(),10000,'Account-Status'); } catch(e){ return null; }
   }
 
   async function register({name,email,password}){
@@ -64,17 +102,19 @@ const CRAppwrite = (() => {
     if(!safePassword) throw new Error('Bitte ein Passwort eingeben.');
     if(safePassword.length < 8) throw new Error('Das Passwort muss mindestens 8 Zeichen lang sein.');
 
-    await account.create({
+    await withTimeout(account.create({
       userId: Appwrite.ID.unique(),
       email: safeEmail,
       password: safePassword,
       name: safeName
-    });
-    await account.createEmailPasswordSession({
+    }),15000,'Konto-Erstellung');
+
+    await withTimeout(account.createEmailPasswordSession({
       email: safeEmail,
       password: safePassword
-    });
-    return account.get();
+    }),15000,'Automatischer Login');
+
+    return withTimeout(account.get(),10000,'Account laden');
   }
 
   async function login({email,password}){
@@ -86,26 +126,26 @@ const CRAppwrite = (() => {
     if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
     if(!safePassword) throw new Error('Bitte dein Passwort eingeben.');
 
-    await account.createEmailPasswordSession({
+    await withTimeout(account.createEmailPasswordSession({
       email: safeEmail,
       password: safePassword
-    });
-    return account.get();
+    }),15000,'Login');
+    return withTimeout(account.get(),10000,'Account laden');
   }
 
   async function logout(){
     init();
-    try{ await account.deleteSession({sessionId:'current'}); }catch(e){ console.warn(e); }
+    try{ await withTimeout(account.deleteSession({sessionId:'current'}),10000,'Logout'); }catch(e){ console.warn(e); }
   }
 
   async function getPrefs(){
     init();
-    try{return await account.getPrefs()}catch(e){return {}}
+    try{return await withTimeout(account.getPrefs(),10000,'Preferences laden')}catch(e){return {}}
   }
 
   async function updatePrefs(prefs){
     init();
-    return account.updatePrefs({prefs});
+    return withTimeout(account.updatePrefs({prefs}),10000,'Preferences speichern');
   }
 
   async function addToWaitlist({productId,productName,name,email,size='',color=''}){
@@ -136,5 +176,5 @@ const CRAppwrite = (() => {
     return waitlist;
   }
 
-  return {endpoint,projectId,init,currentUser,register,login,logout,getPrefs,updatePrefs,addToWaitlist,removeFromWaitlist,explainError};
+  return {endpoint,projectId,init,currentUser,register,login,logout,getPrefs,updatePrefs,addToWaitlist,removeFromWaitlist,explainError,diagnose};
 })();

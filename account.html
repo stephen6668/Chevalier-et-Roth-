@@ -1,8 +1,9 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth Kundenkonto"><title>Account · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script><script src="appwrite-auth.js"></script><script src="app.js" defer></script></head><body>
 <main class="account-shell"><div class="eyebrow">CUSTOMER ACCOUNT</div><h1 class="page-title">My Account</h1>
+<div class="notice" id="connectionBox">Appwrite-Verbindung wird geprüft…</div>
 <section id="authArea" class="auth-grid">
-  <form class="auth-card" onsubmit="doLogin(event)"><div class="eyebrow">RETURNING CUSTOMER</div><h2>Login</h2><p>Melde dich mit deiner E-Mail-Adresse und deinem Passwort an.</p><label class="field"><span>E-Mail</span><input id="loginEmail" type="email" autocomplete="email" required></label><label class="field" style="margin-top:12px"><span>Passwort</span><input id="loginPassword" type="password" autocomplete="current-password" minlength="8" required></label><button class="btn" style="width:100%;margin-top:16px">LOGIN</button><div class="auth-message" id="loginMsg"></div><div class="auth-debug" id="loginDebug"></div></form>
-  <form class="auth-card" onsubmit="doRegister(event)"><div class="eyebrow">NEW CUSTOMER</div><h2>Register</h2><p>Erstelle dein Chevalier-&-Roth-Konto.</p><label class="field"><span>Name</span><input id="regName" autocomplete="name" required></label><label class="field" style="margin-top:12px"><span>E-Mail</span><input id="regEmail" type="email" autocomplete="email" required></label><label class="field" style="margin-top:12px"><span>Passwort</span><input id="regPassword" type="password" autocomplete="new-password" minlength="8" required></label><button class="btn" style="width:100%;margin-top:16px">CREATE ACCOUNT</button><div class="auth-message" id="regMsg"></div><div class="auth-debug" id="regDebug"></div></form>
+  <form class="auth-card" onsubmit="doLogin(event)"><div class="eyebrow">RETURNING CUSTOMER</div><h2>Login</h2><p>Melde dich mit deiner E-Mail-Adresse und deinem Passwort an.</p><label class="field"><span>E-Mail</span><input id="loginEmail" type="email" autocomplete="email" required></label><label class="field" style="margin-top:12px"><span>Passwort</span><input id="loginPassword" type="password" autocomplete="current-password" minlength="8" required></label><button id="loginBtn" class="btn" style="width:100%;margin-top:16px">LOGIN</button><div class="auth-message" id="loginMsg"></div><div class="auth-debug" id="loginDebug"></div></form>
+  <form class="auth-card" onsubmit="doRegister(event)"><div class="eyebrow">NEW CUSTOMER</div><h2>Register</h2><p>Erstelle dein Chevalier-&-Roth-Konto.</p><label class="field"><span>Name</span><input id="regName" autocomplete="name" required></label><label class="field" style="margin-top:12px"><span>E-Mail</span><input id="regEmail" type="email" autocomplete="email" required></label><label class="field" style="margin-top:12px"><span>Passwort</span><input id="regPassword" type="password" autocomplete="new-password" minlength="8" required></label><button id="registerBtn" class="btn" style="width:100%;margin-top:16px">CREATE ACCOUNT</button><div class="auth-message" id="regMsg"></div><div class="auth-debug" id="regDebug"></div></form>
 </section>
 <section class="account-panel" id="accountPanel"><div class="eyebrow">SIGNED IN</div><h2 style="font-family:Georgia,serif;font-size:42px;font-weight:400;margin:8px 0" id="helloUser"></h2><div class="account-meta"><div><small>NAME</small><br><b id="userName"></b></div><div><small>EMAIL</small><br><b id="userEmail"></b></div></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="doLogout()">LOGOUT</button><a class="btn light" href="shop.html">CONTINUE SHOPPING</a></div><hr style="margin:30px 0;border:0;border-top:1px solid var(--line)"><div class="eyebrow">MY WAITLIST</div><h2 style="font-family:Georgia,serif;font-size:36px;font-weight:400">Saved pieces</h2><div id="myWaitlist" class="waitlist-list"></div></section>
 </main>
@@ -15,6 +16,7 @@ async function loadAccount(){
 }
 async function doLogin(e){
   e.preventDefault();
+  loginBtn.disabled=true;
   const email=document.getElementById('loginEmail').value.trim();
   const password=document.getElementById('loginPassword').value;
   const msg=document.getElementById('loginMsg');
@@ -28,10 +30,13 @@ async function doLogin(e){
     const info=CRAppwrite.explainError(err,'Login failed.');
     msg.textContent=info.friendly;
     debug.textContent=info.details;
+  }finally{
+    loginBtn.disabled=false;
   }
 }
 async function doRegister(e){
   e.preventDefault();
+  registerBtn.disabled=true;
   const name=document.getElementById('regName').value.trim();
   const email=document.getElementById('regEmail').value.trim();
   const password=document.getElementById('regPassword').value;
@@ -46,10 +51,27 @@ async function doRegister(e){
     const info=CRAppwrite.explainError(err,'Registration failed.');
     msg.textContent=info.friendly;
     debug.textContent=info.details;
+  }finally{
+    registerBtn.disabled=false;
   }
 }
 async function doLogout(){await CRAppwrite.logout();location.reload()}
 async function renderMyWaitlist(){const prefs=await CRAppwrite.getPrefs();const list=Array.isArray(prefs.waitlist)?prefs.waitlist:[];myWaitlist.innerHTML=list.length?list.map(x=>`<div class="waitlist-item"><div><b>${CRStore.esc(x.productName||x.productId)}</b><p>${CRStore.esc(x.size||'No size')} · ${CRStore.esc(x.color||'No colour')}</p><small>${CRStore.esc(x.email||'')}</small></div><button class="btn light" onclick="removeWait('${CRStore.esc(x.productId)}','${CRStore.esc(x.size||'')}','${CRStore.esc(x.color||'')}')">REMOVE</button></div>`).join(''):'<p>No products on your waitlist yet.</p>'}
 async function removeWait(id,size,color){await CRAppwrite.removeFromWaitlist(id,size,color);renderMyWaitlist()}
-document.addEventListener('DOMContentLoaded',loadAccount);
+async function showConnectionStatus(){
+  const box=document.getElementById('connectionBox');
+  try{
+    const d=await CRAppwrite.diagnose();
+    if(d.reachable){
+      box.innerHTML='✓ Appwrite ist erreichbar. Hostname: <b>'+CRStore.esc(d.hostname)+'</b> · HTTP '+d.httpStatus;
+      box.style.background='#edf8ee';
+      box.style.borderColor='#b7d8bb';
+    }else{
+      box.innerHTML='⚠ Appwrite-Verbindung fehlgeschlagen.<br><b>Hostname:</b> '+CRStore.esc(d.hostname)+'<br><b>Fehler:</b> '+CRStore.esc(d.error||'Unbekannt')+'<br>Prüfe in Appwrite: Project → Platforms → Web → Hostname <b>'+CRStore.esc(d.hostname)+'</b>';
+    }
+  }catch(e){
+    box.textContent='Appwrite-Diagnose fehlgeschlagen: '+(e.message||e);
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{showConnectionStatus();loadAccount();});
 </script></body></html>

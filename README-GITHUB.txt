@@ -71,3 +71,24 @@ Appwrite-Fehler werden unter dem Formular mit Fehler-Typ, Code und Originalmeldu
 Zusätzlich erscheint der vollständige Fehler mit F12 -> Console.
 
 Wenn ein CORS-/Domainfehler erscheint, in Appwrite die GitHub-Pages-Domain als Web Platform hinzufügen.
+
+
+APPWRITE: "Creating account..." bleibt hängen
+----------------------------------------------
+Diese Version beendet Appwrite-Anfragen automatisch nach 15 Sekunden und zeigt dann einen verständlichen Fehler.
+
+Auf account.html erscheint oben ein Verbindungstest.
+Wenn dort "Appwrite-Verbindung fehlgeschlagen" steht:
+1. Appwrite Console öffnen.
+2. Dein Projekt öffnen.
+3. Platforms / Add platform / Web.
+4. Als Hostname exakt den auf der Website angezeigten Hostnamen eintragen.
+   Für GitHub Pages meistens: stephen6668.github.io
+5. Speichern.
+6. GitHub-Seite mit Strg+F5 neu laden.
+
+Project ID:
+6ac779cc001f0d093856
+
+Endpoint:
+https://fra.cloud.appwrite.io/v1
