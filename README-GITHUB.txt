@@ -163,3 +163,26 @@ Der Fehler "Missing required parameter: email" entstand, weil vorher ein Objekt 
 die an dieser Stelle Positionsparameter erwartet.
 
 Nach dem Upload auf GitHub: Strg + F5.
+
+
+TABLESDB FIX
+------------
+Fehler:
+"Appwrite.TablesDB is not a constructor"
+oder
+"Cannot read properties of null (reading createRow)"
+
+Ursache:
+Die Website hat vorher Appwrite Web SDK 17.0.0 geladen. Diese alte Browser-Version enthält TablesDB nicht.
+Die Website lädt jetzt Appwrite Web SDK 27.0.0.
+
+Nach dem Hochladen auf GitHub:
+1. Alle neuen Dateien ersetzen.
+2. GitHub Pages kurz warten lassen.
+3. Website mit STRG + F5 neu laden.
+4. Falls nötig Browser-Cache für stephen6668.github.io löschen.
+
+Die Konto-Seite zeigt jetzt zusätzlich:
+TablesDB: OK
+
+Erst wenn dort "TablesDB: OK" steht, sollte die echte Warteliste getestet werden.

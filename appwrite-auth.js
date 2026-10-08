@@ -21,6 +21,14 @@ const CRAppwrite = (() => {
       .setProject(projectId);
 
     account = new Appwrite.Account(client);
+
+    if(typeof Appwrite.TablesDB !== 'function'){
+      throw new Error(
+        'Die geladene Appwrite-Web-SDK-Version unterstützt TablesDB nicht. ' +
+        'Bitte lade die Seite mit Strg+F5 neu. Erwartet wird Appwrite Web SDK 27.0.0.'
+      );
+    }
+
     tablesDB = new Appwrite.TablesDB(client);
     teams = new Appwrite.Teams(client);
 
@@ -68,7 +76,8 @@ const CRAppwrite = (() => {
       hostname: location.hostname || '(local file)',
       endpoint,
       projectId,
-      sdkLoaded: !!window.Appwrite
+      sdkLoaded: !!window.Appwrite,
+      tablesDbAvailable: !!(window.Appwrite && typeof Appwrite.TablesDB === 'function')
     };
     try{
       init();
@@ -78,6 +87,7 @@ const CRAppwrite = (() => {
       }),8000,'Verbindungstest');
       result.reachable=response.ok;
       result.httpStatus=response.status;
+      result.tablesDbAvailable=!!(window.Appwrite && typeof Appwrite.TablesDB === 'function');
     }catch(e){
       result.reachable=false;
       result.error=e.message||String(e);

@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth Kundenkonto"><title>Account · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script><script src="appwrite-auth.js"></script><script src="app.js" defer></script></head><body>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth Kundenkonto"><title>Account · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="app.js" defer></script></head><body>
 <main class="account-shell"><div class="eyebrow">CUSTOMER ACCOUNT</div><h1 class="page-title">My Account</h1>
 <div class="notice" id="connectionBox">Appwrite-Verbindung wird geprüft…</div>
 <section id="authArea" class="auth-grid">
@@ -63,7 +63,8 @@ async function showConnectionStatus(){
   try{
     const d=await CRAppwrite.diagnose();
     if(d.reachable){
-      box.innerHTML='✓ Appwrite ist erreichbar. Hostname: <b>'+CRStore.esc(d.hostname)+'</b> · HTTP '+d.httpStatus;
+      box.innerHTML='✓ Appwrite ist erreichbar. Hostname: <b>'+CRStore.esc(d.hostname)+'</b> · HTTP '+d.httpStatus+
+      ' · TablesDB: <b>'+(d.tablesDbAvailable?'OK':'NICHT GELADEN')+'</b>';
       box.style.background='#edf8ee';
       box.style.borderColor='#b7d8bb';
     }else{
