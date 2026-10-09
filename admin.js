@@ -296,10 +296,6 @@ async function downloadWaitlistPDF(){
     const pageW=doc.internal.pageSize.getWidth();
     const pageH=doc.internal.pageSize.getHeight();
     const generated=new Date();
-    const generatedText=generated.toLocaleString('de-LU',{
-      day:'2-digit',month:'2-digit',year:'numeric',
-      hour:'2-digit',minute:'2-digit'
-    });
 
     // Header brand block
     let logoAdded=false;
@@ -329,7 +325,7 @@ async function downloadWaitlistPDF(){
     doc.setFont('helvetica','normal');
     doc.setFontSize(8.5);
     doc.setTextColor(...muted);
-    doc.text(`Official Admin Export · Generated ${generatedText}`,15,49);
+    doc.text('Official Admin Export',15,49);
     doc.text(`Total waitlist entries: ${rows.length}`,15,54);
 
     // Product summary on the right
@@ -364,16 +360,12 @@ async function downloadWaitlistPDF(){
       pdfSafe(w.email||''),
       pdfSafe(w.size||'-'),
       pdfSafe(w.color||'-'),
-      pdfSafe(w.status||'waiting'),
-      w.$createdAt ? new Date(w.$createdAt).toLocaleString('de-LU',{
-        day:'2-digit',month:'2-digit',year:'numeric',
-        hour:'2-digit',minute:'2-digit'
-      }) : '-'
+      pdfSafe(w.status||'waiting')
     ]);
 
     doc.autoTable({
       startY:64,
-      head:[['#','Product','Name','Email','Size','Colour','Status','Registered']],
+      head:[['#','Product','Name','Email','Size','Colour','Status']],
       body,
       theme:'grid',
       styles:{
@@ -400,9 +392,8 @@ async function downloadWaitlistPDF(){
         2:{cellWidth:34},
         3:{cellWidth:50},
         4:{cellWidth:16},
-        5:{cellWidth:24},
-        6:{cellWidth:22},
-        7:{cellWidth:34}
+        5:{cellWidth:27},
+        6:{cellWidth:25}
       },
       margin:{left:15,right:15,bottom:18},
       didDrawPage: function(data){
@@ -436,9 +427,7 @@ async function downloadWaitlistPDF(){
       doc.setTextColor(...muted);
       doc.text('No waitlist entries were present at the time of export.',15,75);
     }
-
-    const dateForFile=generated.toISOString().slice(0,10);
-    doc.save(`Chevalier-Roth-Waitlist-${dateForFile}.pdf`);
+    doc.save('Chevalier-Roth-Waitlist.pdf');
     msg.textContent=`PDF erstellt: ${rows.length} Wartelisten-Einträge.`;
   }catch(err){
     console.error('Waitlist PDF export failed',err);

@@ -55,15 +55,15 @@
     </div>
       </div>
       <div id="waitlistMsg" style="color:#d6aa77;margin:12px 0"></div>
-      <table class="admin-table">
+      <div class="admin-table-wrap"><table class="admin-table">
         <thead><tr><th>Product</th><th>Name</th><th>Email</th><th>Size</th><th>Colour</th><th>Status</th><th>Date</th><th></th></tr></thead>
         <tbody id="waitlistRows"></tbody>
-      </table>
+      </table></div>
     </section>
 
     <section class="admin-panel">
       <h2>Products</h2>
-      <table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead><tbody id="productRows"></tbody></table>
+      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead><tbody id="productRows"></tbody></table></div>
       <h3>Add / edit product</h3>
       <form id="productForm" onsubmit="event.preventDefault();saveProduct()">
         <div class="form-grid">
@@ -86,7 +86,7 @@
 
     <section class="admin-panel">
       <h2>Discount Codes</h2>
-      <table class="admin-table"><thead><tr><th>Code</th><th>%</th><th>Status</th><th>Uses</th><th></th></tr></thead><tbody id="codeRows"></tbody></table>
+      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Code</th><th>%</th><th>Status</th><th>Uses</th><th></th></tr></thead><tbody id="codeRows"></tbody></table></div>
       <div class="form-grid">
         <label class="field"><span>Code</span><input class="admin-input" id="cCode"></label>
         <label class="field"><span>Percent</span><input class="admin-input" id="cPercent" type="number"></label>
@@ -103,7 +103,7 @@
 
     <section class="admin-panel">
       <h2>Orders</h2>
-      <table class="admin-table"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table>
+      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table></div>
     </section>
   </main>
 </div>

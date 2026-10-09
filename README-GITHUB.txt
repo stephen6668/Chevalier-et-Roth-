@@ -213,3 +213,15 @@ Behoben:
 - Ist ein normales Kundenkonto eingeloggt, wird es vor dem Admin-Login automatisch ausgeloggt.
 - Danach kann die Admin-Sitzung erstellt werden.
 - 401-Fehler werden nicht mehr fälschlich pauschal als Waitlist-Permission-Fehler bezeichnet.
+
+
+MOBILE ADMIN + CLEAN PDF
+------------------------
+- Admin-Bereich für Handy/Tablet optimiert.
+- Große Tabellen sind horizontal scrollbar.
+- Formulare sind auf kleinen Bildschirmen einspaltig.
+- Buttons und Eingabefelder sind touch-freundlicher.
+- Header und Dashboard passen sich mobil an.
+- PDF enthält KEIN Datum und KEINE Uhrzeit.
+- Die Spalte "Registered" wurde aus der PDF entfernt.
+- PDF-Dateiname: Chevalier-Roth-Waitlist.pdf
