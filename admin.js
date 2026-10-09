@@ -1,24 +1,51 @@
 
 let editId=null;
+let currentWaitlistRows=[];
 
 async function login(){
   const btn=document.getElementById('loginBtn');
   const msg=document.getElementById('msg');
   const debug=document.getElementById('debug');
-  btn.disabled=true; msg.textContent='Checking Appwrite login…'; debug.textContent='';
+  btn.disabled=true;
+  msg.textContent='Checking Appwrite login…';
+  debug.textContent='';
 
   try{
+    // Appwrite allows only one active email/password session in this browser.
+    // If a session already exists, either reuse it (when it is already an admin)
+    // or sign it out before logging into the requested admin account.
+    const existing=await CRAppwrite.currentUser();
+
+    if(existing){
+      const existingIsAdmin=await CRAppwrite.isAdmin();
+
+      if(existingIsAdmin){
+        msg.textContent='Admin-Sitzung bereits aktiv.';
+        debug.textContent='Eingeloggt als: '+(existing.email||existing.name||existing.$id);
+        await showAdmin();
+        return;
+      }
+
+      msg.textContent='Ein anderes Konto ist eingeloggt. Wechsle zum Admin-Konto…';
+      await CRAppwrite.logout();
+    }
+
     await CRAppwrite.login({
       email:document.getElementById('email').value.trim(),
       password:document.getElementById('password').value
     });
 
     if(!await CRAppwrite.isAdmin()){
+      const signedIn=await CRAppwrite.currentUser();
       await CRAppwrite.logout();
-      throw new Error('Dieses Konto ist nicht Mitglied des Appwrite-Admin-Teams.');
+      throw new Error(
+        'Login erfolgreich, aber dieses Konto ist nicht Mitglied des Appwrite-Admin-Teams. ' +
+        (signedIn?.email ? 'Konto: '+signedIn.email : '')
+      );
     }
 
     msg.textContent='';
+    debug.textContent='';
     await showAdmin();
   }catch(err){
     const info=CRAppwrite.explainError(err,'Admin login failed.');
@@ -32,7 +59,16 @@ async function login(){
 async function restoreAdmin(){
   const user=await CRAppwrite.currentUser();
   if(!user) return;
-  if(await CRAppwrite.isAdmin()) await showAdmin();
+
+  if(await CRAppwrite.isAdmin()){
+    await showAdmin();
+    return;
+  }
+
+  const msg=document.getElementById('msg');
+  const debug=document.getElementById('debug');
+  if(msg) msg.textContent='Es ist bereits ein normales Kundenkonto eingeloggt. Wenn du dich als Admin anmeldest, wird dieses Konto automatisch abgemeldet.';
+  if(debug) debug.textContent='Aktuelle Sitzung: '+(user.email||user.name||user.$id);
 }
 
 async function showAdmin(){
@@ -86,6 +122,7 @@ async function loadWaitlist(){
   msg.textContent='Loading central waitlist…';
   try{
     const rows=await CRAppwrite.listAdminWaitlist();
+    currentWaitlistRows=rows;
     statWaitlist.textContent=rows.length;
     waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr>
       <td>${CRStore.esc(w.productName||w.productId)}</td>
@@ -105,6 +142,7 @@ async function loadWaitlist(){
   }catch(err){
     const info=CRAppwrite.explainError(err,'Waitlist could not be loaded.');
     msg.textContent=info.friendly+' '+info.details;
+    currentWaitlistRows=[];
     statWaitlist.textContent='—';
   }
 }
@@ -187,3 +225,227 @@ function toggleCode(code){
 }
 
 document.addEventListener('DOMContentLoaded',restoreAdmin);
+
+
+function pdfSafe(value){
+  return String(value ?? '')
+    .replace(/[–—]/g,'-')
+    .replace(/[“”]/g,'"')
+    .replace(/[‘’]/g,"'")
+    .replace(/\u00a0/g,' ');
+}
+
+async function imageToDataURL(url){
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok) throw new Error('Logo konnte nicht geladen werden.');
+  const blob=await response.blob();
+  return await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function waitlistSummary(rows){
+  const grouped={};
+  for(const row of rows){
+    const product=pdfSafe(row.productName||row.productId||'Unknown product');
+    grouped[product]=(grouped[product]||0)+1;
+  }
+  return Object.entries(grouped).sort((a,b)=>b[1]-a[1]);
+}
+
+async function downloadWaitlistPDF(){
+  const btn=document.getElementById('waitlistPdfBtn');
+  const msg=document.getElementById('waitlistMsg');
+
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    msg.textContent='PDF-Bibliothek konnte nicht geladen werden. Seite neu laden und erneut versuchen.';
+    return;
+  }
+
+  btn.disabled=true;
+  const oldText=btn.textContent;
+  btn.textContent='CREATING PDF…';
+
+  try{
+    // Always reload before export so the PDF contains the newest Appwrite data.
+    const rows=await CRAppwrite.listAdminWaitlist();
+    currentWaitlistRows=rows;
+    statWaitlist.textContent=rows.length;
+
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({
+      orientation:'landscape',
+      unit:'mm',
+      format:'a4',
+      compress:true
+    });
+
+    doc.setProperties({
+      title:'Chevalier & Roth - Waitlist Register',
+      subject:'Official administrative waitlist export',
+      author:'Chevalier & Roth',
+      creator:'Chevalier & Roth Admin'
+    });
+
+    const gold=[175,147,96];
+    const ink=[18,18,18];
+    const muted=[105,100,94];
+    const pageW=doc.internal.pageSize.getWidth();
+    const pageH=doc.internal.pageSize.getHeight();
+    const generated=new Date();
+    const generatedText=generated.toLocaleString('de-LU',{
+      day:'2-digit',month:'2-digit',year:'numeric',
+      hour:'2-digit',minute:'2-digit'
+    });
+
+    // Header brand block
+    let logoAdded=false;
+    try{
+      const logo=await imageToDataURL('logo.PNG');
+      doc.addImage(logo,'PNG',15,10,25,25,undefined,'FAST');
+      logoAdded=true;
+    }catch(e){
+      console.warn('PDF logo:',e);
+    }
+
+    const titleX=logoAdded?46:15;
+    doc.setTextColor(...ink);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(17);
+    doc.text('CHEVALIER & ROTH',titleX,16);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...gold);
+    doc.text('MAISON DE MODE · LUXEMBOURG',titleX,22);
+
+    doc.setTextColor(...ink);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(22);
+    doc.text('WAITLIST REGISTER',15,43);
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...muted);
+    doc.text(`Official Admin Export · Generated ${generatedText}`,15,49);
+    doc.text(`Total waitlist entries: ${rows.length}`,15,54);
+
+    // Product summary on the right
+    const summary=waitlistSummary(rows);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(...ink);
+    doc.setFontSize(9);
+    doc.text('SUMMARY BY PRODUCT',pageW-90,16);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...muted);
+
+    let sy=22;
+    for(const [product,count] of summary.slice(0,6)){
+      const short=product.length>34?product.slice(0,31)+'...':product;
+      doc.text(`${short}: ${count}`,pageW-90,sy);
+      sy+=5;
+    }
+    if(summary.length>6){
+      doc.text(`+ ${summary.length-6} more product(s)`,pageW-90,sy);
+    }
+
+    // Separator
+    doc.setDrawColor(...gold);
+    doc.setLineWidth(.5);
+    doc.line(15,59,pageW-15,59);
+
+    const body=rows.map((w,index)=>[
+      String(index+1),
+      pdfSafe(w.productName||w.productId||''),
+      pdfSafe(w.name||''),
+      pdfSafe(w.email||''),
+      pdfSafe(w.size||'-'),
+      pdfSafe(w.color||'-'),
+      pdfSafe(w.status||'waiting'),
+      w.$createdAt ? new Date(w.$createdAt).toLocaleString('de-LU',{
+        day:'2-digit',month:'2-digit',year:'numeric',
+        hour:'2-digit',minute:'2-digit'
+      }) : '-'
+    ]);
+
+    doc.autoTable({
+      startY:64,
+      head:[['#','Product','Name','Email','Size','Colour','Status','Registered']],
+      body,
+      theme:'grid',
+      styles:{
+        font:'helvetica',
+        fontSize:7.2,
+        cellPadding:2.2,
+        textColor:ink,
+        lineColor:[220,215,207],
+        lineWidth:.15,
+        overflow:'linebreak',
+        valign:'middle'
+      },
+      headStyles:{
+        fillColor:ink,
+        textColor:[245,239,228],
+        fontStyle:'bold',
+        fontSize:7.2,
+        halign:'left'
+      },
+      alternateRowStyles:{fillColor:[249,247,242]},
+      columnStyles:{
+        0:{cellWidth:8,halign:'center'},
+        1:{cellWidth:38},
+        2:{cellWidth:34},
+        3:{cellWidth:50},
+        4:{cellWidth:16},
+        5:{cellWidth:24},
+        6:{cellWidth:22},
+        7:{cellWidth:34}
+      },
+      margin:{left:15,right:15,bottom:18},
+      didDrawPage: function(data){
+        if(data.pageNumber>1){
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(9);
+          doc.setTextColor(...ink);
+          doc.text('CHEVALIER & ROTH · WAITLIST REGISTER',15,10);
+          doc.setDrawColor(...gold);
+          doc.line(15,13,pageW-15,13);
+        }
+      }
+    });
+
+    const pages=doc.getNumberOfPages();
+    for(let i=1;i<=pages;i++){
+      doc.setPage(i);
+      doc.setDrawColor(210,205,197);
+      doc.line(15,pageH-12,pageW-15,pageH-12);
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7);
+      doc.setTextColor(...muted);
+      doc.text('CONFIDENTIAL · ADMINISTRATIVE WAITLIST EXPORT',15,pageH-7);
+      doc.text(`Page ${i} of ${pages}`,pageW-15,pageH-7,{align:'right'});
+    }
+
+    if(rows.length===0){
+      doc.setFont('helvetica','italic');
+      doc.setFontSize(12);
+      doc.setTextColor(...muted);
+      doc.text('No waitlist entries were present at the time of export.',15,75);
+    }
+
+    const dateForFile=generated.toISOString().slice(0,10);
+    doc.save(`Chevalier-Roth-Waitlist-${dateForFile}.pdf`);
+    msg.textContent=`PDF erstellt: ${rows.length} Wartelisten-Einträge.`;
+  }catch(err){
+    console.error('Waitlist PDF export failed',err);
+    const info=CRAppwrite.explainError ? CRAppwrite.explainError(err,'PDF konnte nicht erstellt werden.') : {friendly:String(err)};
+    msg.textContent=info.friendly || 'PDF konnte nicht erstellt werden.';
+  }finally{
+    btn.disabled=false;
+    btn.textContent=oldText;
+  }
+}

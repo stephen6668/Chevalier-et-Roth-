@@ -186,3 +186,30 @@ Die Konto-Seite zeigt jetzt zusätzlich:
 TablesDB: OK
 
 Erst wenn dort "TablesDB: OK" steht, sollte die echte Warteliste getestet werden.
+
+
+WAITLIST PDF EXPORT
+-------------------
+Im Admin-Bereich gibt es jetzt neben REFRESH den Button PDF DOWNLOAD.
+
+Der Export:
+- lädt vor dem Export die aktuelle komplette Appwrite-Warteliste neu,
+- unterstützt auch große Listen über mehrere Appwrite-Seiten,
+- erzeugt automatisch beliebig viele PDF-Seiten,
+- enthält Chevalier & Roth Logo, Erstellungsdatum, Anzahl Einträge,
+  Produkt-Zusammenfassung, vollständige Tabelle und Seitenzahlen,
+- speichert die Datei als Chevalier-Roth-Waitlist-YYYY-MM-DD.pdf.
+
+Hinweis: Die PDF enthält persönliche Kundendaten (Name und E-Mail) und sollte entsprechend geschützt behandelt werden.
+
+
+ADMIN SESSION FIX
+-----------------
+Fehler:
+user_session_already_exists / "Creation of a session is prohibited when a session is active"
+
+Behoben:
+- Ist bereits das Admin-Konto eingeloggt, wird die vorhandene Sitzung verwendet.
+- Ist ein normales Kundenkonto eingeloggt, wird es vor dem Admin-Login automatisch ausgeloggt.
+- Danach kann die Admin-Sitzung erstellt werden.
+- 401-Fehler werden nicht mehr fälschlich pauschal als Waitlist-Permission-Fehler bezeichnet.

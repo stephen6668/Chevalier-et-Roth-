@@ -8,6 +8,8 @@
 <script src="store.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
 <script src="appwrite-auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="admin.js" defer></script>
 </head>
 <body class="admin-body">
@@ -20,7 +22,7 @@
   <p id="msg" style="color:#d6aa77"></p>
   <p id="debug" style="color:#777;font-size:11px"></p>
   <button id="loginBtn" class="admin-btn" onclick="login()">LOGIN</button>
-  <p style="color:#777;font-size:11px;margin-top:20px">Nur Mitglieder deines Appwrite-Admin-Teams erhalten Zugriff.</p>
+  <p style="color:#777;font-size:11px;margin-top:20px">Nur Mitglieder deines Appwrite-Admin-Teams erhalten Zugriff. Falls bereits ein Kundenkonto eingeloggt ist, wechselt der Login automatisch auf das Admin-Konto.</p>
 </div>
 
 <div id="dashboard" style="display:none">
@@ -47,7 +49,10 @@
     <section class="admin-panel" id="waitlist">
       <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap">
         <div><h2 style="margin-bottom:4px">Waitlist</h2><p style="color:#888;margin-top:0">Zentrale Appwrite-Warteliste von allen Geräten.</p></div>
-        <button class="admin-btn" onclick="loadWaitlist()">REFRESH</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="admin-btn" onclick="loadWaitlist()">REFRESH</button>
+      <button class="admin-btn" id="waitlistPdfBtn" onclick="downloadWaitlistPDF()">PDF DOWNLOAD</button>
+    </div>
       </div>
       <div id="waitlistMsg" style="color:#d6aa77;margin:12px 0"></div>
       <table class="admin-table">

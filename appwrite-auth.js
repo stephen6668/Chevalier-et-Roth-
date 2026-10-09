@@ -61,8 +61,10 @@ const CRAppwrite = (() => {
 
     if(type === 'user_invalid_credentials') friendly = 'E-Mail oder Passwort ist falsch.';
     else if(type === 'user_already_exists') friendly = 'Für diese E-Mail existiert bereits ein Konto.';
+    else if(type === 'user_session_already_exists') friendly = 'Es ist bereits ein Appwrite-Konto in diesem Browser eingeloggt. Der Admin-Login wechselt jetzt automatisch auf das Admin-Konto.';
     else if(type === 'appwrite_timeout') friendly = 'Appwrite antwortet nicht. Prüfe deine Web Platform und Internetverbindung.';
-    else if(type === 'row_unauthorized' || code === 401 || code === 403) friendly = 'Keine Berechtigung. Prüfe die Appwrite-Permissions der Waitlist-Tabelle.';
+    else if(type === 'row_unauthorized' || type === 'team_unauthorized' || code === 403) friendly = 'Keine Berechtigung. Prüfe Admin-Team und Waitlist-Permissions in Appwrite.';
+    else if(code === 401) friendly = 'Die Appwrite-Sitzung ist nicht gültig oder nicht mehr aktiv. Bitte erneut einloggen.';
     else if(message.toLowerCase().includes('column')) friendly = 'Die Waitlist-Tabelle hat noch nicht alle benötigten Spalten.';
     else if(message.toLowerCase().includes('failed to fetch')) friendly = 'Verbindung zu Appwrite fehlgeschlagen. Prüfe die Web Platform in Appwrite.';
 
