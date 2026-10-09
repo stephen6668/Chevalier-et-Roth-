@@ -4,7 +4,7 @@ function closeMenu(){document.getElementById('drawer')?.classList.remove('open')
 function updateCartCount(){const n=CRStore.cart().reduce((s,x)=>s+x.qty,0);document.querySelectorAll('[data-cart-count]').forEach(e=>e.textContent=n)}
 function header(){
   document.body.insertAdjacentHTML('afterbegin',`
-  <div class="topbar">LUXEMBOURG · TIMELESS ELEGANCE · CHEVALIER & ROTH</div>
+  <div class="topbar">DESIGNED IN LUXEMBOURG · PRODUCED IN ITALY · CHEVALIER & ROTH</div>
   <header class="header"><div class="header-inner">
     <nav class="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
     <a class="brand" href="index.html"><img src="logo.PNG" alt="Chevalier & Roth logo"><span>CHEVALIER & ROTH</span></a>
@@ -20,7 +20,7 @@ function header(){
 function footer(){
  document.body.insertAdjacentHTML('beforeend',`
  <footer class="footer"><div class="footer-grid">
-  <div><h3>CHEVALIER & ROTH</h3><p style="color:#8f887f;line-height:1.8">Modern heritage, quiet luxury and timeless wardrobe pieces from Luxembourg.</p><small>© 2026 Chevalier & Roth</small></div>
+  <div><h3>CHEVALIER & ROTH</h3><p style="color:#8f887f;line-height:1.8">Refined European wardrobe pieces designed in Luxembourg and produced in Italy.</p><small>© 2026 Chevalier & Roth</small></div>
   <div><h4>SHOP</h4><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="search.html">Search</a></div>
   <div><h4>SERVICE</h4><a href="contact.html">Contact</a><a href="versand.html">Shipping</a><a href="zahlung.html">Payments</a><a href="widerruf.html">Returns</a></div>
   <div><h4>COMPANY</h4><a href="about.html">Our Story</a><a href="account.html">Account</a></div>

@@ -225,3 +225,36 @@ MOBILE ADMIN + CLEAN PDF
 - PDF enthält KEIN Datum und KEINE Uhrzeit.
 - Die Spalte "Registered" wurde aus der PDF entfernt.
 - PDF-Dateiname: Chevalier-Roth-Waitlist.pdf
+
+
+PDF DATE/TIME FULL REMOVAL
+--------------------------
+Die Wartelisten-PDF enthält jetzt:
+- kein sichtbares Datum,
+- keine sichtbare Uhrzeit,
+- keine Registrierungsdatum-Spalte,
+- kein Datum im Dateinamen,
+- keine PDF-Metadaten "CreationDate" oder "ModDate".
+
+Der Export wird vor dem Download bereinigt, damit PDF-Viewer nicht mehr
+automatisch ein Erstellungsdatum oder eine Erstellungsuhrzeit aus den PDF-Metadaten anzeigen.
+
+
+BRAND CONTENT + PRICING UPDATE
+------------------------------
+Public positioning updated:
+- Founded in Luxembourg in 2026
+- Designed in Luxembourg
+- Production in Italy
+- Premium European positioning
+- Men and women
+- Refined proportions, comfort and timeless design
+
+Retail prices:
+- Heritage Half-Zip: €110
+- Heritage Men's Trouser: €100
+- Maison Women's Cardigan: €90
+- Maison Women's Trouser: €100
+
+Browser migration cr_catalog_update_v3 updates older cached catalogue data after deployment.
+All previous Appwrite, mobile-admin and waitlist-PDF changes are preserved.
