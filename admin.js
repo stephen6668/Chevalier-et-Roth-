@@ -256,6 +256,45 @@ function waitlistSummary(rows){
   return Object.entries(grouped).sort((a,b)=>b[1]-a[1]);
 }
 
+
+function stripPdfDateMetadata(arrayBuffer){
+  const bytes=new Uint8Array(arrayBuffer);
+  let binary='';
+  const chunk=0x8000;
+
+  for(let i=0;i<bytes.length;i+=chunk){
+    binary+=String.fromCharCode(...bytes.subarray(i,Math.min(i+chunk,bytes.length)));
+  }
+
+  // Keep identical byte length so the PDF xref offsets remain valid.
+  const eraseSameLength = match => ' '.repeat(match.length);
+
+  binary=binary.replace(/\/CreationDate\s*\([^)]*\)/g, eraseSameLength);
+  binary=binary.replace(/\/ModDate\s*\([^)]*\)/g, eraseSameLength);
+
+  // Extra protection for metadata dates written in PDF date syntax.
+  binary=binary.replace(
+    /\/(CreationDate|ModDate)\s*<[^>]*>/g,
+    eraseSameLength
+  );
+
+  const cleaned=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) cleaned[i]=binary.charCodeAt(i)&255;
+  return cleaned;
+}
+
+function downloadPdfBytes(bytes,filename){
+  const blob=new Blob([bytes],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
 async function downloadWaitlistPDF(){
   const btn=document.getElementById('waitlistPdfBtn');
   const msg=document.getElementById('waitlistMsg');
@@ -295,7 +334,6 @@ async function downloadWaitlistPDF(){
     const muted=[105,100,94];
     const pageW=doc.internal.pageSize.getWidth();
     const pageH=doc.internal.pageSize.getHeight();
-    const generated=new Date();
 
     // Header brand block
     let logoAdded=false;
@@ -427,7 +465,9 @@ async function downloadWaitlistPDF(){
       doc.setTextColor(...muted);
       doc.text('No waitlist entries were present at the time of export.',15,75);
     }
-    doc.save('Chevalier-Roth-Waitlist.pdf');
+    const rawPdf=doc.output('arraybuffer');
+    const cleanedPdf=stripPdfDateMetadata(rawPdf);
+    downloadPdfBytes(cleanedPdf,'Chevalier-Roth-Waitlist.pdf');
     msg.textContent=`PDF erstellt: ${rows.length} Wartelisten-Einträge.`;
   }catch(err){
     console.error('Waitlist PDF export failed',err);
