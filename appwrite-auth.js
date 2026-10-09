@@ -251,16 +251,31 @@ const CRAppwrite = (() => {
     init();
     if(!await isAdmin()) throw new Error('Du bist kein Mitglied des Appwrite-Admin-Teams.');
 
-    const result=await withTimeout(tablesDB.listRows({
-      databaseId,
-      tableId:waitlistTableId,
-      queries:[
-        Appwrite.Query.orderDesc('$createdAt'),
-        Appwrite.Query.limit(500)
-      ]
-    }),15000,'Warteliste laden');
+    const allRows=[];
+    const pageSize=100;
+    let offset=0;
 
-    return result.rows || [];
+    while(true){
+      const result=await withTimeout(tablesDB.listRows({
+        databaseId,
+        tableId:waitlistTableId,
+        queries:[
+          Appwrite.Query.orderDesc('$createdAt'),
+          Appwrite.Query.limit(pageSize),
+          Appwrite.Query.offset(offset)
+        ]
+      }),15000,'Warteliste laden');
+
+      const rows=result.rows || [];
+      allRows.push(...rows);
+
+      if(rows.length < pageSize) break;
+      if(result.total && allRows.length >= result.total) break;
+
+      offset += rows.length;
+    }
+
+    return allRows;
   }
 
   async function updateWaitlistStatus(rowId,status){
