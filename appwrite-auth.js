@@ -323,63 +323,7 @@ const CRAppwrite = (() => {
     }),15000,'Wartelisteneintrag löschen');
   }
 
-
-  const demoPrefix='cr-internal-sample-202610-';
-  function isSampleRow(row){return String(row?.productId||'').startsWith(demoPrefix);}
-  async function insertAdminSampleRows(rows,onProgress){
-    init();
-    if(!await isAdmin()) throw new Error('Admin-Berechtigung erforderlich.');
-    const existing=await listAdminWaitlist();
-    const ids=new Set(existing.filter(isSampleRow).map(x=>x.productId));
-    let created=0,skipped=0,failed=0;
-    for(let i=0;i<rows.length;i++){
-      const r=rows[i],productId=demoPrefix+String(i+1).padStart(3,'0');
-      if(ids.has(productId)){skipped++;continue;}
-      try{
-        await withTimeout(tablesDB.createRow({
-          databaseId,tableId:waitlistTableId,rowId:Appwrite.ID.unique(),
-          data:{userId:'internal_sample',name:r.name,email:String(r.email),productId,productName:r.productName,size:r.size||'Not selected',color:r.color||'Not selected',status:'waiting'}
-        }),15000,'Beispiele speichern');
-        created++;ids.add(productId);
-      }catch(err){failed++;console.error('Sample import row '+(i+1),err);}
-      if(onProgress)onProgress({created,skipped,failed,processed:i+1,total:rows.length});
-    }
-    return {created,skipped,failed};
-  }
-  async function replaceAdminSampleEmails(rows,onProgress){
-    init();
-    if(!await isAdmin())throw new Error('Admin-Berechtigung erforderlich.');
-    const saved=(await listAdminWaitlist()).filter(isSampleRow);
-    const map=new Map(rows.map((r,i)=>[demoPrefix+String(i+1).padStart(3,'0'),r.email]));
-    let updated=0,failed=0,unchanged=0;
-    for(const row of saved){
-      const email=map.get(row.productId);
-      if(!email){unchanged++;continue;}
-      if(row.email===email){unchanged++;continue;}
-      try{
-        await withTimeout(tablesDB.updateRow({
-          databaseId,tableId:waitlistTableId,rowId:row.$id,data:{email}
-        }),15000,'Beispieladresse aktualisieren');
-        updated++;
-      }catch(err){failed++;console.error('Beispieladresse konnte nicht aktualisiert werden:',row.$id,err);}
-      if(onProgress)onProgress({updated,failed,unchanged,total:saved.length});
-    }
-    return {updated,failed,unchanged,total:saved.length};
-  }
-  async function deleteAdminSampleRows(onProgress){
-    init();
-    if(!await isAdmin())throw new Error('Admin-Berechtigung erforderlich.');
-    const samples=(await listAdminWaitlist()).filter(isSampleRow);
-    let deleted=0,failed=0;
-    for(const row of samples){
-      try{await deleteAdminWaitlistRow(row.$id);deleted++;}catch(err){failed++;console.error('Sample delete',err);}
-      if(onProgress)onProgress({deleted,failed,total:samples.length});
-    }
-    return {deleted,failed};
-  }
-
   return {
-    isSampleRow,insertAdminSampleRows,replaceAdminSampleEmails,deleteAdminSampleRows,
     endpoint,projectId,databaseId,waitlistTableId,adminTeamId,
     init,diagnose,currentUser,register,login,logout,getPrefs,updatePrefs,
     isAdmin,addToWaitlist,removeFromWaitlist,

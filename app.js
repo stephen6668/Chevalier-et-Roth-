@@ -22,7 +22,7 @@ function footer(){
  <footer class="footer"><div class="footer-grid">
   <div><h3>CHEVALIER & ROTH</h3><p style="color:#8f887f;line-height:1.8">Refined European wardrobe pieces designed in Luxembourg and produced in Italy.</p><small>© 2026 Chevalier & Roth</small></div>
   <div><h4>SHOP</h4><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="search.html">Search</a></div>
-  <div><h4>SERVICE</h4><a href="contact.html">Contact</a><a href="versand.html">Shipping</a><a href="zahlung.html">Payments</a><a href="widerruf.html">Returns</a></div>
+  <div><h4>SERVICE</h4><a href="contact.html">Contact</a><a href="versand.html">Shipping</a><a href="zahlung.html">Payments</a><a href="widerruf.html">Returns</a><a href="agb.html#guarantee">Legal guarantee</a></div>
   <div><h4>COMPANY</h4><a href="about.html">Our Story</a><a href="account.html">Account</a></div>
   <div><h4>LEGAL</h4><a href="impressum.html">Legal Notice</a><a href="datenschutz.html">Privacy</a><a href="cookies.html">Cookies</a><a href="agb.html">Terms</a></div>
  </div></footer>`);
@@ -36,10 +36,10 @@ function productCard(p){
   const img=(p.images&&p.images[0])?CRStore.esc(p.images[0]):'';
   return `<article class="card"><a href="product.html?id=${encodeURIComponent(p.id)}"><div class="card-media">
     ${img?`<img src="${img}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
-  </div><div class="card-body"><div class="card-title">${CRStore.esc(p.name)}</div><div class="meta"><span>${CRStore.esc(p.category)}</span><span>${CRStore.money(CRStore.price(p))}</span></div>${p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:''}</div></a><div class="card-actions"><button class="btn light waitlist-btn" onclick="event.preventDefault();event.stopPropagation();openWaitlist('${p.id}')">JOIN WAITLIST</button></div></article>`;
+  </div><div class="card-body"><div class="card-title">${CRStore.esc(p.name)}</div><div class="meta"><span>${CRStore.esc(p.category)}</span><span class="price-stack"><b>${CRStore.money(CRStore.price(p))}</b><small>incl. ${CRStore.vatPercent()}% VAT</small></span></div>${p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:''}</div></a><div class="card-actions"><button class="btn light waitlist-btn" onclick="event.preventDefault();event.stopPropagation();openWaitlist('${p.id}')">JOIN WAITLIST</button></div></article>`;
 }
 function renderProducts(target, filter=null, limit=999){let ps=CRStore.products().filter(p=>p.active);if(filter)ps=ps.filter(filter);document.querySelector(target).innerHTML=ps.slice(0,limit).map(productCard).join('')}
-document.addEventListener('DOMContentLoaded',()=>{header();footer();cookie();ensureWaitlistModal();updateCartCount();refreshAuthChrome()});
+document.addEventListener('DOMContentLoaded',()=>{header();footer();ensureWaitlistModal();updateCartCount();refreshAuthChrome()});
 window.addEventListener('cartchange',updateCartCount);
 
 let _waitlistProduct=null;

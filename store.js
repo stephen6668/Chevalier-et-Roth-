@@ -49,6 +49,13 @@ const CRStore = (() => {
   const saveOrders=v=>set('orders',v);
   const price=p=>p.salePrice && Number(p.salePrice)<Number(p.price)?Number(p.salePrice):Number(p.price);
   const money=v=>new Intl.NumberFormat('de-LU',{style:'currency',currency:'EUR'}).format(Number(v)||0);
+  const vatRate=()=>Number(window.CRSiteConfig?.vatRate ?? 0.17);
+  const vatFromGross=gross=>{
+    const r=vatRate();
+    return r>0 ? (Number(gross)||0)*r/(1+r) : 0;
+  };
+  const netFromGross=gross=>(Number(gross)||0)-vatFromGross(gross);
+  const vatPercent=()=>Math.round(vatRate()*100);
   const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   function validateCode(input,subtotal,lines){
     const code=String(input||'').trim().toUpperCase(), c=codes().find(x=>x.code===code);
@@ -67,5 +74,5 @@ const CRStore = (() => {
     }
     return {ok:true,msg:`${c.percent}% applied`,discount:eligible*(Number(c.percent)/100),code:c};
   }
-  return {products,saveProducts,codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,esc,validateCode,get,set};
+  return {products,saveProducts,codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set};
 })();

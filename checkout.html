@@ -1,4 +1,215 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – timeless luxury fashion from Luxembourg."><title>Checkout · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="app.js" defer></script></head><body><main class="page"><div class="eyebrow">CHECKOUT</div><h1 class="page-title">Checkout</h1><div class="notice">GitHub Pages is static hosting. This demo does not collect card details or process real payments.</div><form class="form-grid" onsubmit="createOrder(event)"><label class="field"><span>First name</span><input id="first" required></label><label class="field"><span>Last name</span><input id="last" required></label><label class="field full"><span>Email</span><input id="email" type="email" required></label><label class="field"><span>Street</span><input id="street" required></label><label class="field"><span>House no.</span><input id="house" required></label><label class="field"><span>Postal code</span><input id="zip" required></label><label class="field"><span>City</span><input id="city" required></label><label class="field full"><span>Country</span><select id="country"><option>Luxembourg</option><option>Belgium</option><option>France</option><option>Germany</option></select></label><div class="full"><button class="btn">CREATE TEST ORDER</button></div></form></main>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Secure checkout for Chevalier & Roth. Prices include VAT.">
+<title>Checkout · Chevalier & Roth</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://js.stripe.com/dahlia/stripe.js"></script>
+<script src="site-config.js"></script>
+<script src="store.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
+<script src="appwrite-auth.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<main class="page">
+  <div class="eyebrow">SECURE CHECKOUT</div>
+  <h1 class="page-title">Checkout</h1>
+
+  <div class="checkout-grid">
+    <section class="checkout-card">
+      <h2>Delivery details</h2>
+      <form id="checkoutForm" class="form-grid" onsubmit="startStripeCheckout(event)">
+        <label class="field"><span>First name</span><input id="first" autocomplete="given-name" required></label>
+        <label class="field"><span>Last name</span><input id="last" autocomplete="family-name" required></label>
+        <label class="field full"><span>Email</span><input id="email" type="email" autocomplete="email" required></label>
+        <label class="field full"><span>Phone</span><input id="phone" type="tel" autocomplete="tel" required></label>
+        <label class="field"><span>Street</span><input id="street" autocomplete="address-line1" required></label>
+        <label class="field"><span>House no.</span><input id="house" required></label>
+        <label class="field"><span>Postal code</span><input id="zip" autocomplete="postal-code" required></label>
+        <label class="field"><span>City</span><input id="city" autocomplete="address-level2" required></label>
+        <label class="field full"><span>Country</span>
+          <select id="country" autocomplete="country-name" required>
+            <option value="LU">Luxembourg</option>
+            <option value="BE">Belgium</option>
+            <option value="FR">France</option>
+            <option value="DE">Germany</option>
+          </select>
+        </label>
+
+        <div class="full checkout-consents">
+          <label><input id="acceptTerms" type="checkbox" required> I have read and accept the <a href="agb.html" target="_blank">Terms & Conditions</a> and <a href="datenschutz.html" target="_blank">Privacy Policy</a>.</label>
+          <label><input id="acceptWithdrawal" type="checkbox" required> I have read the information about the <a href="widerruf.html" target="_blank">14-day right of withdrawal</a>.</label>
+        </div>
+
+        <div class="full payment-method-note">
+          <b>Secure payment by Stripe</b>
+          <span>The payment form is securely hosted by Stripe inside this page. Chevalier & Roth does not store your full card details.</span>
+        </div>
+
+        <div class="full">
+          <div id="checkoutMsg" class="auth-message"></div>
+          <button class="btn pay-btn" id="payBtn" type="submit">CONTINUE TO SECURE PAYMENT</button>
+          <p class="legal-subtle">After continuing, Stripe's secure payment form will appear below.</p>
+        </div>
+
+        <div class="full" id="stripeFormSection" hidden>
+          <div id="checkout-form"></div>
+        </div>
+      </form>
+    </section>
+
+    <aside class="summary checkout-summary">
+      <div class="eyebrow">ORDER SUMMARY</div>
+      <h2>Your order</h2>
+      <div id="checkoutLines"></div>
+      <div id="checkoutTotals"></div>
+      <hr>
+      <p class="legal-subtle">Product prices include VAT. Shipping costs are shown before payment. Delivery is limited to the countries listed above.</p>
+    </aside>
+  </div>
+</main>
+
 <script>
-function createOrder(e){e.preventDefault();const ps=CRStore.products(),cart=CRStore.cart();if(!cart.length)return alert('Your bag is empty.');const ls=cart.map(i=>({...i,product:ps.find(p=>p.id===i.id)})).filter(x=>x.product),subtotal=ls.reduce((s,x)=>s+CRStore.price(x.product)*x.qty,0),discount=CRStore.get('checkoutDiscount',null)?.discount||0,total=subtotal-discount;const o={number:'CR-'+Date.now(),date:new Date().toISOString(),customer:first.value+' '+last.value,email:email.value,total,status:'New Order',payment:'Pending'};let orders=CRStore.orders();orders.push(o);CRStore.saveOrders(orders);CRStore.saveCart([]);alert('Test order created. No payment was taken.');location.href='account.html'}
-</script></body></html>
+function checkoutItems(){
+  const products=CRStore.products();
+  return CRStore.cart().map(item=>({...item,product:products.find(p=>p.id===item.id)})).filter(x=>x.product);
+}
+
+function renderCheckout(){
+  const lines=checkoutItems();
+  if(!lines.length){
+    checkoutLines.innerHTML='<p>Your bag is empty.</p>';
+    checkoutTotals.innerHTML='';
+    payBtn.disabled=true;
+    return;
+  }
+
+  checkoutLines.innerHTML=lines.map(x=>`<div class="checkout-line">
+    <div><b>${CRStore.esc(x.product.name)}</b><small>${CRStore.esc(x.size)} · ${CRStore.esc(x.color)} · Qty ${x.qty}</small></div>
+    <b>${CRStore.money(CRStore.price(x.product)*x.qty)}</b>
+  </div>`).join('');
+
+  const subtotal=lines.reduce((s,x)=>s+CRStore.price(x.product)*x.qty,0);
+  const saved=CRStore.get('checkoutDiscount',null);
+  const discount=Number(saved?.discount||0);
+  const total=Math.max(0,subtotal-discount);
+  const vat=CRStore.vatFromGross(total);
+
+  checkoutTotals.innerHTML=`
+    <div class="summary-row"><span>Subtotal incl. VAT</span><b>${CRStore.money(subtotal)}</b></div>
+    <div class="summary-row"><span>Discount</span><b>−${CRStore.money(discount)}</b></div>
+    <div class="summary-row"><span>Included VAT (${CRStore.vatPercent()}%)</span><b>${CRStore.money(vat)}</b></div>
+    <div class="summary-row total-row"><span>Total before shipping</span><b>${CRStore.money(total)}</b></div>`;
+}
+
+async function startStripeCheckout(e){
+  e.preventDefault();
+
+  const endpoint=String(window.CRSiteConfig?.stripeCheckoutEndpoint||'').trim();
+  const publishableKey=String(window.CRSiteConfig?.stripePublishableKey||'').trim();
+  const msg=document.getElementById('checkoutMsg');
+
+  if(!publishableKey){
+    msg.textContent='Stripe is not activated yet. Add your Stripe publishable key to site-config.js.';
+    return;
+  }
+  if(!endpoint){
+    msg.textContent='Stripe is not activated yet. Add your Appwrite Function domain to site-config.js.';
+    return;
+  }
+
+  const lines=checkoutItems();
+  if(!lines.length){ msg.textContent='Your bag is empty.'; return; }
+
+  payBtn.disabled=true;
+  payBtn.textContent='LOADING SECURE PAYMENT…';
+  msg.textContent='';
+
+  try{
+    const saved=CRStore.get('checkoutDiscount',null);
+    const payload={
+      cart:lines.map(x=>({id:x.product.id,qty:x.qty,size:x.size,color:x.color})),
+      discountCode:saved?.code||'',
+      customer:{
+        firstName:first.value.trim(),
+        lastName:last.value.trim(),
+        email:email.value.trim(),
+        phone:phone.value.trim(),
+        street:street.value.trim(),
+        house:house.value.trim(),
+        postalCode:zip.value.trim(),
+        city:city.value.trim(),
+        country:country.value
+      }
+    };
+
+    const appearance = {
+      "theme": "flat",
+      "labels": "above",
+      "inputs": "spaced",
+      "variables": {
+        "borderRadius": "4px",
+        "colorBackground": "#ffffff",
+        "colorDanger": "#df1b41",
+        "colorPrimary": "#0570de",
+        "colorSuccess": "#00c853",
+        "colorText": "#30313d",
+        "fontFamily": "default",
+        "fontSizeBase": "16px",
+        "spacingUnit": "4px"
+      }
+    };
+
+    const stripe=Stripe(publishableKey,{betas:['custom_checkout_payment_form_1']});
+
+    const clientSecret=fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    })
+      .then(async response=>{
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok || !data.client_secret){
+          throw new Error(data.error||'Stripe Checkout could not be started.');
+        }
+        return data.client_secret;
+      });
+
+    const stripeFormSection=document.getElementById('stripeFormSection');
+    stripeFormSection.hidden=false;
+
+    const checkoutSdk=stripe.initCheckoutFormSdk({clientSecret,appearance});
+    const form=checkoutSdk.createForm({layout:'expanded'});
+    form.mount('#checkout-form');
+
+    const loadActionsResult=await checkoutSdk.loadActions();
+    if(loadActionsResult.type==='success'){
+      form.on('confirm',async event=>{
+        try{
+          await loadActionsResult.actions.confirm({formConfirmEvent:event});
+        }catch(error){
+          console.error('Payment confirmation error:',error);
+          msg.textContent=error?.message||'Payment confirmation failed.';
+        }
+      });
+    }else{
+      throw new Error(loadActionsResult.error?.message||'Stripe payment form could not be loaded.');
+    }
+
+    payBtn.hidden=true;
+    msg.textContent='';
+  }catch(err){
+    console.error(err);
+    msg.textContent=err.message||'Payment could not be started.';
+    payBtn.disabled=false;
+    payBtn.textContent='CONTINUE TO SECURE PAYMENT';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',renderCheckout);
+</script>
+</body>
+</html>

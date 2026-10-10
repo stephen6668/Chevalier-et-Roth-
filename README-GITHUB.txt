@@ -258,3 +258,83 @@ Retail prices:
 
 Browser migration cr_catalog_update_v3 updates older cached catalogue data after deployment.
 All previous Appwrite, mobile-admin and waitlist-PDF changes are preserved.
+
+
+WAITLIST RELIABILITY UPDATE
+---------------------------
+Every successful waitlist signup is now written to the central Appwrite table
+even if the customer does not choose a size or colour.
+
+Changes:
+- Size is optional. Blank becomes "Not selected".
+- Colour is optional. Blank becomes "Not selected".
+- Central Appwrite row is created BEFORE account preferences are updated.
+- A preferences error can no longer hide a successful central signup.
+- Old/stale saved row IDs are checked; if the Appwrite row is missing it is recreated.
+- Admin and PDF display "Not selected" for missing variant choices.
+- Existing mobile admin, Appwrite admin security, Italian production content,
+  pricing updates and PDF date/time removal are preserved.
+
+Appwrite recommendation:
+The columns size and color should remain optional. They may also accept the
+text value "Not selected".
+
+
+PUBLIC WAITLIST UPDATE
+----------------------
+The waitlist no longer requires an Appwrite account.
+
+Every valid form submission now creates a NEW Appwrite TablesDB row:
+- name required
+- email required
+- size optional
+- colour optional
+- userId is "guest" when the visitor is not logged in
+- every successful submission is kept as a separate row
+
+IMPORTANT APPWRITE PERMISSIONS:
+Waitlist Table -> Settings -> Permissions:
+1. Row security: ON
+2. Add role "Any" with CREATE only
+3. Add Admin Team 6ac7d7fc0029522fc7bf with READ + UPDATE + DELETE
+4. Do NOT give "Any" READ permission
+
+Why:
+- "Any + CREATE" allows visitors to join without logging in.
+- Visitors cannot see the list because they do not have READ.
+- The admin team can read and manage all rows from admin.html.
+
+If public CREATE is not enabled in Appwrite, guest submissions will fail and no row can appear in admin.
+
+
+=================================================
+LAUNCH / LEGAL / VAT / STRIPE-READY UPDATE
+=================================================
+
+VAT
+- Product prices visibly say "incl. 17% VAT".
+- Cart and checkout show the included VAT amount.
+- VAT is calculated from gross consumer prices with: gross * 17 / 117.
+
+LEGAL STRUCTURE
+- Legal Notice expanded.
+- Terms & Conditions expanded.
+- Shipping information expanded.
+- 14-day withdrawal / returns page expanded.
+- Payment information expanded.
+- Privacy policy expanded.
+- Cookie/storage page updated for essential-only storage by default.
+- Cookie consent popup removed because optional tracking is not enabled by default.
+- LAUNCH-CHECKLIST.html lists the information still required before public sales.
+
+IMPORTANT:
+The site is NOT legally complete until the verified legal name, address, business contact details,
+registration number, VAT number (if applicable), return address, shipping prices and delivery times
+have been entered. Do not invent these details.
+
+PAYMENTS
+- Checkout is prepared for Stripe Checkout through an Appwrite Function.
+- Stripe secrets are never stored in GitHub Pages.
+- Deploy the files inside stripe-appwrite-function/ as an Appwrite Function.
+- Put the generated *.appwrite.run function domain into site-config.js.
+- Configure real shipping amounts as function environment variables.

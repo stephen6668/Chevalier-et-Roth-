@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin · Chevalier & Roth</title>
 <link rel="stylesheet" href="style.css">
-<script src="store.js"></script>
+<script src="site-config.js"></script><script src="store.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
 <script src="appwrite-auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
@@ -51,15 +51,9 @@
         <div><h2 style="margin-bottom:4px">Waitlist</h2><p style="color:#888;margin-top:0">Zentrale Appwrite-Warteliste von allen Geräten.</p></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="admin-btn" onclick="loadWaitlist()">REFRESH</button>
-      <button class="admin-btn" id="sampleImportBtn" onclick="importSampleWaitlist()">180 BEISPIELE IN APPWRITE SPEICHERN</button>
-      <button class="admin-btn" id="sampleEmailReplaceBtn" onclick="replaceSampleEmails()">BEISPIEL-MAILS AKTUALISIEREN</button>
-      <button class="admin-btn" id="samplePurgeBtn" onclick="purgeSampleWaitlist()">GESPEICHERTE BEISPIELE LÖSCHEN</button>
-      <button class="admin-btn" id="sampleToggle" onclick="toggleWaitlistSamples()">180 BEISPIELPROFILE ANZEIGEN</button>
-      <button class="admin-btn" onclick="clearWaitlistSamples()">BEISPIELPROFILE LEEREN</button>
       <button class="admin-btn" id="waitlistPdfBtn" onclick="downloadWaitlistPDF()">PDF DOWNLOAD</button>
     </div>
       </div>
-      <p id="sampleCount" style="color:#bc9c61;font-size:13px">Beispielprofile sind getrennt von Appwrite und offiziellen PDF-Exporten.</p>
       <div id="waitlistMsg" style="color:#d6aa77;margin:12px 0"></div>
       <div class="admin-table-wrap"><table class="admin-table">
         <thead><tr><th>Product</th><th>Name</th><th>Email</th><th>Size</th><th>Colour</th><th>Status</th><th>Date</th><th></th></tr></thead>

@@ -2,110 +2,6 @@
 let editId=null;
 let currentWaitlistRows=[];
 
-// Local visual sample: deliberately kept out of Appwrite and official PDF exports.
-const SAMPLE_KEY='cr_admin_demo_visible_v1';
-const sampleMale=['Arno','Baptiste','Colin','Denis','Edgar','Ferdinand','Guillaume','Hector','Ivan','Joao','Kaspar','Loris','Manuel','Norbert','Orlando','Pierre','Remy','Sandro','Thierry','Ulrich','Vasco','Wilfried','Yves','Zeno','Augustin','Boris','Clement','Dominik','Ettore','Franco'];
-const sampleFemale=['Alina','Barbara','Chiara','Dorothea','Esther','Fiona','Greta','Heloise','Ilona','Josefine','Karina','Lorena','Marta','Nora','Odette','Priscilla','Rosalie','Sabine','Tatiana','Ursula','Viola','Wilma','Yasmine','Zita','Amandine','Berenice','Cosima','Dalia','Evelina','Florence'];
-const sampleLast=['Abreu','Antunes','Bastos','Bettencourt','Blum','Brandao','Cabral','Caldeira','Casagrande','Coutinho','Decker','Delgado','Domingues','Eberle','Esteves','Faria','Feltes','Filipe','Fischer-Daun','Francois','Goncalves','Hein','Henriques','Hoff','Jansen','Kemp','Kirsch','Lacerda','Lemoine','Lentz','Lourenco','Machado-Silva','Magalhaes','Mertens','Metzler','Morgado','Nobre','Pacheco','Pires','Reuter-Lenz','Sampaio','Sequeira','Serra','Valente','Varela'];
-const sampleMail=['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.com','gmx.de','proton.me','mail.com'];
-
-// Internal sample records remain identified separately from real signups.
-function sampleDisplayEmail(value,row){
-  const email=String(value||'');
-  const sampleId=String(row?.productId||row?.$id||'');
-  const m=sampleId.match(/(?:cr-internal-sample-202610-|sample-)(\\d+)$/);
-  if(m){
-    const index=sampleId.startsWith('cr-internal-sample-202610-')?Number(m[1])-1:Number(m[1]);
-    if(index>=0&&index<180){
-      const local=email.split(/\\(at\\)|@/)[0];
-      return local+'(at)'+sampleMail[index%sampleMail.length];
-    }
-  }
-  return email;
-}
-
-function samplePeople(){
-  const p=['Half-Zip','Men Trousers','Women Trousers','Women Cardigan'];
-  return Array.from({length:180},(_,i)=>{
-    const fn=(i%2?sampleFemale:sampleMale)[Math.floor(i/2)%30];
-    const ln=sampleLast[(i*7+Math.floor(i/30))%sampleLast.length];
-    const username=(fn+(i%3===0?'.':'')+ln+(i%5===0?'23':'')).toLowerCase().replace(/[^a-z0-9.]/g,'');
-    return {$id:'sample-'+i,productName:p[i%4],name:fn+' '+ln,email:username+'(at)'+sampleMail[i%8],size:['XS','S','M','L','XL',''][i%6],color:['Beige','Navy','Black','Bordeaux','Brown',''][i%6],status:'waiting',sample:true,$createdAt:null};
-  });
-}
-let sampleRows=samplePeople();
-let samplesVisible=localStorage.getItem(SAMPLE_KEY)==='1';
-function toggleWaitlistSamples(){
-  samplesVisible=!samplesVisible;
-  localStorage.setItem(SAMPLE_KEY,samplesVisible?'1':'0');
-  renderWaitlist();
-}
-function clearWaitlistSamples(){
-  if(!confirm('Alle 180 Beispielprofile aus der Ansicht entfernen? Echte Appwrite-Einträge bleiben erhalten.'))return;
-  samplesVisible=false;localStorage.setItem(SAMPLE_KEY,'0');sampleRows=samplePeople();renderWaitlist();
-}
-function renderWaitlist(){
-  const samples=samplesVisible?sampleRows:[];
-  const rows=[...currentWaitlistRows,...samples];
-  statWaitlist.textContent=currentWaitlistRows.filter(w=>!CRAppwrite.isSampleRow(w)).length;
-  const count=document.getElementById('sampleCount');
-  const toggle=document.getElementById('sampleToggle');
-  if(count) count.textContent=samplesVisible?('Echte Anmeldungen: '+currentWaitlistRows.filter(w=>!CRAppwrite.isSampleRow(w)).length+' · gespeicherte Beispiele: '+currentWaitlistRows.filter(CRAppwrite.isSampleRow).length+' · Vorschau: '+samples.length):('Echte Anmeldungen: '+currentWaitlistRows.filter(w=>!CRAppwrite.isSampleRow(w)).length+' · gespeicherte Beispiele: '+currentWaitlistRows.filter(CRAppwrite.isSampleRow).length);
-  if(toggle) toggle.textContent=samplesVisible?'BEISPIELPROFILE AUSBLENDEN':'180 BEISPIELPROFILE ANZEIGEN';
-  const escape=w=>CRStore.esc(w||'');
-  waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr${w.sample?' style="background:rgba(187,158,100,.09)"':''}>
-      <td>${escape(w.productName||w.productId)}${w.sample||CRAppwrite.isSampleRow(w)?' <small style="color:#bc9c61">(Beispiel)</small>':''}</td>
-      <td>${escape(w.name)}</td><td>${escape(w.sample||CRAppwrite.isSampleRow(w)?sampleDisplayEmail(w.email,w):w.email)}</td>
-      <td>${escape(w.size||'Not selected')}</td><td>${escape(w.color||'Not selected')}</td>
-      <td><select class="admin-input" onchange="${w.sample?'setSampleStatus(\''+w.$id+'\',this.value)':'setWaitlistStatus(\''+w.$id+'\',this.value)'}">
-        ${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
-      <td>${w.sample?'—':w.$createdAt?new Date(w.$createdAt).toLocaleString():'—'}</td>
-      <td><button class="admin-btn" onclick="${w.sample?'deleteSample(\''+w.$id+'\')':'deleteWaitlist(\''+w.$id+'\')'}">Delete</button></td>
-    </tr>`).join(''):'<tr><td colspan="8">No waitlist entries yet.</td></tr>';
-}
-function setSampleStatus(id,status){const row=sampleRows.find(r=>r.$id===id);if(row)row.status=status;}
-function deleteSample(id){sampleRows=sampleRows.filter(r=>r.$id!==id);renderWaitlist();}
-
-
-
-async function importSampleWaitlist(){
- if(!confirm('180 interne Beispielprofile wirklich in Appwrite speichern? Sie bleiben als Beispiele erkennbar.'))return;
- const btn=document.getElementById('sampleImportBtn'),msg=document.getElementById('waitlistMsg');
- btn.disabled=true;
- try{
-  samplesVisible=false;localStorage.setItem(SAMPLE_KEY,'0');
-  const result=await CRAppwrite.insertAdminSampleRows(samplePeople(),p=>{msg.textContent='Appwrite Import: '+p.processed+'/180 · gespeichert '+p.created+' · Fehler '+p.failed;});
-  await loadWaitlist();
-  msg.textContent='Import abgeschlossen: '+result.created+' gespeichert, '+result.skipped+' bereits vorhanden, '+result.failed+' Fehler.';
- }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
- finally{btn.disabled=false}
-}
-async function replaceSampleEmails(){
-  if(!confirm('Die bereits gespeicherten 180 Beispiel-E-Mail-Adressen in Appwrite durch (at)-Adressen ersetzen? Echte Kunden werden nicht verändert.'))return;
-  const btn=document.getElementById('sampleEmailReplaceBtn'),msg=document.getElementById('waitlistMsg');
-  btn.disabled=true;
-  try{
-    const result=await CRAppwrite.replaceAdminSampleEmails(samplePeople(),p=>{
-      msg.textContent='E-Mails aktualisieren: '+p.updated+' / '+p.total+' · Fehler: '+p.failed;
-    });
-    await loadWaitlist();
-    msg.textContent='Beispiel-E-Mails aktualisiert: '+result.updated+' · unverändert: '+result.unchanged+' · Fehler: '+result.failed+
-      (result.failed?' · Möglicherweise verlangt die Appwrite-Spalte gültige @-Adressen.':'');
-  }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
-  finally{btn.disabled=false}
-}
-
-async function purgeSampleWaitlist(){
- if(!confirm('Alle INTERNEN Appwrite-Beispiele dauerhaft löschen? Echte Anmeldungen werden nicht gelöscht.'))return;
- const btn=document.getElementById('samplePurgeBtn'),msg=document.getElementById('waitlistMsg');
- btn.disabled=true;
- try{
-  const result=await CRAppwrite.deleteAdminSampleRows(p=>{msg.textContent='Beispiele gelöscht: '+p.deleted+'/'+p.total});
-  await loadWaitlist();msg.textContent='Entfernt: '+result.deleted+' · Fehler: '+result.failed;
- }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
- finally{btn.disabled=false}
-}
-
 async function login(){
   const btn=document.getElementById('loginBtn');
   const msg=document.getElementById('msg');
@@ -227,8 +123,21 @@ async function loadWaitlist(){
   try{
     const rows=await CRAppwrite.listAdminWaitlist();
     currentWaitlistRows=rows;
-    statWaitlist.textContent=rows.filter(w=>!CRAppwrite.isSampleRow(w)).length;
-    renderWaitlist();
+    statWaitlist.textContent=rows.length;
+    waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr>
+      <td>${CRStore.esc(w.productName||w.productId)}</td>
+      <td>${CRStore.esc(w.name||'')}</td>
+      <td>${CRStore.esc(w.email||'')}</td>
+      <td>${CRStore.esc(w.size||'Not selected')}</td>
+      <td>${CRStore.esc(w.color||'Not selected')}</td>
+      <td>
+        <select class="admin-input" onchange="setWaitlistStatus('${w.$id}',this.value)">
+          ${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td>${w.$createdAt?new Date(w.$createdAt).toLocaleString():'—'}</td>
+      <td><button class="admin-btn" onclick="deleteWaitlist('${w.$id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="8">No waitlist entries yet.</td></tr>';
     msg.textContent='';
   }catch(err){
     const info=CRAppwrite.explainError(err,'Waitlist could not be loaded.');
