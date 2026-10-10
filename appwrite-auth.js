@@ -338,13 +338,33 @@ const CRAppwrite = (() => {
       try{
         await withTimeout(tablesDB.createRow({
           databaseId,tableId:waitlistTableId,rowId:Appwrite.ID.unique(),
-          data:{userId:'internal_sample',name:r.name,email:(String(r.email).replace('(at)','@').replace(/@[^@]+$/,'@'+['gmail.example','outlook.example','hotmail.example','icloud.example','yahoo.example','gmx.example','proton.example','mail.example'][i%8])),productId,productName:r.productName,size:r.size||'Not selected',color:r.color||'Not selected',status:'waiting'}
+          data:{userId:'internal_sample',name:r.name,email:String(r.email),productId,productName:r.productName,size:r.size||'Not selected',color:r.color||'Not selected',status:'waiting'}
         }),15000,'Beispiele speichern');
         created++;ids.add(productId);
       }catch(err){failed++;console.error('Sample import row '+(i+1),err);}
       if(onProgress)onProgress({created,skipped,failed,processed:i+1,total:rows.length});
     }
     return {created,skipped,failed};
+  }
+  async function replaceAdminSampleEmails(rows,onProgress){
+    init();
+    if(!await isAdmin())throw new Error('Admin-Berechtigung erforderlich.');
+    const saved=(await listAdminWaitlist()).filter(isSampleRow);
+    const map=new Map(rows.map((r,i)=>[demoPrefix+String(i+1).padStart(3,'0'),r.email]));
+    let updated=0,failed=0,unchanged=0;
+    for(const row of saved){
+      const email=map.get(row.productId);
+      if(!email){unchanged++;continue;}
+      if(row.email===email){unchanged++;continue;}
+      try{
+        await withTimeout(tablesDB.updateRow({
+          databaseId,tableId:waitlistTableId,rowId:row.$id,data:{email}
+        }),15000,'Beispieladresse aktualisieren');
+        updated++;
+      }catch(err){failed++;console.error('Beispieladresse konnte nicht aktualisiert werden:',row.$id,err);}
+      if(onProgress)onProgress({updated,failed,unchanged,total:saved.length});
+    }
+    return {updated,failed,unchanged,total:saved.length};
   }
   async function deleteAdminSampleRows(onProgress){
     init();
@@ -359,7 +379,7 @@ const CRAppwrite = (() => {
   }
 
   return {
-    isSampleRow,insertAdminSampleRows,deleteAdminSampleRows,
+    isSampleRow,insertAdminSampleRows,replaceAdminSampleEmails,deleteAdminSampleRows,
     endpoint,projectId,databaseId,waitlistTableId,adminTeamId,
     init,diagnose,currentUser,register,login,logout,getPrefs,updatePrefs,
     isAdmin,addToWaitlist,removeFromWaitlist,
