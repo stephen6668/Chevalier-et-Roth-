@@ -1,228 +1,323 @@
 
 let editId=null;
+let editingCodeId=null;
 let currentWaitlistRows=[];
+let adminProducts=[];
+let adminCodes=[];
+let adminOrders=[];
+
+function val(id){return document.getElementById(id)?.value||''}
+function money(v){return CRStore.money(Number(v)||0)}
+function splitCsv(v){return String(v||'').split(',').map(x=>x.trim()).filter(Boolean)}
+function setMsg(id,text,type=''){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text||'';el.className='admin-message '+type;
+}
 
 async function login(){
-  const btn=document.getElementById('loginBtn');
-  const msg=document.getElementById('msg');
-  const debug=document.getElementById('debug');
-  btn.disabled=true;
-  msg.textContent='Checking Appwrite login…';
-  debug.textContent='';
-
+  const btn=loginBtn;btn.disabled=true;msg.textContent='Checking secure access…';debug.textContent='';
   try{
-    // Appwrite allows only one active email/password session in this browser.
-    // If a session already exists, either reuse it (when it is already an admin)
-    // or sign it out before logging into the requested admin account.
     const existing=await CRAppwrite.currentUser();
-
     if(existing){
-      const existingIsAdmin=await CRAppwrite.isAdmin();
-
-      if(existingIsAdmin){
-        msg.textContent='Admin-Sitzung bereits aktiv.';
-        debug.textContent='Eingeloggt als: '+(existing.email||existing.name||existing.$id);
-        await showAdmin();
-        return;
-      }
-
-      msg.textContent='Ein anderes Konto ist eingeloggt. Wechsle zum Admin-Konto…';
+      if(await CRAppwrite.isAdmin()){await showAdmin();return}
       await CRAppwrite.logout();
     }
-
-    await CRAppwrite.login({
-      email:document.getElementById('email').value.trim(),
-      password:document.getElementById('password').value
-    });
-
+    await CRAppwrite.login({email:email.value.trim(),password:password.value});
     if(!await CRAppwrite.isAdmin()){
-      const signedIn=await CRAppwrite.currentUser();
       await CRAppwrite.logout();
-      throw new Error(
-        'Login erfolgreich, aber dieses Konto ist nicht Mitglied des Appwrite-Admin-Teams. ' +
-        (signedIn?.email ? 'Konto: '+signedIn.email : '')
-      );
+      throw new Error('This account is not a member of the Appwrite admin team.');
     }
-
-    msg.textContent='';
-    debug.textContent='';
     await showAdmin();
-  }catch(err){
-    const info=CRAppwrite.explainError(err,'Admin login failed.');
-    msg.textContent=info.friendly;
-    debug.textContent=info.details;
-  }finally{
-    btn.disabled=false;
-  }
+  }catch(e){
+    const info=CRAppwrite.explainError(e,'Admin login failed.');
+    msg.textContent=info.friendly;debug.textContent=info.details||'';
+  }finally{btn.disabled=false}
 }
 
 async function restoreAdmin(){
   const user=await CRAppwrite.currentUser();
-  if(!user) return;
-
-  if(await CRAppwrite.isAdmin()){
-    await showAdmin();
-    return;
-  }
-
-  const msg=document.getElementById('msg');
-  const debug=document.getElementById('debug');
-  if(msg) msg.textContent='Es ist bereits ein normales Kundenkonto eingeloggt. Wenn du dich als Admin anmeldest, wird dieses Konto automatisch abgemeldet.';
-  if(debug) debug.textContent='Aktuelle Sitzung: '+(user.email||user.name||user.$id);
+  if(user && await CRAppwrite.isAdmin()) await showAdmin();
 }
 
 async function showAdmin(){
   const user=await CRAppwrite.currentUser();
-  document.getElementById('login').style.display='none';
-  document.getElementById('dashboard').style.display='block';
-  document.getElementById('adminIdentity').textContent=user?.email||'';
-  refreshLocal();
-  await loadWaitlist();
+  login.style.display='none';dashboard.style.display='grid';
+  adminIdentity.textContent=user?.email||'';
+  await refreshAll();
 }
 
-async function logout(){
-  await CRAppwrite.logout();
-  location.reload();
+async function logout(){await CRAppwrite.logout();location.reload()}
+
+function openAdminTab(name,button){
+  document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+name)?.classList.add('active');
+  document.querySelectorAll('.admin-nav button').forEach(x=>x.classList.remove('active'));
+  (button||document.querySelector(`[data-tab="${name}"]`))?.classList.add('active');
+  const names={overview:'Overview',products:'Products & Stock',discounts:'Discount Codes',waitlist:'Waitlist',orders:'Orders'};
+  adminPageTitle.textContent=names[name]||'Admin';
+  if(name==='waitlist')loadWaitlist();
+  if(name==='orders')loadOrders();
 }
 
-function refreshLocal(){
-  const ps=CRStore.products(),codes=CRStore.codes(),orders=CRStore.orders();
-  statProducts.textContent=ps.length;
-  statOrders.textContent=orders.length;
-  statRevenue.textContent=CRStore.money(orders.reduce((s,o)=>s+Number(o.total||0),0));
-  statCodes.textContent=codes.filter(c=>c.active).length;
+async function refreshAll(){
+  await loadProductsAdmin();
+  await Promise.allSettled([loadCodesAdmin(),loadOrders(),loadWaitlist()]);
+  renderOverview();
+}
 
-  productRows.innerHTML=ps.map(p=>`<tr>
-    <td>${CRStore.esc(p.name)}</td>
-    <td>${CRStore.money(p.price)}</td>
-    <td>${p.stock}</td>
-    <td>${p.active?'Active':'Hidden'}</td>
-    <td><button class="admin-btn" onclick="editProduct('${p.id}')">Edit</button></td>
-  </tr>`).join('');
+async function loadProductsAdmin(){
+  try{
+    adminProducts=await CRCommerce.listProducts();
+    CRStore.saveProducts(adminProducts);
+    commerceStatus.textContent='APPWRITE COMMERCE · CONNECTED';
+    commerceStatus.classList.add('ok');
+  }catch(e){
+    adminProducts=CRStore.products();
+    commerceStatus.textContent='APPWRITE COMMERCE · SETUP REQUIRED';
+    commerceStatus.classList.remove('ok');
+  }
+  renderProductsAdmin();
+  renderProductSelect();
+  renderDiscountProductChoices();
+}
 
-  codeRows.innerHTML=codes.map(c=>`<tr>
-    <td>${CRStore.esc(c.code)}</td>
-    <td>${c.percent}%</td>
-    <td>${c.active?'Active':'Inactive'}</td>
-    <td>${c.uses||0}/${c.maxUses||'∞'}</td>
-    <td><button class="admin-btn" onclick="toggleCode('${c.code}')">Toggle</button></td>
-  </tr>`).join('');
+function renderProductSelect(){
+  productEditSelect.innerHTML='<option value="">Create a new product…</option>'+
+    adminProducts.map(p=>`<option value="${CRStore.esc(p.id)}">${CRStore.esc(p.name)} · ${p.stock} stock</option>`).join('');
+  if(editId)productEditSelect.value=editId;
+}
 
-  orderRows.innerHTML=orders.map(o=>`<tr>
-    <td>${o.number}</td>
-    <td>${new Date(o.date).toLocaleDateString()}</td>
-    <td>${CRStore.esc(o.customer)}</td>
-    <td>${CRStore.money(o.total)}</td>
-    <td>${o.status}</td>
-  </tr>`).join('');
+function stockClass(stock){
+  if(stock<=0)return 'sold';
+  if(stock<=5)return 'low';
+  return 'good';
+}
+
+function renderProductsAdmin(){
+  const q=String(productSearch?.value||'').toLowerCase();
+  const list=adminProducts.filter(p=>!q||`${p.name} ${p.sku} ${p.category}`.toLowerCase().includes(q));
+  productCardsAdmin.innerHTML=list.length?list.map(p=>`
+    <button class="admin-product-card ${editId===p.id?'selected':''}" onclick="selectProductToEdit('${p.id}')">
+      <div class="admin-product-thumb">${p.images?.[0]?`<img src="${CRStore.esc(p.images[0])}" alt="">`:'CR'}</div>
+      <div class="admin-product-card-copy"><b>${CRStore.esc(p.name)}</b><span>${CRStore.esc(p.sku||p.category)}</span><small>${money(p.price)} · <i class="stock-dot ${stockClass(p.stock)}"></i>${p.stock} in stock</small></div>
+      <span class="admin-status-chip ${p.stock<=0?'sold':''}">${p.stock<=0?'SOLD OUT':(p.active?'LIVE':'HIDDEN')}</span>
+    </button>`).join(''):'<div class="admin-empty">No products found.</div>';
+}
+
+function newProduct(){
+  editId=null;productForm.reset();pActive.checked=true;pCategory.value='Men';pStock.value='0';
+  productEditorEyebrow.textContent='NEW PRODUCT';productEditorTitle.textContent='Create product';deleteProductBtn.hidden=true;
+  productEditSelect.value='';renderProductsAdmin();productSaveMsg.textContent='';
+}
+
+function selectProductToEdit(id){
+  if(!id){newProduct();return}
+  const p=adminProducts.find(x=>x.id===id);if(!p)return;
+  editId=id;
+  pName.value=p.name||'';pCategory.value=p.category||'Men';pPrice.value=p.price||0;pSale.value=p.salePrice||'';
+  pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');pStock.value=p.stock||0;
+  pSku.value=p.sku||'';pBadge.value=p.badge||'';pImages.value=(p.images||[]).join(', ');pDesc.value=p.description||'';pActive.checked=!!p.active;
+  productEditorEyebrow.textContent='EDIT PRODUCT';productEditorTitle.textContent=p.name;deleteProductBtn.hidden=false;
+  productEditSelect.value=id;renderProductsAdmin();
+  if(window.innerWidth<900)productForm.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function saveProduct(){
+  const data={
+    id:editId||('prod_'+Date.now()),
+    name:val('pName').trim(),
+    category:val('pCategory'),
+    price:Number(val('pPrice')||0),
+    salePrice:val('pSale')?Number(val('pSale')):null,
+    sizes:splitCsv(val('pSizes')),
+    colors:splitCsv(val('pColors')),
+    stock:Math.max(0,Math.floor(Number(val('pStock')||0))),
+    sku:val('pSku').trim(),
+    badge:val('pBadge'),
+    active:pActive.checked,
+    images:splitCsv(val('pImages')),
+    description:val('pDesc').trim()
+  };
+  if(!data.name)return setMsg('productSaveMsg','Enter a product name.','error');
+  if(data.price<0)return setMsg('productSaveMsg','Price cannot be negative.','error');
+
+  saveProductBtn.disabled=true;setMsg('productSaveMsg','Saving product to Appwrite…');
+  try{
+    const saved=await CRCommerce.saveProduct(data);
+    const i=adminProducts.findIndex(x=>x.id===saved.id);
+    if(i>=0)adminProducts[i]=saved;else adminProducts.push(saved);
+    CRStore.saveProducts(adminProducts);
+    editId=saved.id;
+    renderProductsAdmin();renderProductSelect();renderDiscountProductChoices();renderOverview();
+    selectProductToEdit(saved.id);
+    setMsg('productSaveMsg','Saved. The store catalogue is updated centrally.','success');
+  }catch(e){
+    // Local fallback keeps the editor usable but clearly states it is not global.
+    const i=adminProducts.findIndex(x=>x.id===data.id);
+    if(i>=0)adminProducts[i]=data;else adminProducts.push(data);
+    CRStore.saveProducts(adminProducts);
+    editId=data.id;renderProductsAdmin();renderProductSelect();renderDiscountProductChoices();renderOverview();
+    setMsg('productSaveMsg','Saved only in this browser because the Appwrite product table is not ready. Open APPWRITE-COMMERCE-SETUP.html.','error');
+  }finally{saveProductBtn.disabled=false}
+}
+
+async function deleteCurrentProduct(){
+  if(!editId)return;
+  const p=adminProducts.find(x=>x.id===editId);
+  if(!confirm(`Delete "${p?.name||'this product'}"?`))return;
+  try{await CRCommerce.deleteProduct(editId)}catch(e){console.warn(e)}
+  adminProducts=adminProducts.filter(x=>x.id!==editId);
+  CRStore.saveProducts(adminProducts);newProduct();renderProductSelect();renderDiscountProductChoices();renderOverview();
+}
+
+function duplicateCurrentProduct(){
+  const p=adminProducts.find(x=>x.id===editId);if(!p)return;
+  editId=null;
+  pName.value=p.name+' Copy';pCategory.value=p.category;pPrice.value=p.price;pSale.value=p.salePrice||'';
+  pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');pStock.value=p.stock;
+  pSku.value=(p.sku||'')+'-COPY';pBadge.value=p.badge||'';pImages.value=(p.images||[]).join(', ');pDesc.value=p.description||'';pActive.checked=false;
+  productEditorEyebrow.textContent='DUPLICATE PRODUCT';productEditorTitle.textContent='Create copy';deleteProductBtn.hidden=true;
+}
+
+async function loadCodesAdmin(){
+  try{adminCodes=await CRCommerce.listCodes()}
+  catch(e){adminCodes=CRStore.codes()}
+  renderCodesAdmin();
+}
+
+function renderCodesAdmin(){
+  codeCardsAdmin.innerHTML=adminCodes.length?adminCodes.map(c=>`
+    <button class="admin-product-card ${editingCodeId===(c.rowId||c.code)?'selected':''}" onclick="editCode('${c.rowId||c.code}')">
+      <div class="discount-circle">${c.percent}%</div>
+      <div class="admin-product-card-copy"><b>${CRStore.esc(c.code)}</b><span>${c.products?.length?c.products.length+' selected product(s)':'All products'}</span><small>${c.active?'Active':'Inactive'} · ${c.uses||0}${c.maxUses?'/'+c.maxUses:''} uses</small></div>
+      <span class="admin-status-chip ${c.active?'':'sold'}">${c.active?'ACTIVE':'OFF'}</span>
+    </button>`).join(''):'<div class="admin-empty">No discount codes yet.</div>';
+}
+
+function syncPercent(v){
+  const n=Math.max(1,Math.min(100,Math.round(Number(v)||1)));
+  cPercent.value=n;cPercentRange.value=n;percentPreview.textContent=n+'%';
+}
+
+function renderDiscountProductChoices(){
+  const selected=new Set(getSelectedDiscountProducts());
+  discountProductChoices.innerHTML=adminProducts.map(p=>`
+    <label class="product-choice">
+      <input type="checkbox" class="code-product" value="${CRStore.esc(p.id)}" ${selected.has(p.id)?'checked':''} onchange="syncAllProductsState()">
+      <span><b>${CRStore.esc(p.name)}</b><small>${CRStore.esc(p.sku||p.category)}</small></span>
+    </label>`).join('');
+}
+
+function getSelectedDiscountProducts(){
+  return [...document.querySelectorAll('.code-product:checked')].map(x=>x.value);
+}
+function syncAllProductsState(){
+  const checks=[...document.querySelectorAll('.code-product')];
+  cAllProducts.checked=checks.length>0 && checks.every(x=>x.checked);
+}
+function toggleAllProducts(){
+  document.querySelectorAll('.code-product').forEach(x=>x.checked=cAllProducts.checked);
+}
+
+function newCode(){
+  editingCodeId=null;cCode.value='';cActiveSelect.value='true';syncPercent(10);cStart.value='';cEnd.value='';cMax.value='';cMin.value='';
+  cAllProducts.checked=true;document.querySelectorAll('.code-product').forEach(x=>x.checked=true);
+  document.querySelectorAll('.code-category').forEach(x=>x.checked=false);
+  codeEditorTitle.textContent='Create code';deleteCodeBtn.hidden=true;codeSaveMsg.textContent='';renderCodesAdmin();
+}
+
+function editCode(id){
+  const c=adminCodes.find(x=>(x.rowId||x.code)===id);if(!c)return;
+  editingCodeId=id;cCode.value=c.code;cActiveSelect.value=String(!!c.active);syncPercent(c.percent||1);
+  cStart.value=c.start||'';cEnd.value=c.end||'';cMax.value=c.maxUses||'';cMin.value=c.minOrder||'';
+  const selected=new Set(c.products||[]);
+  const all=!selected.size;cAllProducts.checked=all;
+  document.querySelectorAll('.code-product').forEach(x=>x.checked=all||selected.has(x.value));
+  const cats=new Set(c.categories||[]);document.querySelectorAll('.code-category').forEach(x=>x.checked=cats.has(x.value));
+  codeEditorTitle.textContent=c.code;deleteCodeBtn.hidden=false;renderCodesAdmin();
+}
+
+async function saveCode(){
+  const previous=adminCodes.find(x=>(x.rowId||x.code)===editingCodeId);
+  const data={
+    rowId:previous?.rowId,
+    code:cCode.value.trim().toUpperCase(),
+    percent:Number(cPercent.value||0),
+    active:cActiveSelect.value==='true',
+    start:cStart.value,end:cEnd.value,
+    maxUses:Number(cMax.value||0),uses:Number(previous?.uses||0),minOrder:Number(cMin.value||0),
+    products:cAllProducts.checked?[]:getSelectedDiscountProducts(),
+    categories:[...document.querySelectorAll('.code-category:checked')].map(x=>x.value)
+  };
+  if(!data.code)return setMsg('codeSaveMsg','Enter a code.','error');
+  if(data.percent<1||data.percent>100)return setMsg('codeSaveMsg','Choose a percentage from 1 to 100.','error');
+  setMsg('codeSaveMsg','Saving discount code…');
+  try{
+    const saved=await CRCommerce.saveCode(data);
+    const i=adminCodes.findIndex(x=>(x.rowId||x.code)===(previous?.rowId||previous?.code));
+    if(i>=0)adminCodes[i]=saved;else adminCodes.push(saved);
+    editingCodeId=saved.rowId||saved.code;renderCodesAdmin();renderOverview();
+    setMsg('codeSaveMsg','Discount code saved.','success');
+  }catch(e){
+    setMsg('codeSaveMsg','Could not save to Appwrite. Check the cr_codes table permissions.','error');
+  }
+}
+
+async function deleteCurrentCode(){
+  const c=adminCodes.find(x=>(x.rowId||x.code)===editingCodeId);if(!c)return;
+  if(!confirm(`Delete code ${c.code}?`))return;
+  try{if(c.rowId)await CRCommerce.deleteCode(c.rowId)}catch(e){console.warn(e)}
+  adminCodes=adminCodes.filter(x=>x!==c);newCode();renderOverview();
+}
+
+async function loadOrders(){
+  try{
+    adminOrders=await CRCommerce.listOrders();
+    orderStatusMsg.textContent='';
+    orderRows.innerHTML=adminOrders.length?adminOrders.map(o=>`<tr>
+      <td>${CRStore.esc(o.number||o.$id)}</td>
+      <td>${CRStore.esc(o.date||o.$createdAt||'')}</td>
+      <td>${CRStore.esc(o.customer||'')}</td>
+      <td>${CRStore.esc(o.email||'')}</td>
+      <td>${money(o.total||0)}</td>
+      <td><span class="admin-status-chip">${CRStore.esc(o.status||'paid')}</span></td>
+    </tr>`).join(''):'<tr><td colspan="6">No paid orders recorded yet.</td></tr>';
+  }catch(e){
+    adminOrders=CRStore.orders();
+    orderRows.innerHTML=adminOrders.map(o=>`<tr><td>${o.number}</td><td>${new Date(o.date).toLocaleDateString()}</td><td>${CRStore.esc(o.customer)}</td><td>—</td><td>${money(o.total)}</td><td>${o.status}</td></tr>`).join('');
+    orderStatusMsg.textContent='Central orders table not ready yet. See APPWRITE-COMMERCE-SETUP.html.';
+  }
+  renderOverview();
+}
+
+function renderOverview(){
+  statProducts.textContent=adminProducts.length;
+  statStock.textContent=adminProducts.reduce((s,p)=>s+Math.max(0,Number(p.stock||0)),0);
+  statSoldOut.textContent=adminProducts.filter(p=>Number(p.stock||0)<=0).length;
+  statCodes.textContent=adminCodes.filter(c=>c.active).length;
+  statOrders.textContent=adminOrders.length;
+  lowStockGrid.innerHTML=adminProducts.filter(p=>p.active&&Number(p.stock||0)<=8).sort((a,b)=>a.stock-b.stock).slice(0,8).map(p=>`
+    <button onclick="openAdminTab('products');selectProductToEdit('${p.id}')"><b>${CRStore.esc(p.name)}</b><span>${p.stock<=0?'SOLD OUT':p.stock+' left'}</span></button>`).join('')||'<div class="admin-empty">No low-stock products.</div>';
 }
 
 async function loadWaitlist(){
-  const msg=document.getElementById('waitlistMsg');
-  msg.textContent='Loading central waitlist…';
+  const m=document.getElementById('waitlistMsg');if(m)m.textContent='Loading waitlist…';
   try{
-    const rows=await CRAppwrite.listAdminWaitlist();
-    currentWaitlistRows=rows;
-    statWaitlist.textContent=rows.length;
+    const rows=await CRAppwrite.listAdminWaitlist();currentWaitlistRows=rows;statWaitlist.textContent=rows.length;
     waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr>
-      <td>${CRStore.esc(w.productName||w.productId)}</td>
-      <td>${CRStore.esc(w.name||'')}</td>
-      <td>${CRStore.esc(w.email||'')}</td>
-      <td>${CRStore.esc(w.size||'Not selected')}</td>
-      <td>${CRStore.esc(w.color||'Not selected')}</td>
-      <td>
-        <select class="admin-input" onchange="setWaitlistStatus('${w.$id}',this.value)">
-          ${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}
-        </select>
-      </td>
-      <td>${w.$createdAt?new Date(w.$createdAt).toLocaleString():'—'}</td>
-      <td><button class="admin-btn" onclick="deleteWaitlist('${w.$id}')">Delete</button></td>
+      <td>${CRStore.esc(w.productName||w.productId)}</td><td>${CRStore.esc(w.name||'')}</td><td>${CRStore.esc(w.email||'')}</td>
+      <td>${CRStore.esc(w.size||'Not selected')}</td><td>${CRStore.esc(w.color||'Not selected')}</td>
+      <td><select class="admin-input compact" onchange="setWaitlistStatus('${w.$id}',this.value)">${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td>${w.$createdAt?new Date(w.$createdAt).toLocaleString():'—'}</td><td><button class="icon-btn danger" onclick="deleteWaitlist('${w.$id}')">Delete</button></td>
     </tr>`).join(''):'<tr><td colspan="8">No waitlist entries yet.</td></tr>';
-    msg.textContent='';
-  }catch(err){
-    const info=CRAppwrite.explainError(err,'Waitlist could not be loaded.');
-    msg.textContent=info.friendly+' '+info.details;
-    currentWaitlistRows=[];
-    statWaitlist.textContent='—';
+    if(m)m.textContent='';
+  }catch(e){
+    const info=CRAppwrite.explainError(e);if(m)m.textContent=info.friendly;currentWaitlistRows=[];statWaitlist.textContent='—';
   }
 }
 
-async function setWaitlistStatus(rowId,status){
-  try{
-    await CRAppwrite.updateWaitlistStatus(rowId,status);
-  }catch(err){
-    const info=CRAppwrite.explainError(err);
-    alert(info.friendly);
-    await loadWaitlist();
-  }
-}
-
-async function deleteWaitlist(rowId){
-  if(!confirm('Wartelisteneintrag wirklich löschen?')) return;
-  try{
-    await CRAppwrite.deleteAdminWaitlistRow(rowId);
-    await loadWaitlist();
-  }catch(err){
-    const info=CRAppwrite.explainError(err);
-    alert(info.friendly);
-  }
-}
-
-function val(id){return document.getElementById(id).value}
-
-function saveProduct(){
-  const ps=CRStore.products(),data={
-    id:editId||'p'+Date.now(),
-    name:val('pName'),
-    category:val('pCategory'),
-    price:+val('pPrice')||0,
-    salePrice:val('pSale')?+val('pSale'):null,
-    sizes:val('pSizes').split(',').map(x=>x.trim()).filter(Boolean),
-    colors:val('pColors').split(',').map(x=>x.trim()).filter(Boolean),
-    stock:+val('pStock')||0,
-    sku:val('pSku'),
-    badge:val('pBadge'),
-    active:pActive.checked,
-    images:val('pImages').split(',').map(x=>x.trim()).filter(Boolean),
-    description:val('pDesc')
-  };
-  const i=ps.findIndex(p=>p.id===data.id);
-  if(i>=0)ps[i]=data;else ps.push(data);
-  CRStore.saveProducts(ps);
-  editId=null;
-  productForm.reset();
-  pActive.checked=true;
-  refreshLocal();
-}
-
-function editProduct(id){
-  const p=CRStore.products().find(x=>x.id===id);if(!p)return;
-  editId=id;
-  pName.value=p.name;pCategory.value=p.category;pPrice.value=p.price;pSale.value=p.salePrice||'';
-  pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');
-  pStock.value=p.stock;pSku.value=p.sku;pBadge.value=p.badge||'';
-  pImages.value=(p.images||[]).join(', ');pDesc.value=p.description||'';pActive.checked=!!p.active;
-  window.scrollTo({top:productForm.offsetTop-80,behavior:'smooth'});
-}
-
-function saveCode(){
-  let cs=CRStore.codes(),code=cCode.value.trim().toUpperCase();if(!code)return;
-  const d={
-    code,percent:+cPercent.value||0,active:cActive.checked,start:cStart.value,end:cEnd.value,
-    maxUses:+cMax.value||0,uses:0,minOrder:+cMin.value||0,
-    products:cProducts.value.split(',').map(x=>x.trim()).filter(Boolean),
-    categories:cCategories.value.split(',').map(x=>x.trim()).filter(Boolean)
-  };
-  const i=cs.findIndex(x=>x.code===code);
-  if(i>=0)d.uses=cs[i].uses||0,cs[i]=d;else cs.push(d);
-  CRStore.saveCodes(cs);refreshLocal();
-}
-
-function toggleCode(code){
-  let cs=CRStore.codes(),c=cs.find(x=>x.code===code);
-  if(c)c.active=!c.active;
-  CRStore.saveCodes(cs);refreshLocal();
-}
+async function setWaitlistStatus(rowId,status){try{await CRAppwrite.updateWaitlistStatus(rowId,status)}catch(e){alert(CRAppwrite.explainError(e).friendly)}}
+async function deleteWaitlist(rowId){if(!confirm('Delete this waitlist entry?'))return;try{await CRAppwrite.deleteAdminWaitlistRow(rowId);await loadWaitlist()}catch(e){alert(CRAppwrite.explainError(e).friendly)}}
 
 document.addEventListener('DOMContentLoaded',restoreAdmin);
 

@@ -41,3 +41,14 @@ Create the Stripe account directly at Stripe and complete the legitimate busines
 - The function validates product prices server-side, so a visitor cannot change the price in their browser.
 - Current server-side promotion support: `WELCOME10` = 10%.
 - For a full production backend, add an Appwrite Orders table and a Stripe webhook before treating the website admin as the accounting source of truth.
+
+
+## Central catalogue / stock update
+
+This function now reads product price and stock from Appwrite table `cr_products` instead of a hard-coded product list.
+It also validates discount codes from `cr_codes`.
+
+Appwrite Function scopes required:
+- rows.read
+
+The browser checkout payload includes `action: "checkout:create"`.

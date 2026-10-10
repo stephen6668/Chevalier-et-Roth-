@@ -1,5 +1,5 @@
 {
-  "name": "chevalier-roth-stripe-checkout",
+  "name": "chevalier-roth-stock-webhook",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {

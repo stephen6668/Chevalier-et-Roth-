@@ -10,7 +10,7 @@
 <script src="site-config.js"></script>
 <script src="store.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
-<script src="appwrite-auth.js"></script>
+<script src="appwrite-auth.js"></script><script src="commerce.js"></script>
 <script src="app.js" defer></script>
 </head>
 <body>
@@ -132,6 +132,7 @@ async function startStripeCheckout(e){
   try{
     const saved=CRStore.get('checkoutDiscount',null);
     const payload={
+      action:'checkout:create',
       cart:lines.map(x=>({id:x.product.id,qty:x.qty,size:x.size,color:x.color})),
       discountCode:saved?.code||'',
       customer:{
@@ -210,7 +211,7 @@ async function startStripeCheckout(e){
   }
 }
 
-document.addEventListener('DOMContentLoaded',renderCheckout);
+document.addEventListener('DOMContentLoaded',async()=>{if(window.CRCommerce)await CRCommerce.syncProducts();renderCheckout();});
 </script>
 </body>
 </html>

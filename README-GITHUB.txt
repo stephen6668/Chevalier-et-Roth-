@@ -355,3 +355,40 @@ Current examples before shipping:
 - €90.00 -> VAT €15.30 -> €105.30 total
 
 Shipping amounts configured in Appwrite remain as their configured amounts and are not included in this manual merchandise VAT calculation.
+
+
+=================================================
+MAISON ADMIN V3 + CENTRAL INVENTORY
+=================================================
+
+ADMIN
+- Full Chevalier & Roth visual redesign.
+- Mobile-friendly sidebar/navigation.
+- Create, edit, duplicate and delete products.
+- Product selector lets you choose exactly what to edit.
+- Stock is editable directly.
+- Discount percentage can be selected from 1% to 100%.
+- Discount product targeting uses direct product checkboxes; no product IDs need to be typed.
+- Waitlist PDF remains available.
+- Orders view is connected to central Appwrite orders.
+
+CENTRAL STOCK
+For stock to be global across every customer/device, create the exact tables shown in:
+APPWRITE-COMMERCE-SETUP.html
+
+Table IDs:
+- cr_products
+- cr_codes
+- cr_orders
+
+Once `cr_products` exists, admin product changes are stored centrally and the storefront reads the same catalogue.
+
+AUTOMATIC SOLD OUT
+Deploy `stripe-stock-webhook/` and connect it to Stripe event `checkout.session.completed`.
+The webhook atomically decreases stock after a successful payment.
+At stock 0:
+- shop cards show SOLD OUT
+- product page disables ADD TO BAG
+- cart will not allow quantity above available stock
+
+The checkout Appwrite function now reads prices/stock from `cr_products`, so newly-created admin products can be purchased without editing hard-coded Stripe product code.

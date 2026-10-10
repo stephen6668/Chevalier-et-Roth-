@@ -21,6 +21,12 @@ window.CRSiteConfig = {
   shippingCountries: ['Luxembourg', 'Belgium', 'France', 'Germany'],
   deliveryEstimate: '[ENTER DELIVERY TIME, e.g. 3–7 business days]',
 
+  // Central Appwrite commerce tables. Create these exact custom IDs once.
+  commerceDatabaseId: '6ac7d6740035408079f7',
+  productTableId: 'cr_products',
+  codeTableId: 'cr_codes',
+  orderTableId: 'cr_orders',
+
   // Stripe publishable key for the embedded Checkout form (safe to expose in the browser).
   stripePublishableKey: '',
 

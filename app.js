@@ -34,11 +34,34 @@ function cookie(){
 function consent(v){CRStore.set('consent',v);document.getElementById('cookie')?.remove()}
 function productCard(p){
   const img=(p.images&&p.images[0])?CRStore.esc(p.images[0]):'';
-  return `<article class="card"><a href="product.html?id=${encodeURIComponent(p.id)}"><div class="card-media">
-    ${img?`<img src="${img}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
-  </div><div class="card-body"><div class="card-title">${CRStore.esc(p.name)}</div><div class="meta"><span>${CRStore.esc(p.category)}</span><span class="price-stack"><b>${CRStore.money(CRStore.price(p))}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(CRStore.price(p)))} total</small></span></div>${p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:''}</div></a><div class="card-actions"><button class="btn light waitlist-btn" onclick="event.preventDefault();event.stopPropagation();openWaitlist('${p.id}')">JOIN WAITLIST</button></div></article>`;
+  const soldOut=Number(p.stock||0)<=0;
+  return `<article class="card ${soldOut?'is-sold-out':''}">
+    <a href="product.html?id=${encodeURIComponent(p.id)}">
+      <div class="card-media">
+        ${img?`<img src="${img}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
+        ${soldOut?'<div class="soldout-overlay">SOLD OUT</div>':''}
+      </div>
+      <div class="card-body">
+        <div class="card-title">${CRStore.esc(p.name)}</div>
+        <div class="meta"><span>${CRStore.esc(p.category)}</span><span class="price-stack"><b>${CRStore.money(CRStore.price(p))}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(CRStore.price(p)))} total</small></span></div>
+        ${soldOut?'<span class="badge soldout-badge">SOLD OUT</span>':(p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:'')}
+      </div>
+    </a>
+    <div class="card-actions"><button class="btn light waitlist-btn" onclick="event.preventDefault();event.stopPropagation();openWaitlist('${p.id}')">JOIN WAITLIST</button></div>
+  </article>`;
 }
-function renderProducts(target, filter=null, limit=999){let ps=CRStore.products().filter(p=>p.active);if(filter)ps=ps.filter(filter);document.querySelector(target).innerHTML=ps.slice(0,limit).map(productCard).join('')}
+function renderProducts(target, filter=null, limit=999){
+  const draw=()=>{
+    let ps=CRStore.products().filter(p=>p.active);
+    if(filter)ps=ps.filter(filter);
+    const el=document.querySelector(target);
+    if(el)el.innerHTML=ps.slice(0,limit).map(productCard).join('');
+  };
+  draw();
+  if(window.CRCommerce){
+    CRCommerce.syncProducts().then(draw).catch(()=>{});
+  }
+}
 document.addEventListener('DOMContentLoaded',()=>{header();footer();ensureWaitlistModal();updateCartCount();refreshAuthChrome()});
 window.addEventListener('cartchange',updateCartCount);
 
@@ -62,7 +85,7 @@ async function openWaitlist(productId){
   waitMsg.textContent='';waitSize.value='';waitColor.value='';
   const user=await CRAppwrite.currentUser();
   if(user){waitName.value=user.name||'';waitEmail.value=user.email||''}
-  else {waitName.value='';waitEmail.value='';waitMsg.innerHTML='Bitte zuerst <a href="account.html">einloggen oder registrieren</a>.'}
+  else {waitName.value='';waitEmail.value='';waitMsg.textContent=''}
   waitlistModal.classList.add('open');
 }
 function closeWaitlist(){document.getElementById('waitlistModal')?.classList.remove('open')}
@@ -73,5 +96,5 @@ async function submitWaitlist(){
     await CRAppwrite.addToWaitlist({productId:_waitlistProduct.id,productName:_waitlistProduct.name,name:waitName.value.trim(),email:waitEmail.value.trim(),size:waitSize.value.trim(),color:waitColor.value.trim()});
     waitMsg.textContent='Erfolgreich zur Warteliste hinzugefügt.';
     setTimeout(closeWaitlist,1200);
-  }catch(e){waitMsg.innerHTML=(e.message||'Fehler beim Speichern.')+' <a href="account.html">Zum Login</a>'}
+  }catch(e){waitMsg.textContent=e.message||'Fehler beim Speichern.'}
 }

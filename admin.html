@@ -1,109 +1,176 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin · Chevalier & Roth</title>
+<title>Maison Administration · Chevalier & Roth</title>
 <link rel="stylesheet" href="style.css">
-<script src="site-config.js"></script><script src="store.js"></script>
+<script src="site-config.js"></script>
+<script src="store.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
 <script src="appwrite-auth.js"></script>
+<script src="commerce.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="admin.js" defer></script>
 </head>
-<body class="admin-body">
+<body class="admin-body admin-v3">
 
-<div id="login" class="login-box">
-  <h1 style="font-family:Georgia,serif;font-weight:400">Admin Login</h1>
-  <p style="color:#aaa">Chevalier & Roth · Appwrite secured</p>
-  <label class="field"><span>E-Mail</span><input class="admin-input" id="email" type="email" autocomplete="email"></label><br>
-  <label class="field"><span>Passwort</span><input class="admin-input" id="password" type="password" autocomplete="current-password"></label>
-  <p id="msg" style="color:#d6aa77"></p>
-  <p id="debug" style="color:#777;font-size:11px"></p>
-  <button id="loginBtn" class="admin-btn" onclick="login()">LOGIN</button>
-  <p style="color:#777;font-size:11px;margin-top:20px">Nur Mitglieder deines Appwrite-Admin-Teams erhalten Zugriff. Falls bereits ein Kundenkonto eingeloggt ist, wechselt der Login automatisch auf das Admin-Konto.</p>
+<div id="login" class="admin-login-shell">
+  <div class="admin-login-card">
+    <img src="logo.PNG" alt="Chevalier & Roth" class="admin-login-logo">
+    <div class="eyebrow">MAISON ADMINISTRATION</div>
+    <h1>Private access.</h1>
+    <p>Manage the Chevalier & Roth collection, inventory, discount codes, waitlist and orders.</p>
+    <label class="field"><span>Email</span><input class="admin-input" id="email" type="email" autocomplete="email"></label>
+    <label class="field"><span>Password</span><input class="admin-input" id="password" type="password" autocomplete="current-password"></label>
+    <div id="msg" class="admin-message"></div>
+    <div id="debug" class="admin-debug"></div>
+    <button id="loginBtn" class="btn admin-login-btn" onclick="login()">ENTER ADMIN</button>
+  </div>
 </div>
 
-<div id="dashboard" style="display:none">
-  <div class="admin-header">
-    <b>CHEVALIER & ROTH · ADMIN</b>
-    <div>
-      <span id="adminIdentity" style="color:#aaa;margin-right:16px"></span>
-      <a href="index.html" style="color:#bbb;margin-right:18px">View shop</a>
-      <button class="admin-btn" onclick="logout()">Logout</button>
+<div id="dashboard" class="admin-shell" style="display:none">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <img src="logo.PNG" alt="">
+      <div><b>CHEVALIER & ROTH</b><span>MAISON ADMIN</span></div>
     </div>
-  </div>
-
-  <main class="admin-main">
-    <div class="notice"><b>Appwrite aktiv:</b> Die Warteliste wird zentral aus deiner Appwrite TablesDB geladen. Der Admin-Zugriff wird über dein Appwrite-Team geprüft.</div>
-
-    <div class="admin-grid">
-      <div class="stat"><span>Products</span><b id="statProducts">0</b></div>
-      <div class="stat"><span>Orders</span><b id="statOrders">0</b></div>
-      <div class="stat"><span>Revenue</span><b id="statRevenue">€0</b></div>
-      <div class="stat"><span>Active codes</span><b id="statCodes">0</b></div>
-      <div class="stat"><span>Waitlist</span><b id="statWaitlist">0</b></div>
+    <nav class="admin-nav">
+      <button class="active" data-tab="overview" onclick="openAdminTab('overview',this)">Overview</button>
+      <button data-tab="products" onclick="openAdminTab('products',this)">Products & Stock</button>
+      <button data-tab="discounts" onclick="openAdminTab('discounts',this)">Discount Codes</button>
+      <button data-tab="waitlist" onclick="openAdminTab('waitlist',this)">Waitlist</button>
+      <button data-tab="orders" onclick="openAdminTab('orders',this)">Orders</button>
+    </nav>
+    <div class="admin-sidebar-foot">
+      <span id="adminIdentity"></span>
+      <a href="index.html">View store ↗</a>
+      <button onclick="logout()">Log out</button>
     </div>
+  </aside>
 
-    <section class="admin-panel" id="waitlist">
-      <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap">
-        <div><h2 style="margin-bottom:4px">Waitlist</h2><p style="color:#888;margin-top:0">Zentrale Appwrite-Warteliste von allen Geräten.</p></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="admin-btn" onclick="loadWaitlist()">REFRESH</button>
-      <button class="admin-btn" id="waitlistPdfBtn" onclick="downloadWaitlistPDF()">PDF DOWNLOAD</button>
-    </div>
+  <main class="admin-workspace">
+    <header class="admin-topbar">
+      <div><div class="eyebrow">CHEVALIER & ROTH</div><h1 id="adminPageTitle">Overview</h1></div>
+      <div class="admin-sync-pill" id="commerceStatus">Checking Appwrite commerce…</div>
+    </header>
+
+    <section class="admin-tab active" id="tab-overview">
+      <div class="admin-hero-card">
+        <div><span class="eyebrow">MAISON CONTROL CENTRE</span><h2>Everything in one place.</h2><p>Products, stock, promotions, waitlist and paid orders are organised in a single administration view.</p></div>
+        <button class="btn light" onclick="refreshAll()">REFRESH DATA</button>
       </div>
-      <div id="waitlistMsg" style="color:#d6aa77;margin:12px 0"></div>
-      <div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>Product</th><th>Name</th><th>Email</th><th>Size</th><th>Colour</th><th>Status</th><th>Date</th><th></th></tr></thead>
-        <tbody id="waitlistRows"></tbody>
-      </table></div>
+      <div class="admin-stat-grid">
+        <article><span>Products</span><b id="statProducts">0</b><small>Catalogue items</small></article>
+        <article><span>Units in stock</span><b id="statStock">0</b><small>Across active products</small></article>
+        <article><span>Sold out</span><b id="statSoldOut">0</b><small>Products with zero stock</small></article>
+        <article><span>Active codes</span><b id="statCodes">0</b><small>Current promotions</small></article>
+        <article><span>Waitlist</span><b id="statWaitlist">0</b><small>Customer interest</small></article>
+        <article><span>Orders</span><b id="statOrders">0</b><small>Recorded payments</small></article>
+      </div>
+      <div class="admin-panel luxury-panel">
+        <div class="admin-panel-head"><div><span class="eyebrow">INVENTORY</span><h2>Low stock</h2></div></div>
+        <div id="lowStockGrid" class="admin-mini-grid"></div>
+      </div>
     </section>
 
-    <section class="admin-panel">
-      <h2>Products</h2>
-      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead><tbody id="productRows"></tbody></table></div>
-      <h3>Add / edit product</h3>
-      <form id="productForm" onsubmit="event.preventDefault();saveProduct()">
-        <div class="form-grid">
-          <label class="field"><span>Name</span><input class="admin-input" id="pName" required></label>
-          <label class="field"><span>Category</span><input class="admin-input" id="pCategory" required></label>
-          <label class="field"><span>Price</span><input class="admin-input" id="pPrice" type="number" step=".01" required></label>
-          <label class="field"><span>Sale price</span><input class="admin-input" id="pSale" type="number" step=".01"></label>
-          <label class="field"><span>Sizes</span><input class="admin-input" id="pSizes"></label>
-          <label class="field"><span>Colors</span><input class="admin-input" id="pColors"></label>
-          <label class="field"><span>Stock</span><input class="admin-input" id="pStock" type="number"></label>
-          <label class="field"><span>SKU</span><input class="admin-input" id="pSku"></label>
-          <label class="field"><span>Badge</span><input class="admin-input" id="pBadge"></label>
-          <label class="field"><span>Image paths</span><input class="admin-input" id="pImages"></label>
-          <label class="field full"><span>Description</span><textarea class="admin-input" id="pDesc"></textarea></label>
-          <label><input type="checkbox" id="pActive" checked> Active</label>
+    <section class="admin-tab" id="tab-products">
+      <div class="admin-panel luxury-panel">
+        <div class="admin-panel-head">
+          <div><span class="eyebrow">CATALOGUE</span><h2>Products & inventory</h2><p>Create products, edit details and control stock.</p></div>
+          <button class="btn" onclick="newProduct()">+ NEW PRODUCT</button>
         </div>
-        <p><button class="admin-btn">SAVE PRODUCT</button></p>
-      </form>
-    </section>
 
-    <section class="admin-panel">
-      <h2>Discount Codes</h2>
-      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Code</th><th>%</th><th>Status</th><th>Uses</th><th></th></tr></thead><tbody id="codeRows"></tbody></table></div>
-      <div class="form-grid">
-        <label class="field"><span>Code</span><input class="admin-input" id="cCode"></label>
-        <label class="field"><span>Percent</span><input class="admin-input" id="cPercent" type="number"></label>
-        <label class="field"><span>Start</span><input class="admin-input" id="cStart" type="date"></label>
-        <label class="field"><span>End</span><input class="admin-input" id="cEnd" type="date"></label>
-        <label class="field"><span>Max uses</span><input class="admin-input" id="cMax" type="number"></label>
-        <label class="field"><span>Min order</span><input class="admin-input" id="cMin" type="number"></label>
-        <label class="field"><span>Product IDs</span><input class="admin-input" id="cProducts"></label>
-        <label class="field"><span>Categories</span><input class="admin-input" id="cCategories"></label>
-        <label><input type="checkbox" id="cActive" checked> Active</label>
+        <div class="admin-toolbar">
+          <label class="field grow"><span>Choose product to edit</span><select id="productEditSelect" class="admin-input" onchange="selectProductToEdit(this.value)"></select></label>
+          <label class="field"><span>Search</span><input id="productSearch" class="admin-input" placeholder="Product name or SKU" oninput="renderProductsAdmin()"></label>
+        </div>
+
+        <div class="admin-products-layout">
+          <div>
+            <div id="productCardsAdmin" class="admin-product-list"></div>
+          </div>
+
+          <form id="productForm" class="admin-editor-card" onsubmit="event.preventDefault();saveProduct()">
+            <div class="editor-title"><div><span class="eyebrow" id="productEditorEyebrow">NEW PRODUCT</span><h3 id="productEditorTitle">Create product</h3></div><button type="button" class="icon-btn danger" id="deleteProductBtn" onclick="deleteCurrentProduct()" hidden>Delete</button></div>
+            <div class="form-grid">
+              <label class="field full"><span>Product name</span><input class="admin-input" id="pName" required></label>
+              <label class="field"><span>Category</span><select class="admin-input" id="pCategory"><option>Men</option><option>Women</option><option>Accessories</option></select></label>
+              <label class="field"><span>SKU</span><input class="admin-input" id="pSku" placeholder="CR-..."></label>
+              <label class="field"><span>Base price €</span><input class="admin-input" id="pPrice" type="number" min="0" step=".01" required></label>
+              <label class="field"><span>Sale price €</span><input class="admin-input" id="pSale" type="number" min="0" step=".01"></label>
+              <label class="field"><span>Stock</span><input class="admin-input stock-input" id="pStock" type="number" min="0" step="1" required></label>
+              <label class="field"><span>Badge</span><select class="admin-input" id="pBadge"><option value="">None</option><option>NEW</option><option>BESTSELLER</option><option>LIMITED</option></select></label>
+              <label class="field full"><span>Sizes — separated by commas</span><input class="admin-input" id="pSizes" placeholder="S, M, L, XL"></label>
+              <label class="field full"><span>Colours — separated by commas</span><input class="admin-input" id="pColors" placeholder="Beige, Navy, Black"></label>
+              <label class="field full"><span>Image paths — separated by commas</span><input class="admin-input" id="pImages" placeholder="images/product-01.jpg, images/product-02.jpg"></label>
+              <label class="field full"><span>Description</span><textarea class="admin-input" id="pDesc" rows="6"></textarea></label>
+              <label class="switch-line full"><input type="checkbox" id="pActive" checked><span>Visible in store</span></label>
+            </div>
+            <div class="editor-actions"><button class="btn" id="saveProductBtn">SAVE PRODUCT</button><button type="button" class="btn light" onclick="duplicateCurrentProduct()">DUPLICATE</button></div>
+            <div id="productSaveMsg" class="admin-message"></div>
+          </form>
+        </div>
       </div>
-      <p><button class="admin-btn" onclick="saveCode()">SAVE CODE</button></p>
     </section>
 
-    <section class="admin-panel">
-      <h2>Orders</h2>
-      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+    <section class="admin-tab" id="tab-discounts">
+      <div class="admin-panel luxury-panel">
+        <div class="admin-panel-head"><div><span class="eyebrow">PROMOTIONS</span><h2>Discount codes</h2><p>Choose the exact percentage and select products directly.</p></div><button class="btn" onclick="newCode()">+ NEW CODE</button></div>
+        <div class="admin-products-layout discount-layout">
+          <div id="codeCardsAdmin" class="admin-product-list"></div>
+          <div class="admin-editor-card">
+            <div class="editor-title"><div><span class="eyebrow">DISCOUNT EDITOR</span><h3 id="codeEditorTitle">Create code</h3></div><button class="icon-btn danger" id="deleteCodeBtn" onclick="deleteCurrentCode()" hidden>Delete</button></div>
+            <div class="form-grid">
+              <label class="field"><span>Code</span><input class="admin-input" id="cCode" placeholder="WELCOME10"></label>
+              <label class="field"><span>Status</span><select class="admin-input" id="cActiveSelect"><option value="true">Active</option><option value="false">Inactive</option></select></label>
+              <div class="field full"><span>Discount percentage</span><div class="percent-control"><input id="cPercentRange" type="range" min="1" max="100" value="10" oninput="syncPercent(this.value)"><input id="cPercent" class="admin-input" type="number" min="1" max="100" value="10" oninput="syncPercent(this.value)"><b id="percentPreview">10%</b></div></div>
+              <label class="field"><span>Starts</span><input class="admin-input" id="cStart" type="date"></label>
+              <label class="field"><span>Ends</span><input class="admin-input" id="cEnd" type="date"></label>
+              <label class="field"><span>Maximum uses</span><input class="admin-input" id="cMax" type="number" min="0" placeholder="0 = unlimited"></label>
+              <label class="field"><span>Minimum order €</span><input class="admin-input" id="cMin" type="number" min="0" step=".01"></label>
+            </div>
+
+            <div class="discount-target-box">
+              <div class="target-head"><div><span class="eyebrow">PRODUCTS</span><h4>Where should this code work?</h4></div><label class="switch-line"><input type="checkbox" id="cAllProducts" checked onchange="toggleAllProducts()"><span>All products</span></label></div>
+              <div id="discountProductChoices" class="product-choice-grid"></div>
+            </div>
+
+            <div class="discount-target-box">
+              <span class="eyebrow">CATEGORIES</span>
+              <div class="category-choice-row">
+                <label><input type="checkbox" class="code-category" value="Men"> Men</label>
+                <label><input type="checkbox" class="code-category" value="Women"> Women</label>
+                <label><input type="checkbox" class="code-category" value="Accessories"> Accessories</label>
+              </div>
+              <small>Leave categories empty to use only the product selection above.</small>
+            </div>
+
+            <div class="editor-actions"><button class="btn" onclick="saveCode()">SAVE CODE</button></div>
+            <div id="codeSaveMsg" class="admin-message"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-tab" id="tab-waitlist">
+      <div class="admin-panel luxury-panel">
+        <div class="admin-panel-head">
+          <div><span class="eyebrow">CUSTOMER INTEREST</span><h2>Waitlist</h2><p>Central Appwrite waitlist from every device.</p></div>
+          <div class="admin-actions-row"><button class="btn light" onclick="loadWaitlist()">REFRESH</button><button class="btn" id="waitlistPdfBtn" onclick="downloadWaitlistPDF()">DOWNLOAD PDF</button></div>
+        </div>
+        <div id="waitlistMsg" class="admin-message"></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Product</th><th>Name</th><th>Email</th><th>Size</th><th>Colour</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="waitlistRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="admin-tab" id="tab-orders">
+      <div class="admin-panel luxury-panel">
+        <div class="admin-panel-head"><div><span class="eyebrow">SALES</span><h2>Orders</h2><p>Paid orders written by the Stripe stock webhook.</p></div><button class="btn light" onclick="loadOrders()">REFRESH</button></div>
+        <div id="orderStatusMsg" class="admin-message"></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Email</th><th>Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+      </div>
     </section>
   </main>
 </div>

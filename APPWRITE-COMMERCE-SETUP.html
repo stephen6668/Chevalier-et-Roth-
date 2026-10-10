@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Appwrite Commerce Setup · Chevalier & Roth</title><link rel="stylesheet" href="style.css"></head><body><main class="page legal-page"><div class="eyebrow">CHEVALIER & ROTH · PRIVATE SETUP</div><h1 class="page-title">Appwrite Commerce Setup</h1>
+<div class="legal-alert"><b>One-time setup:</b> create the three tables below in Database <code>6ac7d6740035408079f7</code> using the exact custom IDs. After that, product edits and stock are central for every device.</div>
+
+<section class="legal-card"><h2>1. Products table</h2><p><b>Table ID:</b> <code>cr_products</code></p><p><b>Permissions:</b> Any → READ. Admin Team <code>6ac7d7fc0029522fc7bf</code> → READ, CREATE, UPDATE, DELETE.</p>
+<table class="admin-table"><thead><tr><th>Column</th><th>Type</th><th>Required</th></tr></thead><tbody>
+<tr><td>name</td><td>Varchar 255</td><td>Yes</td></tr><tr><td>category</td><td>Varchar 64</td><td>Yes</td></tr><tr><td>price</td><td>Float</td><td>Yes</td></tr><tr><td>salePrice</td><td>Float</td><td>No</td></tr><tr><td>sizes</td><td>Varchar 2048</td><td>Yes</td></tr><tr><td>colors</td><td>Varchar 2048</td><td>Yes</td></tr><tr><td>stock</td><td>Integer</td><td>Yes</td></tr><tr><td>sku</td><td>Varchar 128</td><td>No</td></tr><tr><td>badge</td><td>Varchar 64</td><td>No</td></tr><tr><td>active</td><td>Boolean</td><td>Yes</td></tr><tr><td>images</td><td>Varchar 4096</td><td>Yes</td></tr><tr><td>description</td><td>Varchar 4096</td><td>No</td></tr>
+</tbody></table></section>
+
+<section class="legal-card"><h2>2. Discount codes table</h2><p><b>Table ID:</b> <code>cr_codes</code></p><p><b>Permissions:</b> Admin Team only → READ, CREATE, UPDATE, DELETE. Do not give Any READ.</p>
+<table class="admin-table"><thead><tr><th>Column</th><th>Type</th><th>Required</th></tr></thead><tbody>
+<tr><td>code</td><td>Varchar 64</td><td>Yes</td></tr><tr><td>percent</td><td>Integer</td><td>Yes</td></tr><tr><td>active</td><td>Boolean</td><td>Yes</td></tr><tr><td>start</td><td>Varchar 32</td><td>No</td></tr><tr><td>end</td><td>Varchar 32</td><td>No</td></tr><tr><td>maxUses</td><td>Integer</td><td>Yes</td></tr><tr><td>uses</td><td>Integer</td><td>Yes</td></tr><tr><td>minOrder</td><td>Float</td><td>Yes</td></tr><tr><td>products</td><td>Varchar 4096</td><td>Yes</td></tr><tr><td>categories</td><td>Varchar 1024</td><td>Yes</td></tr>
+</tbody></table></section>
+
+<section class="legal-card"><h2>3. Orders table</h2><p><b>Table ID:</b> <code>cr_orders</code></p><p><b>Permissions:</b> Admin Team → READ. The Stripe webhook function writes orders using its server scope.</p>
+<table class="admin-table"><thead><tr><th>Column</th><th>Type</th><th>Required</th></tr></thead><tbody>
+<tr><td>number</td><td>Varchar 80</td><td>Yes</td></tr><tr><td>stripeSessionId</td><td>Varchar 255</td><td>Yes</td></tr><tr><td>customer</td><td>Varchar 255</td><td>No</td></tr><tr><td>email</td><td>Varchar 320</td><td>No</td></tr><tr><td>total</td><td>Float</td><td>Yes</td></tr><tr><td>status</td><td>Varchar 64</td><td>Yes</td></tr><tr><td>items</td><td>Varchar 12000</td><td>Yes</td></tr><tr><td>date</td><td>Varchar 64</td><td>Yes</td></tr>
+</tbody></table></section>
+
+<section class="legal-card"><h2>4. Stock automation</h2><p>Deploy the included <code>stripe-stock-webhook</code> function and add its public domain as a Stripe webhook for <code>checkout.session.completed</code>. The function uses Appwrite atomic stock decrement with a minimum of zero. When the final unit is sold, the product stock becomes 0 and the website automatically shows <b>SOLD OUT</b>.</p></section>
+</main></body></html>

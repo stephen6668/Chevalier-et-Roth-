@@ -1,7 +1,14 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – timeless luxury fashion from Luxembourg."><title>Bag · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="app.js" defer></script></head><body><main class="page"><div class="eyebrow">YOUR BAG</div><h1 class="page-title">Shopping Bag</h1><p class="legal-subtle">Product prices are shown before VAT. 17% VAT is calculated automatically and added to the final total.</p><div class="cart-layout"><div id="cartItems"></div><aside class="summary"><h2>Summary</h2><div id="summary"></div><label class="field" style="margin:18px 0"><span>Discount code</span><input id="code" placeholder="WELCOME10"></label><button class="btn light" style="width:100%;margin-bottom:10px" onclick="renderCart()">APPLY CODE</button><a href="checkout.html" class="btn" style="width:100%">CHECKOUT</a></aside></div></main>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – timeless luxury fashion from Luxembourg."><title>Bag · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="commerce.js"></script><script src="app.js" defer></script></head><body><main class="page"><div class="eyebrow">YOUR BAG</div><h1 class="page-title">Shopping Bag</h1><p class="legal-subtle">Product prices are shown before VAT. 17% VAT is calculated automatically and added to the final total.</p><div class="cart-layout"><div id="cartItems"></div><aside class="summary"><h2>Summary</h2><div id="summary"></div><label class="field" style="margin:18px 0"><span>Discount code</span><input id="code" placeholder="WELCOME10"></label><button class="btn light" style="width:100%;margin-bottom:10px" onclick="renderCart()">APPLY CODE</button><a href="checkout.html" class="btn" style="width:100%">CHECKOUT</a></aside></div></main>
 <script>
 function lines(){const ps=CRStore.products();return CRStore.cart().map((i,n)=>({...i,n,product:ps.find(p=>p.id===i.id)})).filter(x=>x.product)}
-function qty(n,q){let c=CRStore.cart();if(q<=0)c.splice(n,1);else c[n].qty=q;CRStore.saveCart(c);renderCart()}
+function qty(n,q){
+  let c=CRStore.cart();
+  const item=c[n],p=CRStore.products().find(x=>x.id===item?.id);
+  if(q<=0)c.splice(n,1);
+  else if(p && q>Number(p.stock||0)) return alert('Only '+p.stock+' item(s) are available.');
+  else c[n].qty=q;
+  CRStore.saveCart(c);renderCart();
+}
 function renderCart(){
  const ls=lines();
  cartItems.innerHTML=ls.length?ls.map(x=>`<div class="cart-item"><div class="cart-thumb">CR</div><div><h3>${CRStore.esc(x.product.name)}</h3><p>${CRStore.esc(x.size)} · ${CRStore.esc(x.color)}</p><p>${CRStore.money(CRStore.price(x.product))} <small class="vat-note">+ ${CRStore.vatPercent()}% VAT</small></p></div><div><button onclick="qty(${x.n},${x.qty-1})">−</button> ${x.qty} <button onclick="qty(${x.n},${x.qty+1})">+</button></div></div>`).join(''):'Your bag is empty.';
@@ -19,5 +26,5 @@ function renderCart(){
  ${code?.value?`<small>${v.msg}</small>`:''}`;
  CRStore.set('checkoutDiscount',v.ok?{code:v.code.code,discount}:null)
 }
-document.addEventListener('DOMContentLoaded',renderCart)
+document.addEventListener('DOMContentLoaded',async()=>{if(window.CRCommerce)await CRCommerce.syncProducts();renderCart()})
 </script></body></html>
