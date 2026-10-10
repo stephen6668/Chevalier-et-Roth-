@@ -51,6 +51,8 @@
         <div><h2 style="margin-bottom:4px">Waitlist</h2><p style="color:#888;margin-top:0">Zentrale Appwrite-Warteliste von allen Geräten.</p></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="admin-btn" onclick="loadWaitlist()">REFRESH</button>
+      <button class="admin-btn" id="sampleImportBtn" onclick="importSampleWaitlist()">180 BEISPIELE IN APPWRITE SPEICHERN</button>
+      <button class="admin-btn" id="samplePurgeBtn" onclick="purgeSampleWaitlist()">GESPEICHERTE BEISPIELE LÖSCHEN</button>
       <button class="admin-btn" id="sampleToggle" onclick="toggleWaitlistSamples()">180 BEISPIELPROFILE ANZEIGEN</button>
       <button class="admin-btn" onclick="clearWaitlistSamples()">BEISPIELPROFILE LEEREN</button>
       <button class="admin-btn" id="waitlistPdfBtn" onclick="downloadWaitlistPDF()">PDF DOWNLOAD</button>
