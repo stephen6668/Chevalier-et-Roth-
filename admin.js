@@ -9,8 +9,7 @@ const sampleFemale=['Alina','Barbara','Chiara','Dorothea','Esther','Fiona','Gret
 const sampleLast=['Abreu','Antunes','Bastos','Bettencourt','Blum','Brandao','Cabral','Caldeira','Casagrande','Coutinho','Decker','Delgado','Domingues','Eberle','Esteves','Faria','Feltes','Filipe','Fischer-Daun','Francois','Goncalves','Hein','Henriques','Hoff','Jansen','Kemp','Kirsch','Lacerda','Lemoine','Lentz','Lourenco','Machado-Silva','Magalhaes','Mertens','Metzler','Morgado','Nobre','Pacheco','Pires','Reuter-Lenz','Sampaio','Sequeira','Serra','Valente','Varela'];
 const sampleMail=['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.com','gmx.de','proton.me','mail.com'];
 
-// Sample addresses are visually obfuscated. The stored values use reserved
-// .example domains, preserving an email-format column without contacting anyone.
+// Internal sample records remain identified separately from real signups.
 function sampleDisplayEmail(value,row){
   const email=String(value||'');
   const sampleId=String(row?.productId||row?.$id||'');
