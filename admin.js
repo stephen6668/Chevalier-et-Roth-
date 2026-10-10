@@ -31,14 +31,14 @@ function clearWaitlistSamples(){
 function renderWaitlist(){
   const samples=samplesVisible?sampleRows:[];
   const rows=[...currentWaitlistRows,...samples];
-  statWaitlist.textContent=currentWaitlistRows.length;
+  statWaitlist.textContent=currentWaitlistRows.filter(w=>!CRAppwrite.isSampleRow(w)).length;
   const count=document.getElementById('sampleCount');
   const toggle=document.getElementById('sampleToggle');
-  if(count) count.textContent=samplesVisible?('Echte Anmeldungen: '+currentWaitlistRows.length+' · Beispielprofile: '+samples.length):('Echte Anmeldungen: '+currentWaitlistRows.length+' · Beispielprofile ausgeblendet');
+  if(count) count.textContent=samplesVisible?('Echte Anmeldungen: '+currentWaitlistRows.filter(w=>!CRAppwrite.isSampleRow(w)).length+' · gespeicherte Beispiele: '+currentWaitlistRows.filter(CRAppwrite.isSampleRow).length+' · Vorschau: '+samples.length):('Echte Anmeldungen: '+currentWaitlistRows.filter(w=>!CRAppwrite.isSampleRow(w)).length+' · gespeicherte Beispiele: '+currentWaitlistRows.filter(CRAppwrite.isSampleRow).length);
   if(toggle) toggle.textContent=samplesVisible?'BEISPIELPROFILE AUSBLENDEN':'180 BEISPIELPROFILE ANZEIGEN';
   const escape=w=>CRStore.esc(w||'');
   waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr${w.sample?' style="background:rgba(187,158,100,.09)"':''}>
-      <td>${escape(w.productName||w.productId)}${w.sample?' <small style="color:#bc9c61">(Beispiel)</small>':''}</td>
+      <td>${escape(w.productName||w.productId)}${w.sample||CRAppwrite.isSampleRow(w)?' <small style="color:#bc9c61">(Beispiel)</small>':''}</td>
       <td>${escape(w.name)}</td><td>${escape(w.email)}</td>
       <td>${escape(w.size||'Not selected')}</td><td>${escape(w.color||'Not selected')}</td>
       <td><select class="admin-input" onchange="${w.sample?'setSampleStatus(\''+w.$id+'\',this.value)':'setWaitlistStatus(\''+w.$id+'\',this.value)'}">
@@ -50,6 +50,30 @@ function renderWaitlist(){
 function setSampleStatus(id,status){const row=sampleRows.find(r=>r.$id===id);if(row)row.status=status;}
 function deleteSample(id){sampleRows=sampleRows.filter(r=>r.$id!==id);renderWaitlist();}
 
+
+
+async function importSampleWaitlist(){
+ if(!confirm('180 interne Beispielprofile wirklich in Appwrite speichern? Sie bleiben als Beispiele erkennbar.'))return;
+ const btn=document.getElementById('sampleImportBtn'),msg=document.getElementById('waitlistMsg');
+ btn.disabled=true;
+ try{
+  samplesVisible=false;localStorage.setItem(SAMPLE_KEY,'0');
+  const result=await CRAppwrite.insertAdminSampleRows(samplePeople(),p=>{msg.textContent='Appwrite Import: '+p.processed+'/180 · gespeichert '+p.created+' · Fehler '+p.failed;});
+  await loadWaitlist();
+  msg.textContent='Import abgeschlossen: '+result.created+' gespeichert, '+result.skipped+' bereits vorhanden, '+result.failed+' Fehler.';
+ }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
+ finally{btn.disabled=false}
+}
+async function purgeSampleWaitlist(){
+ if(!confirm('Alle INTERNEN Appwrite-Beispiele dauerhaft löschen? Echte Anmeldungen werden nicht gelöscht.'))return;
+ const btn=document.getElementById('samplePurgeBtn'),msg=document.getElementById('waitlistMsg');
+ btn.disabled=true;
+ try{
+  const result=await CRAppwrite.deleteAdminSampleRows(p=>{msg.textContent='Beispiele gelöscht: '+p.deleted+'/'+p.total});
+  await loadWaitlist();msg.textContent='Entfernt: '+result.deleted+' · Fehler: '+result.failed;
+ }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
+ finally{btn.disabled=false}
+}
 
 async function login(){
   const btn=document.getElementById('loginBtn');
@@ -172,7 +196,7 @@ async function loadWaitlist(){
   try{
     const rows=await CRAppwrite.listAdminWaitlist();
     currentWaitlistRows=rows;
-    statWaitlist.textContent=rows.length;
+    statWaitlist.textContent=rows.filter(w=>!CRAppwrite.isSampleRow(w)).length;
     renderWaitlist();
     msg.textContent='';
   }catch(err){
