@@ -56,7 +56,7 @@ async function doRegister(e){
   }
 }
 async function doLogout(){await CRAppwrite.logout();location.reload()}
-async function renderMyWaitlist(){const prefs=await CRAppwrite.getPrefs();const list=Array.isArray(prefs.waitlist)?prefs.waitlist:[];myWaitlist.innerHTML=list.length?list.map(x=>`<div class="waitlist-item"><div><b>${CRStore.esc(x.productName||x.productId)}</b><p>${CRStore.esc(x.size||'No size')} · ${CRStore.esc(x.color||'No colour')}</p><small>${CRStore.esc(x.email||'')}</small></div><button class="btn light" onclick="removeWait('${CRStore.esc(x.productId)}','${CRStore.esc(x.size||'')}','${CRStore.esc(x.color||'')}')">REMOVE</button></div>`).join(''):'<p>No products on your waitlist yet.</p>'}
+async function renderMyWaitlist(){const prefs=await CRAppwrite.getPrefs();const list=Array.isArray(prefs.waitlist)?prefs.waitlist:[];myWaitlist.innerHTML=list.length?list.map(x=>`<div class="waitlist-item"><div><b>${CRStore.esc(x.productName||x.productId)}</b><p>${CRStore.esc(x.size||'Not selected')} · ${CRStore.esc(x.color||'Not selected')}</p><small>${CRStore.esc(x.email||'')}</small></div><button class="btn light" onclick="removeWait('${CRStore.esc(x.productId)}','${CRStore.esc(x.size||'')}','${CRStore.esc(x.color||'')}')">REMOVE</button></div>`).join(''):'<p>No products on your waitlist yet.</p>'}
 async function removeWait(id,size,color){await CRAppwrite.removeFromWaitlist(id,size,color);renderMyWaitlist()}
 async function showConnectionStatus(){
   const box=document.getElementById('connectionBox');

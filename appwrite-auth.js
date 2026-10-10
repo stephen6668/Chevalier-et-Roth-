@@ -171,60 +171,82 @@ const CRAppwrite = (() => {
 
   async function addToWaitlist({productId,productName,name,email,size='',color=''}){
     init();
-    const user=await currentUser();
-    if(!user) throw new Error('Bitte zuerst einloggen oder registrieren.');
 
-    const safeName=String(name||user.name||'').trim();
-    const safeEmail=normalizeEmail(email||user.email);
+    // PUBLIC WAITLIST:
+    // No Appwrite login is required. Every valid submission creates a central row.
+    const user=await currentUser(); // optional: used only for convenience when a customer is logged in
+
+    const safeName=String(name||user?.name||'').trim();
+    const safeEmail=normalizeEmail(email||user?.email||'');
+    const safeProductId=String(productId||'unknown-product').trim();
+    const safeProductName=String(productName||'Product').trim();
+    const safeSize=String(size||'').trim() || 'Not selected';
+    const safeColor=String(color||'').trim() || 'Not selected';
+
     if(!safeName) throw new Error('Bitte einen Namen eingeben.');
     if(!validateEmail(safeEmail)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
 
-    const prefs=await getPrefs();
-    const current=Array.isArray(prefs.waitlist)?prefs.waitlist:[];
-    const key=[productId,size,color].join('|');
-    const existing=current.find(x=>[x.productId,x.size||'',x.color||''].join('|')===key);
+    // Do NOT deduplicate here. Every successful form submission is a real waitlist signup.
+    // This makes the admin list reflect every request that Appwrite accepted.
+    const data={
+      userId:user?.$id || 'guest',
+      name:safeName,
+      email:safeEmail,
+      productId:safeProductId,
+      productName:safeProductName,
+      size:safeSize,
+      color:safeColor,
+      status:'waiting'
+    };
 
-    // If already on the waitlist, don't create a duplicate central row.
-    if(existing && existing.rowId) return current;
-
-    const row=await withTimeout(tablesDB.createRow({
+    const args={
       databaseId,
       tableId:waitlistTableId,
       rowId:Appwrite.ID.unique(),
-      data:{
-        userId:user.$id,
-        name:safeName,
-        email:safeEmail,
-        productId:String(productId||''),
-        productName:String(productName||''),
-        size:String(size||''),
-        color:String(color||''),
-        status:'waiting'
-      },
-      permissions:[
+      data
+    };
+
+    // Logged-in customers may get their own row-level read/delete permissions.
+    // Guests get no row-level permissions; the admin team's TABLE-level READ/UPDATE/DELETE
+    // permissions are enough for the protected admin area.
+    if(user){
+      args.permissions=[
         Appwrite.Permission.read(Appwrite.Role.user(user.$id)),
         Appwrite.Permission.delete(Appwrite.Role.user(user.$id))
-      ]
-    }),15000,'Warteliste speichern');
+      ];
+    }
+
+    const row=await withTimeout(
+      tablesDB.createRow(args),
+      15000,
+      'Warteliste speichern'
+    );
 
     const entry={
       rowId:row.$id,
-      productId,
-      productName,
+      productId:safeProductId,
+      productName:safeProductName,
       name:safeName,
       email:safeEmail,
-      size,
-      color,
+      size:safeSize,
+      color:safeColor,
       status:'waiting',
       createdAt:row.$createdAt
     };
 
-    const waitlist=existing
-      ? current.map(x=>[x.productId,x.size||'',x.color||''].join('|')===key?entry:x)
-      : [...current,entry];
+    // If a customer happens to be logged in, also mirror the signup into account preferences
+    // for their personal account page. This step is optional and can never cancel the central row.
+    if(user){
+      try{
+        const prefs=await getPrefs();
+        const current=Array.isArray(prefs.waitlist)?prefs.waitlist:[];
+        await updatePrefs({...prefs,waitlist:[...current,entry]});
+      }catch(e){
+        console.warn('Central waitlist row was saved, but account preferences could not be updated.',e);
+      }
+    }
 
-    await updatePrefs({...prefs,waitlist});
-    return waitlist;
+    return entry;
   }
 
   async function removeFromWaitlist(productId,size='',color=''){

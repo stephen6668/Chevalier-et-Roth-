@@ -128,8 +128,8 @@ async function loadWaitlist(){
       <td>${CRStore.esc(w.productName||w.productId)}</td>
       <td>${CRStore.esc(w.name||'')}</td>
       <td>${CRStore.esc(w.email||'')}</td>
-      <td>${CRStore.esc(w.size||'—')}</td>
-      <td>${CRStore.esc(w.color||'—')}</td>
+      <td>${CRStore.esc(w.size||'Not selected')}</td>
+      <td>${CRStore.esc(w.color||'Not selected')}</td>
       <td>
         <select class="admin-input" onchange="setWaitlistStatus('${w.$id}',this.value)">
           ${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}
@@ -396,8 +396,8 @@ async function downloadWaitlistPDF(){
       pdfSafe(w.productName||w.productId||''),
       pdfSafe(w.name||''),
       pdfSafe(w.email||''),
-      pdfSafe(w.size||'-'),
-      pdfSafe(w.color||'-'),
+      pdfSafe(w.size||'Not selected'),
+      pdfSafe(w.color||'Not selected'),
       pdfSafe(w.status||'waiting')
     ]);
 
