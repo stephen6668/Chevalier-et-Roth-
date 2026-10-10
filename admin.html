@@ -51,9 +51,12 @@
         <div><h2 style="margin-bottom:4px">Waitlist</h2><p style="color:#888;margin-top:0">Zentrale Appwrite-Warteliste von allen Geräten.</p></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="admin-btn" onclick="loadWaitlist()">REFRESH</button>
+      <button class="admin-btn" id="sampleToggle" onclick="toggleWaitlistSamples()">180 BEISPIELPROFILE ANZEIGEN</button>
+      <button class="admin-btn" onclick="clearWaitlistSamples()">BEISPIELPROFILE LEEREN</button>
       <button class="admin-btn" id="waitlistPdfBtn" onclick="downloadWaitlistPDF()">PDF DOWNLOAD</button>
     </div>
       </div>
+      <p id="sampleCount" style="color:#bc9c61;font-size:13px">Beispielprofile sind getrennt von Appwrite und offiziellen PDF-Exporten.</p>
       <div id="waitlistMsg" style="color:#d6aa77;margin:12px 0"></div>
       <div class="admin-table-wrap"><table class="admin-table">
         <thead><tr><th>Product</th><th>Name</th><th>Email</th><th>Size</th><th>Colour</th><th>Status</th><th>Date</th><th></th></tr></thead>
