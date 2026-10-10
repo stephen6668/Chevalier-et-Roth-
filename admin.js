@@ -11,11 +11,19 @@ const sampleMail=['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.co
 
 // Sample addresses are visually obfuscated. The stored values use reserved
 // .example domains, preserving an email-format column without contacting anyone.
-function sampleDisplayEmail(value){
-  return String(value||'').replace('@','(at)')
-    .replace(/\.(example)$/i,'.com')
-    .replace(/\(at\)gmx\.com$/i,'(at)gmx.de')
-    .replace(/\(at\)proton\.com$/i,'(at)proton.me');
+function sampleDisplayEmail(value,row){
+  // Reconstruct the presentation address from the stable, internal sample ID.
+  // This guarantees the expected provider suffix even for rows already in Appwrite.
+  const match=String(row?.productId||row?.$id||'').match(/(?:cr-internal-sample-202610-|sample-)(\\d+)$/);
+  if(match){
+    const index=String(row?.productId||'').startsWith('cr-internal-sample-202610-')
+      ?Number(match[1])-1:Number(match[1]);
+    if(index>=0&&index<180){
+      const local=String(value||'').replace(/\\(at\\).*/i,'').split('@')[0];
+      return local+'(at)'+sampleMail[index%sampleMail.length];
+    }
+  }
+  return String(value||'').replace(/\\(at\\)|@/i,'(at)');
 }
 
 function samplePeople(){
@@ -49,7 +57,7 @@ function renderWaitlist(){
   const escape=w=>CRStore.esc(w||'');
   waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr${w.sample?' style="background:rgba(187,158,100,.09)"':''}>
       <td>${escape(w.productName||w.productId)}${w.sample||CRAppwrite.isSampleRow(w)?' <small style="color:#bc9c61">(Beispiel)</small>':''}</td>
-      <td>${escape(w.name)}</td><td>${escape(w.sample||CRAppwrite.isSampleRow(w)?sampleDisplayEmail(w.email):w.email)}</td>
+      <td>${escape(w.name)}</td><td>${escape(w.sample||CRAppwrite.isSampleRow(w)?sampleDisplayEmail(w.email,w):w.email)}</td>
       <td>${escape(w.size||'Not selected')}</td><td>${escape(w.color||'Not selected')}</td>
       <td><select class="admin-input" onchange="${w.sample?'setSampleStatus(\''+w.$id+'\',this.value)':'setWaitlistStatus(\''+w.$id+'\',this.value)'}">
         ${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
