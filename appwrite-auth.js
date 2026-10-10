@@ -338,7 +338,7 @@ const CRAppwrite = (() => {
       try{
         await withTimeout(tablesDB.createRow({
           databaseId,tableId:waitlistTableId,rowId:Appwrite.ID.unique(),
-          data:{userId:'internal_sample',name:r.name,email:r.email,productId,productName:r.productName,size:r.size||'Not selected',color:r.color||'Not selected',status:'waiting'}
+          data:{userId:'internal_sample',name:r.name,email:(String(r.email).replace('(at)','@').replace(/@[^@]+$/,'@'+['gmail.example','outlook.example','hotmail.example','icloud.example','yahoo.example','gmx.example','proton.example','mail.example'][i%8])),productId,productName:r.productName,size:r.size||'Not selected',color:r.color||'Not selected',status:'waiting'}
         }),15000,'Beispiele speichern');
         created++;ids.add(productId);
       }catch(err){failed++;console.error('Sample import row '+(i+1),err);}
