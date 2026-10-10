@@ -12,18 +12,17 @@ const sampleMail=['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.co
 // Sample addresses are visually obfuscated. The stored values use reserved
 // .example domains, preserving an email-format column without contacting anyone.
 function sampleDisplayEmail(value,row){
-  // Reconstruct the presentation address from the stable, internal sample ID.
-  // This guarantees the expected provider suffix even for rows already in Appwrite.
-  const match=String(row?.productId||row?.$id||'').match(/(?:cr-internal-sample-202610-|sample-)(\\d+)$/);
-  if(match){
-    const index=String(row?.productId||'').startsWith('cr-internal-sample-202610-')
-      ?Number(match[1])-1:Number(match[1]);
+  const email=String(value||'');
+  const sampleId=String(row?.productId||row?.$id||'');
+  const m=sampleId.match(/(?:cr-internal-sample-202610-|sample-)(\\d+)$/);
+  if(m){
+    const index=sampleId.startsWith('cr-internal-sample-202610-')?Number(m[1])-1:Number(m[1]);
     if(index>=0&&index<180){
-      const local=String(value||'').replace(/\\(at\\).*/i,'').split('@')[0];
+      const local=email.split(/\\(at\\)|@/)[0];
       return local+'(at)'+sampleMail[index%sampleMail.length];
     }
   }
-  return String(value||'').replace(/\\(at\\)|@/i,'(at)');
+  return email;
 }
 
 function samplePeople(){
@@ -82,6 +81,21 @@ async function importSampleWaitlist(){
  }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
  finally{btn.disabled=false}
 }
+async function replaceSampleEmails(){
+  if(!confirm('Die bereits gespeicherten 180 Beispiel-E-Mail-Adressen in Appwrite durch (at)-Adressen ersetzen? Echte Kunden werden nicht verändert.'))return;
+  const btn=document.getElementById('sampleEmailReplaceBtn'),msg=document.getElementById('waitlistMsg');
+  btn.disabled=true;
+  try{
+    const result=await CRAppwrite.replaceAdminSampleEmails(samplePeople(),p=>{
+      msg.textContent='E-Mails aktualisieren: '+p.updated+' / '+p.total+' · Fehler: '+p.failed;
+    });
+    await loadWaitlist();
+    msg.textContent='Beispiel-E-Mails aktualisiert: '+result.updated+' · unverändert: '+result.unchanged+' · Fehler: '+result.failed+
+      (result.failed?' · Möglicherweise verlangt die Appwrite-Spalte gültige @-Adressen.':'');
+  }catch(e){msg.textContent=CRAppwrite.explainError(e).friendly}
+  finally{btn.disabled=false}
+}
+
 async function purgeSampleWaitlist(){
  if(!confirm('Alle INTERNEN Appwrite-Beispiele dauerhaft löschen? Echte Anmeldungen werden nicht gelöscht.'))return;
  const btn=document.getElementById('samplePurgeBtn'),msg=document.getElementById('waitlistMsg');
