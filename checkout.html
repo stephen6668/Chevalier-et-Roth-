@@ -67,7 +67,7 @@
       <div id="checkoutLines"></div>
       <div id="checkoutTotals"></div>
       <hr>
-      <p class="legal-subtle">Product prices include VAT. Shipping costs are shown before payment. Delivery is limited to the countries listed above.</p>
+      <p class="legal-subtle">VAT is added automatically to the product subtotal. Shipping costs are shown before payment. Delivery is limited to the countries listed above.</p>
     </aside>
   </div>
 </main>
@@ -89,20 +89,21 @@ function renderCheckout(){
 
   checkoutLines.innerHTML=lines.map(x=>`<div class="checkout-line">
     <div><b>${CRStore.esc(x.product.name)}</b><small>${CRStore.esc(x.size)} · ${CRStore.esc(x.color)} · Qty ${x.qty}</small></div>
-    <b>${CRStore.money(CRStore.price(x.product)*x.qty)}</b>
+    <div style="text-align:right"><b>${CRStore.money(CRStore.price(x.product)*x.qty)}</b><small>+ ${CRStore.vatPercent()}% VAT</small></div>
   </div>`).join('');
 
   const subtotal=lines.reduce((s,x)=>s+CRStore.price(x.product)*x.qty,0);
   const saved=CRStore.get('checkoutDiscount',null);
   const discount=Number(saved?.discount||0);
-  const total=Math.max(0,subtotal-discount);
-  const vat=CRStore.vatFromGross(total);
+  const taxableNet=Math.max(0,subtotal-discount);
+  const vat=CRStore.vatOnNet(taxableNet);
+  const total=taxableNet+vat;
 
   checkoutTotals.innerHTML=`
-    <div class="summary-row"><span>Subtotal incl. VAT</span><b>${CRStore.money(subtotal)}</b></div>
+    <div class="summary-row"><span>Subtotal before VAT</span><b>${CRStore.money(subtotal)}</b></div>
     <div class="summary-row"><span>Discount</span><b>−${CRStore.money(discount)}</b></div>
-    <div class="summary-row"><span>Included VAT (${CRStore.vatPercent()}%)</span><b>${CRStore.money(vat)}</b></div>
-    <div class="summary-row total-row"><span>Total before shipping</span><b>${CRStore.money(total)}</b></div>`;
+    <div class="summary-row"><span>VAT (${CRStore.vatPercent()}%)</span><b>+${CRStore.money(vat)}</b></div>
+    <div class="summary-row total-row"><span>Total incl. VAT before shipping</span><b>${CRStore.money(total)}</b></div>`;
 }
 
 async function startStripeCheckout(e){

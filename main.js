@@ -51,22 +51,24 @@ export default async ({ req, res, log, error }) => {
     const discountCode=String(payload.discountCode||'').trim().toUpperCase();
     const discountRate=discountCode === 'WELCOME10' ? 0.10 : 0;
 
+    const VAT_RATE=0.17;
     const lineItems=[];
+    let taxableNetCents=0;
     for(const item of cart){
       const product=PRODUCTS[item.id];
       const qty=Math.max(1,Math.min(20,Number(item.qty)||1));
       if(!product) return res.json({ error: 'Invalid product in cart.' }, 400);
 
       const discountedAmount=Math.round(product.unitAmount*(1-discountRate));
+      taxableNetCents += discountedAmount * qty;
       lineItems.push({
         quantity: qty,
         price_data: {
           currency: 'eur',
           unit_amount: discountedAmount,
-          tax_behavior: 'inclusive',
           product_data: {
             name: product.name,
-            description: `${String(item.size||'')} · ${String(item.color||'')}`.slice(0,240)
+            description: `${String(item.size||'')} · ${String(item.color||'')} · VAT added at checkout`.slice(0,240)
           }
         }
       });
@@ -79,7 +81,6 @@ export default async ({ req, res, log, error }) => {
         price_data: {
           currency: 'eur',
           unit_amount: shippingCents,
-          tax_behavior: 'inclusive',
           product_data: {
             name: `Shipping · ${COUNTRY_NAMES[customer.country]}`
           }
@@ -87,7 +88,19 @@ export default async ({ req, res, log, error }) => {
       });
     }
 
-    const automaticTax=String(process.env.STRIPE_AUTOMATIC_TAX||'false').toLowerCase()==='true';
+    const vatCents=Math.round(taxableNetCents*VAT_RATE);
+    if(vatCents > 0){
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency: 'eur',
+          unit_amount: vatCents,
+          product_data: {
+            name: 'VAT (17%)'
+          }
+        }
+      });
+    }
 
     const session=await stripe.checkout.sessions.create({
       ui_mode: 'custom',

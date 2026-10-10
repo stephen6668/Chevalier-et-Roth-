@@ -50,6 +50,8 @@ const CRStore = (() => {
   const price=p=>p.salePrice && Number(p.salePrice)<Number(p.price)?Number(p.salePrice):Number(p.price);
   const money=v=>new Intl.NumberFormat('de-LU',{style:'currency',currency:'EUR'}).format(Number(v)||0);
   const vatRate=()=>Number(window.CRSiteConfig?.vatRate ?? 0.17);
+  const vatOnNet=net=>(Number(net)||0)*vatRate();
+  const grossFromNet=net=>(Number(net)||0)+vatOnNet(net);
   const vatFromGross=gross=>{
     const r=vatRate();
     return r>0 ? (Number(gross)||0)*r/(1+r) : 0;
@@ -74,5 +76,5 @@ const CRStore = (() => {
     }
     return {ok:true,msg:`${c.percent}% applied`,discount:eligible*(Number(c.percent)/100),code:c};
   }
-  return {products,saveProducts,codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set};
+  return {products,saveProducts,codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatOnNet,grossFromNet,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set};
 })();

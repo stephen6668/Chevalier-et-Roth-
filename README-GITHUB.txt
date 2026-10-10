@@ -338,3 +338,20 @@ PAYMENTS
 - Deploy the files inside stripe-appwrite-function/ as an Appwrite Function.
 - Put the generated *.appwrite.run function domain into site-config.js.
 - Configure real shipping amounts as function environment variables.
+
+
+VAT ADDED TO FINAL TOTAL
+------------------------
+Product catalogue prices are now treated as base/net prices.
+The website automatically adds 17% VAT:
+- cart: subtotal -> discount -> VAT -> final total
+- checkout: subtotal -> discount -> VAT -> final total
+- product cards/details also show the final gross price so customers can see it before checkout
+- Stripe server calculates the VAT amount independently and adds a VAT (17%) line to the payment total
+
+Current examples before shipping:
+- €110.00 -> VAT €18.70 -> €128.70 total
+- €100.00 -> VAT €17.00 -> €117.00 total
+- €90.00 -> VAT €15.30 -> €105.30 total
+
+Shipping amounts configured in Appwrite remain as their configured amounts and are not included in this manual merchandise VAT calculation.

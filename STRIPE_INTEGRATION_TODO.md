@@ -144,3 +144,11 @@ Do not use real card details while the integration is in test mode.
 
 - https://support.stripe.com
 - https://docs.stripe.com/mcp
+
+
+## VAT Calculation
+
+The product amounts in the server catalogue are treated as net/base prices.
+The Appwrite Stripe Function calculates 17% VAT server-side and appends a separate `VAT (17%)` line item to the Checkout Session.
+
+This prevents a visitor from changing or removing the VAT calculation in browser code.
