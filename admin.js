@@ -14,15 +14,23 @@ function setMsg(id,text,type=''){
   el.textContent=text||'';el.className='admin-message '+type;
 }
 
-async function login(){
-  const btn=loginBtn;btn.disabled=true;msg.textContent='Checking secure access…';debug.textContent='';
+async function adminLogin(){
+  const btn=document.getElementById('loginBtn');
+  const msgEl=document.getElementById('msg');
+  const debugEl=document.getElementById('debug');
+  const emailEl=document.getElementById('email');
+  const passwordEl=document.getElementById('password');
+
+  btn.disabled=true;
+  msgEl.textContent='Checking secure access…';
+  debugEl.textContent='';
   try{
     const existing=await CRAppwrite.currentUser();
     if(existing){
       if(await CRAppwrite.isAdmin()){await showAdmin();return}
       await CRAppwrite.logout();
     }
-    await CRAppwrite.login({email:email.value.trim(),password:password.value});
+    await CRAppwrite.login({email:emailEl.value.trim(),password:passwordEl.value});
     if(!await CRAppwrite.isAdmin()){
       await CRAppwrite.logout();
       throw new Error('This account is not a member of the Appwrite admin team.');
@@ -30,7 +38,7 @@ async function login(){
     await showAdmin();
   }catch(e){
     const info=CRAppwrite.explainError(e,'Admin login failed.');
-    msg.textContent=info.friendly;debug.textContent=info.details||'';
+    msgEl.textContent=info.friendly;debugEl.textContent=info.details||'';
   }finally{btn.disabled=false}
 }
 
@@ -41,8 +49,17 @@ async function restoreAdmin(){
 
 async function showAdmin(){
   const user=await CRAppwrite.currentUser();
-  login.style.display='none';dashboard.style.display='grid';
-  adminIdentity.textContent=user?.email||'';
+  const loginPanel=document.getElementById('login');
+  const dashboardPanel=document.getElementById('dashboard');
+  const identity=document.getElementById('adminIdentity');
+
+  if(!loginPanel || !dashboardPanel){
+    throw new Error('Admin interface could not be loaded. Please refresh the page.');
+  }
+
+  loginPanel.style.display='none';
+  dashboardPanel.style.display='grid';
+  if(identity) identity.textContent=user?.email||'';
   await refreshAll();
 }
 
@@ -69,12 +86,12 @@ async function loadProductsAdmin(){
   try{
     adminProducts=await CRCommerce.listProducts();
     CRStore.saveProducts(adminProducts);
-    commerceStatus.textContent='APPWRITE COMMERCE · CONNECTED';
-    commerceStatus.classList.add('ok');
+    const statusEl=document.getElementById('commerceStatus');
+    if(statusEl){statusEl.textContent='APPWRITE COMMERCE · CONNECTED';statusEl.classList.add('ok');}
   }catch(e){
     adminProducts=CRStore.products();
-    commerceStatus.textContent='APPWRITE COMMERCE · SETUP REQUIRED';
-    commerceStatus.classList.remove('ok');
+    const statusEl=document.getElementById('commerceStatus');
+    if(statusEl){statusEl.textContent='APPWRITE COMMERCE · SETUP REQUIRED';statusEl.classList.remove('ok');}
   }
   renderProductsAdmin();
   renderProductSelect();

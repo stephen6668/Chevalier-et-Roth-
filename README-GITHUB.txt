@@ -392,3 +392,18 @@ At stock 0:
 - cart will not allow quantity above available stock
 
 The checkout Appwrite function now reads prices/stock from `cr_products`, so newly-created admin products can be purchased without editing hard-coded Stripe product code.
+
+
+ADMIN LOGIN DISPLAY ERROR FIX
+-----------------------------
+Fixed:
+"Cannot set properties of undefined (setting 'display')"
+
+Cause:
+The login panel used id="login" while the JavaScript function was also named login().
+The function name could shadow the HTML element, so login.style was undefined.
+
+Fix:
+- login() renamed to adminLogin()
+- admin panels are now accessed with document.getElementById()
+- login form fields/status elements use explicit DOM lookups
