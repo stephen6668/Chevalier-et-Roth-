@@ -7,14 +7,24 @@ const SAMPLE_KEY='cr_admin_demo_visible_v1';
 const sampleMale=['Arno','Baptiste','Colin','Denis','Edgar','Ferdinand','Guillaume','Hector','Ivan','Joao','Kaspar','Loris','Manuel','Norbert','Orlando','Pierre','Remy','Sandro','Thierry','Ulrich','Vasco','Wilfried','Yves','Zeno','Augustin','Boris','Clement','Dominik','Ettore','Franco'];
 const sampleFemale=['Alina','Barbara','Chiara','Dorothea','Esther','Fiona','Greta','Heloise','Ilona','Josefine','Karina','Lorena','Marta','Nora','Odette','Priscilla','Rosalie','Sabine','Tatiana','Ursula','Viola','Wilma','Yasmine','Zita','Amandine','Berenice','Cosima','Dalia','Evelina','Florence'];
 const sampleLast=['Abreu','Antunes','Bastos','Bettencourt','Blum','Brandao','Cabral','Caldeira','Casagrande','Coutinho','Decker','Delgado','Domingues','Eberle','Esteves','Faria','Feltes','Filipe','Fischer-Daun','Francois','Goncalves','Hein','Henriques','Hoff','Jansen','Kemp','Kirsch','Lacerda','Lemoine','Lentz','Lourenco','Machado-Silva','Magalhaes','Mertens','Metzler','Morgado','Nobre','Pacheco','Pires','Reuter-Lenz','Sampaio','Sequeira','Serra','Valente','Varela'];
-const sampleMail=['gmail.example','outlook.example','hotmail.example','icloud.example','yahoo.example','gmx.example','proton.example','mail.example'];
+const sampleMail=['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.com','gmx.de','proton.me','mail.com'];
+
+// Sample addresses are visually obfuscated. The stored values use reserved
+// .example domains, preserving an email-format column without contacting anyone.
+function sampleDisplayEmail(value){
+  return String(value||'').replace('@','(at)')
+    .replace(/\.(example)$/i,'.com')
+    .replace(/\(at\)gmx\.com$/i,'(at)gmx.de')
+    .replace(/\(at\)proton\.com$/i,'(at)proton.me');
+}
+
 function samplePeople(){
   const p=['Half-Zip','Men Trousers','Women Trousers','Women Cardigan'];
   return Array.from({length:180},(_,i)=>{
     const fn=(i%2?sampleFemale:sampleMale)[Math.floor(i/2)%30];
     const ln=sampleLast[(i*7+Math.floor(i/30))%sampleLast.length];
     const username=(fn+(i%3===0?'.':'')+ln+(i%5===0?'23':'')).toLowerCase().replace(/[^a-z0-9.]/g,'');
-    return {$id:'sample-'+i,productName:p[i%4],name:fn+' '+ln,email:username+'@'+sampleMail[i%8],size:['XS','S','M','L','XL',''][i%6],color:['Beige','Navy','Black','Bordeaux','Brown',''][i%6],status:'waiting',sample:true,$createdAt:null};
+    return {$id:'sample-'+i,productName:p[i%4],name:fn+' '+ln,email:username+'(at)'+sampleMail[i%8],size:['XS','S','M','L','XL',''][i%6],color:['Beige','Navy','Black','Bordeaux','Brown',''][i%6],status:'waiting',sample:true,$createdAt:null};
   });
 }
 let sampleRows=samplePeople();
@@ -39,7 +49,7 @@ function renderWaitlist(){
   const escape=w=>CRStore.esc(w||'');
   waitlistRows.innerHTML=rows.length?rows.map(w=>`<tr${w.sample?' style="background:rgba(187,158,100,.09)"':''}>
       <td>${escape(w.productName||w.productId)}${w.sample||CRAppwrite.isSampleRow(w)?' <small style="color:#bc9c61">(Beispiel)</small>':''}</td>
-      <td>${escape(w.name)}</td><td>${escape(w.email)}</td>
+      <td>${escape(w.name)}</td><td>${escape(w.sample||CRAppwrite.isSampleRow(w)?sampleDisplayEmail(w.email):w.email)}</td>
       <td>${escape(w.size||'Not selected')}</td><td>${escape(w.color||'Not selected')}</td>
       <td><select class="admin-input" onchange="${w.sample?'setSampleStatus(\''+w.$id+'\',this.value)':'setWaitlistStatus(\''+w.$id+'\',this.value)'}">
         ${['waiting','contacted','invited','converted','cancelled'].map(s=>`<option value="${s}" ${w.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
