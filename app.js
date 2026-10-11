@@ -5,7 +5,17 @@ function updateCartCount(){const n=CRStore.cart().reduce((s,x)=>s+x.qty,0);docum
 function header(){
   document.body.insertAdjacentHTML('afterbegin',`
   <div class="topbar">DESIGNED IN LUXEMBOURG · PRODUCED IN ITALY · CHEVALIER & ROTH</div>
-  <div class="launch-countdown" id="launchCountdown"><span class="launch-countdown-label">FIRST COLLECTION · 02.01.2027</span><span class="launch-countdown-time" id="launchCountdownTime">—</span><button type="button" onclick="openGiveawayIntro(true)">GIVEAWAY</button></div>
+  <section class="launch-countdown" id="launchCountdown">
+    <div class="launch-countdown-inner">
+      <div class="launch-countdown-copy">
+        <span class="launch-kicker">FIRST COLLECTION · 02.01.2027</span>
+        <strong>Collection launch & giveaway ending soon</strong>
+        <small>Live countdown until the first collection release and giveaway draw.</small>
+      </div>
+      <div class="launch-countdown-time" id="launchCountdownTime" aria-live="polite"></div>
+      <button type="button" class="launch-countdown-cta" onclick="openGiveawayIntro(true)">JETZT TEILNEHMEN</button>
+    </div>
+  </section>
   <header class="header"><div class="header-inner">
     <nav class="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
     <a class="brand" href="index.html"><img src="logo.PNG" alt="Chevalier & Roth logo"><span>CHEVALIER & ROTH</span></a>
@@ -115,13 +125,17 @@ function giveawayIsOpen(){
   return Date.now() < launchTarget().getTime();
 }
 
+function countdownUnit(value,label){
+  return `<div class="countdown-unit"><b>${String(value).padStart(2,'0')}</b><span>${label}</span></div>`;
+}
+
 function startLaunchCountdown(){
   const el=document.getElementById('launchCountdownTime');
   if(!el)return;
   const tick=()=>{
     const ms=launchTarget().getTime()-Date.now();
     if(ms<=0){
-      el.textContent='THE FIRST COLLECTION IS LIVE';
+      el.innerHTML=`<div class="countdown-live">THE FIRST COLLECTION IS LIVE</div>`;
       document.getElementById('launchCountdown')?.classList.add('is-live');
       if(_launchTimer)clearInterval(_launchTimer);
       return;
@@ -131,7 +145,12 @@ function startLaunchCountdown(){
     const hours=Math.floor((total%86400)/3600);
     const mins=Math.floor((total%3600)/60);
     const secs=total%60;
-    el.textContent=`${days}D · ${String(hours).padStart(2,'0')}H · ${String(mins).padStart(2,'0')}M · ${String(secs).padStart(2,'0')}S`;
+    el.innerHTML=[
+      countdownUnit(days,'TAGE'),
+      countdownUnit(hours,'STD'),
+      countdownUnit(mins,'MIN'),
+      countdownUnit(secs,'SEK')
+    ].join('');
   };
   tick();
   _launchTimer=setInterval(tick,1000);
@@ -143,12 +162,19 @@ function ensureGiveawayUI(){
     <div class="giveaway-modal giveaway-intro" id="giveawayIntro" role="dialog" aria-modal="true" aria-labelledby="giveawayIntroTitle">
       <div class="giveaway-intro-card">
         <button class="giveaway-x" onclick="closeGiveawayIntro()" aria-label="Schließen">×</button>
+        <div class="giveaway-intro-pill">GEWINNSPIEL · FIRST COLLECTION</div>
         <div class="giveaway-monogram">CR</div>
-        <div class="eyebrow">CHEVALIER & ROTH · FIRST COLLECTION</div>
-        <h2 id="giveawayIntroTitle">Win your chosen piece.</h2>
-        <p>Wähle deinen Favoriten aus der ersten Collection. Die Verlosung wird am <b>02.01.2027</b> aufgelöst.</p>
-        <button class="btn giveaway-primary" onclick="openGiveawayEntry()">JETZT TEILNEHMEN</button>
-        <button class="giveaway-text-btn" onclick="closeGiveawayIntro()">Später ansehen</button>
+        <h2 id="giveawayIntroTitle">Jetzt teilnehmen & dein Lieblingsstück gewinnen.</h2>
+        <p>Zum Launch der ersten Chevalier & Roth Collection verlosen wir ausgewählte Pieces. Die Teilnahme dauert weniger als eine Minute.</p>
+        <div class="giveaway-steps">
+          <div><span>1</span><b>Lieblingsprodukt auswählen</b><small>Wähle das Piece, das du gewinnen möchtest.</small></div>
+          <div><span>2</span><b>Daten eintragen</b><small>Vorname, Nachname und E-Mail eingeben.</small></div>
+          <div><span>3</span><b>Auf die Auslosung warten</b><small>Die Verlosung endet am <strong>02.01.2027</strong>.</small></div>
+        </div>
+        <div class="giveaway-actions">
+          <button class="btn giveaway-primary" onclick="openGiveawayEntry()">JETZT TEILNEHMEN</button>
+          <button class="giveaway-text-btn" onclick="closeGiveawayIntro()">Schließen</button>
+        </div>
       </div>
     </div>
 
