@@ -26,6 +26,10 @@ window.CRSiteConfig = {
   productTableId: 'cr_products',
   codeTableId: 'cr_codes',
   orderTableId: 'cr_orders',
+  giveawayTableId: 'cr_giveaway',
+
+  // First collection launch + giveaway draw (Luxembourg time).
+  launchAt: '2027-01-02T00:00:00+01:00',
 
   // Stripe publishable key for the embedded Checkout form (safe to expose in the browser).
   stripePublishableKey: '',
