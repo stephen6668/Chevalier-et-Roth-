@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Appwrite Einrichtung · Chevalier & Roth</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page legal-page">
+<div class="eyebrow">CHEVALIER & ROTH · APPWRITE</div>
+<h1 class="page-title">Exakte Einrichtung</h1>
+
+<div class="legal-alert">
+Benutze dein bestehendes Projekt <b>6ac779cc001f0d093856</b> und die bestehende Database
+<b>6ac7d6740035408079f7</b>. Die IDs unten müssen exakt stimmen.
+</div>
+
+<section class="legal-card">
+<h2>1. Web Platform</h2>
+<p>Project → Settings / Platforms → Web.</p>
+<p>Hostname: <code>stephen6668.github.io</code></p>
+<p>Kein <code>https://</code> und kein <code>/Chevalier-Roth/</code> eintragen.</p>
+</section>
+
+<section class="legal-card">
+<h2>2. Admin Team</h2>
+<p>Team ID: <code>6ac7d7fc0029522fc7bf</code></p>
+<p>Dein echtes Admin-Auth-Konto muss Mitglied dieses Teams sein und die Einladung muss angenommen sein.</p>
+<p>Die Demo-Zugangsdaten funktionieren nur, wenn du in Appwrite einen Auth-Benutzer mit genau diesen Daten angelegt hast.</p>
+</section>
+
+<section class="legal-card">
+<h2>3. Bestehende Warteliste</h2>
+<p>Table ID: <code>6ac7d6e1002f38269b6a</code></p>
+<p><b>Row Security: ON</b></p>
+<p><b>Permissions:</b><br>
+Any → CREATE<br>
+Admin Team → READ + UPDATE + DELETE<br>
+Any darf KEIN READ erhalten.</p>
+
+<table class="admin-table"><thead><tr><th>Column</th><th>Typ</th><th>Pflicht</th></tr></thead><tbody>
+<tr><td>userId</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>name</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>email</td><td>Varchar 320</td><td>Ja</td></tr>
+<tr><td>productId</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>productName</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>size</td><td>Varchar 100</td><td>Nein</td></tr>
+<tr><td>color</td><td>Varchar 100</td><td>Nein</td></tr>
+<tr><td>status</td><td>Varchar 50, Default waiting</td><td>Ja</td></tr>
+</tbody></table>
+</section>
+
+<section class="legal-card">
+<h2>4. Products Table neu erstellen</h2>
+<p>Name: <b>Products</b><br>Custom Table ID: <code>cr_products</code></p>
+<p><b>Row Security: OFF</b></p>
+<p><b>Permissions:</b><br>
+Any → READ<br>
+Admin Team → READ + CREATE + UPDATE + DELETE</p>
+
+<table class="admin-table"><thead><tr><th>Column</th><th>Typ</th><th>Pflicht</th></tr></thead><tbody>
+<tr><td>name</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>category</td><td>Varchar 64</td><td>Ja</td></tr>
+<tr><td>price</td><td>Float</td><td>Ja</td></tr>
+<tr><td>salePrice</td><td>Float</td><td>Nein</td></tr>
+<tr><td>sizes</td><td>Varchar 2048</td><td>Ja</td></tr>
+<tr><td>colors</td><td>Varchar 2048</td><td>Ja</td></tr>
+<tr><td>stock</td><td>Integer</td><td>Ja</td></tr>
+<tr><td>sku</td><td>Varchar 128</td><td>Nein</td></tr>
+<tr><td>badge</td><td>Varchar 64</td><td>Nein</td></tr>
+<tr><td>active</td><td>Boolean</td><td>Ja</td></tr>
+<tr><td>images</td><td>Varchar 4096</td><td>Ja</td></tr>
+<tr><td>description</td><td>Varchar 4096</td><td>Nein</td></tr>
+</tbody></table>
+<p>Danach im Admin → Products & Stock → <b>IMPORT START PRODUCTS</b> drücken.</p>
+</section>
+
+<section class="legal-card">
+<h2>5. Discount Codes Table neu erstellen</h2>
+<p>Name: <b>Discount Codes</b><br>Custom Table ID: <code>cr_codes</code></p>
+<p><b>Row Security: OFF</b></p>
+<p><b>Permissions:</b><br>
+Admin Team → READ + CREATE + UPDATE + DELETE<br>
+Any → keine Rechte</p>
+
+<table class="admin-table"><thead><tr><th>Column</th><th>Typ</th><th>Pflicht</th></tr></thead><tbody>
+<tr><td>code</td><td>Varchar 64</td><td>Ja</td></tr>
+<tr><td>percent</td><td>Integer</td><td>Ja</td></tr>
+<tr><td>active</td><td>Boolean</td><td>Ja</td></tr>
+<tr><td>start</td><td>Varchar 32</td><td>Nein</td></tr>
+<tr><td>end</td><td>Varchar 32</td><td>Nein</td></tr>
+<tr><td>maxUses</td><td>Integer</td><td>Ja</td></tr>
+<tr><td>uses</td><td>Integer</td><td>Ja</td></tr>
+<tr><td>minOrder</td><td>Float</td><td>Ja</td></tr>
+<tr><td>products</td><td>Varchar 4096</td><td>Ja</td></tr>
+<tr><td>categories</td><td>Varchar 1024</td><td>Ja</td></tr>
+</tbody></table>
+<p><b>Index:</b> Im Tab Indexes einen <b>Unique</b>-Index auf der Column <code>code</code> erstellen. Dadurch sind doppelte Rabattcodes ausgeschlossen und die Code-Abfrage ist sauber indexiert.</p>
+</section>
+
+<section class="legal-card">
+<h2>6. Orders Table neu erstellen</h2>
+<p>Name: <b>Orders</b><br>Custom Table ID: <code>cr_orders</code></p>
+<p><b>Row Security: OFF</b></p>
+<p><b>Permissions:</b><br>
+Admin Team → READ<br>
+Any → keine Rechte</p>
+
+<table class="admin-table"><thead><tr><th>Column</th><th>Typ</th><th>Pflicht</th></tr></thead><tbody>
+<tr><td>number</td><td>Varchar 80</td><td>Ja</td></tr>
+<tr><td>stripeSessionId</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>customer</td><td>Varchar 255</td><td>Nein</td></tr>
+<tr><td>email</td><td>Varchar 320</td><td>Nein</td></tr>
+<tr><td>total</td><td>Float</td><td>Ja</td></tr>
+<tr><td>status</td><td>Varchar 64</td><td>Ja</td></tr>
+<tr><td>items</td><td>Varchar 12000</td><td>Ja</td></tr>
+<tr><td>date</td><td>Varchar 64</td><td>Ja</td></tr>
+</tbody></table>
+</section>
+
+
+<section class="legal-card">
+<h2>7. Giveaway Table neu erstellen</h2>
+<p>Name: <b>First Collection Giveaway</b><br>Custom Table ID: <code>cr_giveaway</code></p>
+<p><b>Row Security: ON</b></p>
+<p><b>Permissions:</b><br>
+Any → CREATE<br>
+Admin Team <code>6ac7d7fc0029522fc7bf</code> → READ + UPDATE + DELETE<br>
+Any → KEIN READ</p>
+<table class="admin-table"><thead><tr><th>Column</th><th>Typ</th><th>Pflicht</th></tr></thead><tbody>
+<tr><td>firstName</td><td>Varchar 120</td><td>Ja</td></tr>
+<tr><td>lastName</td><td>Varchar 120</td><td>Ja</td></tr>
+<tr><td>email</td><td>Varchar 320</td><td>Ja</td></tr>
+<tr><td>prizeId</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>prizeName</td><td>Varchar 255</td><td>Ja</td></tr>
+<tr><td>status</td><td>Varchar 32</td><td>Ja</td></tr>
+<tr><td>source</td><td>Varchar 64</td><td>Ja</td></tr>
+<tr><td>privacyAccepted</td><td>Boolean</td><td>Ja</td></tr>
+</tbody></table>
+<p>Kein eigenes Datumsfeld nötig: Appwrite speichert automatisch <code>$createdAt</code>. Im Admin erscheint danach ein eigener <b>Giveaway</b>-Bereich mit Liste, Status und CSV-Export.</p>
+</section>
+
+<section class="legal-card">
+<h2>8. Stripe Checkout Function</h2>
+<p>Appwrite → Functions → Create Function.</p>
+<p>
+Name: <b>Chevalier Roth Checkout</b><br>
+Runtime: <b>Node.js 22</b><br>
+Code-Ordner: <code>stripe-appwrite-function</code><br>
+Entrypoint: <code>main.js</code><br>
+Build command: <code>npm install</code><br>
+Execute access: <b>Any</b>
+</p>
+<p><b>Scopes:</b> <code>rows.read</code></p>
+<p><b>Environment Variable:</b><br>
+<code>STRIPE_SECRET_KEY</code> = dein Stripe Secret Key. Als Secret markieren.</p>
+<p>Nach Änderungen an Environment Variables die Function neu deployen.</p>
+<p>Nach dem Deployment den generierten <code>.appwrite.run</code>-Link in <code>site-config.js</code> bei <code>stripeCheckoutEndpoint</code> eintragen.</p>
+</section>
+
+<section class="legal-card">
+<h2>9. Stripe Stock Webhook Function</h2>
+<p>
+Name: <b>Chevalier Roth Stock Webhook</b><br>
+Runtime: <b>Node.js 22</b><br>
+Code-Ordner: <code>stripe-stock-webhook</code><br>
+Entrypoint: <code>main.js</code><br>
+Build command: <code>npm install</code><br>
+Execute access: <b>Any</b>
+</p>
+<p><b>Scopes:</b> <code>rows.read</code> + <code>rows.write</code></p>
+<p><b>Environment Variables:</b><br>
+<code>STRIPE_SECRET_KEY</code><br>
+<code>STRIPE_WEBHOOK_SECRET</code><br>
+Beide als Secret markieren.</p>
+<p>In Stripe den generierten Webhook-Function-Link als Webhook Endpoint hinzufügen und nur das Event <code>checkout.session.completed</code> abonnieren.</p>
+<p>Diese Function reduziert nach erfolgreicher Zahlung den Wert <code>stock</code>. Bei 0 zeigt die Website automatisch SOLD OUT.</p>
+</section>
+
+<section class="legal-card">
+<h2>10. Danach testen</h2>
+<p>
+1. Admin öffnen und einloggen.<br>
+2. Oben muss <b>APPWRITE COMMERCE · CONNECTED</b> erscheinen.<br>
+3. Wenn Products leer ist → <b>IMPORT START PRODUCTS</b> drücken.<br>
+4. Bei einem Produkt Stock z. B. auf 50 setzen → speichern → Seite auf anderem Gerät prüfen.<br>
+5. Rabattcode mit z. B. 15 % erstellen und direkt Produkte auswählen.<br>6. Gewinnspiel auf der Website öffnen, Test-Teilnahme absenden und im Admin → Giveaway prüfen.<br>
+7. Warteliste testweise ohne Login ausfüllen → Admin-Waitlist prüfen.<br>
+8. Stripe nur zuerst im Testmodus testen.<br>
+9. Nach einem Testkauf prüfen, ob Stock um die gekaufte Menge sinkt und der Order-Eintrag erscheint.
+</p>
+</section>
+</main>
+</body></html>

@@ -5,6 +5,7 @@ let currentWaitlistRows=[];
 let adminProducts=[];
 let adminCodes=[];
 let adminOrders=[];
+let adminGiveaway=[];
 
 function val(id){return document.getElementById(id)?.value||''}
 function money(v){return CRStore.money(Number(v)||0)}
@@ -70,32 +71,65 @@ function openAdminTab(name,button){
   document.getElementById('tab-'+name)?.classList.add('active');
   document.querySelectorAll('.admin-nav button').forEach(x=>x.classList.remove('active'));
   (button||document.querySelector(`[data-tab="${name}"]`))?.classList.add('active');
-  const names={overview:'Overview',products:'Products & Stock',discounts:'Discount Codes',waitlist:'Waitlist',orders:'Orders'};
+  const names={overview:'Overview',products:'Products & Stock',discounts:'Discount Codes',waitlist:'Waitlist',giveaway:'Giveaway',orders:'Orders'};
   adminPageTitle.textContent=names[name]||'Admin';
   if(name==='waitlist')loadWaitlist();
+  if(name==='giveaway')loadGiveawayEntries();
   if(name==='orders')loadOrders();
 }
 
 async function refreshAll(){
   await loadProductsAdmin();
-  await Promise.allSettled([loadCodesAdmin(),loadOrders(),loadWaitlist()]);
+  await Promise.allSettled([loadCodesAdmin(),loadOrders(),loadWaitlist(),loadGiveawayEntries()]);
   renderOverview();
 }
 
 async function loadProductsAdmin(){
+  const localProducts=CRStore.products();
   try{
-    adminProducts=await CRCommerce.listProducts();
-    CRStore.saveProducts(adminProducts);
-    const statusEl=document.getElementById('commerceStatus');
-    if(statusEl){statusEl.textContent='APPWRITE COMMERCE · CONNECTED';statusEl.classList.add('ok');}
+    const central=await CRCommerce.listProducts();
+    if(central.length){
+      adminProducts=central;
+      CRStore.saveProducts(adminProducts);
+      const statusEl=document.getElementById('commerceStatus');
+      if(statusEl){statusEl.textContent='APPWRITE COMMERCE · CONNECTED';statusEl.classList.add('ok');}
+    }else{
+      adminProducts=localProducts.length?localProducts:CRStore.defaultProducts();
+      const statusEl=document.getElementById('commerceStatus');
+      if(statusEl){statusEl.textContent='APPWRITE COMMERCE · CONNECTED · PRODUCTS TABLE EMPTY';statusEl.classList.add('ok');}
+    }
   }catch(e){
-    adminProducts=CRStore.products();
+    adminProducts=localProducts.length?localProducts:CRStore.defaultProducts();
     const statusEl=document.getElementById('commerceStatus');
     if(statusEl){statusEl.textContent='APPWRITE COMMERCE · SETUP REQUIRED';statusEl.classList.remove('ok');}
   }
   renderProductsAdmin();
   renderProductSelect();
   renderDiscountProductChoices();
+}
+
+
+async function importStartProducts(){
+  const source=(adminProducts&&adminProducts.length)?adminProducts:CRStore.defaultProducts();
+  if(!source.length)return alert('No starter products are available.');
+  if(!confirm(`Import ${source.length} product(s) into the central Appwrite catalogue?`))return;
+
+  const statusEl=document.getElementById('commerceStatus');
+  if(statusEl)statusEl.textContent='IMPORTING PRODUCTS…';
+
+  try{
+    for(const p of source){
+      await CRCommerce.saveProduct(p);
+    }
+    await loadProductsAdmin();
+    renderOverview();
+    if(statusEl){statusEl.textContent='APPWRITE COMMERCE · PRODUCTS IMPORTED';statusEl.classList.add('ok');}
+    alert('Starter products imported successfully.');
+  }catch(e){
+    console.error(e);
+    if(statusEl){statusEl.textContent='APPWRITE COMMERCE · IMPORT FAILED';statusEl.classList.remove('ok');}
+    alert('Import failed. Check cr_products columns and Admin Team permissions.');
+  }
 }
 
 function renderProductSelect(){
@@ -287,6 +321,59 @@ async function deleteCurrentCode(){
   adminCodes=adminCodes.filter(x=>x!==c);newCode();renderOverview();
 }
 
+
+async function loadGiveawayEntries(){
+  const msg=document.getElementById('giveawayAdminMsg');
+  if(msg)msg.textContent='Loading giveaway entries…';
+  try{
+    adminGiveaway=await CRCommerce.listGiveawayEntries();
+    const rows=document.getElementById('giveawayRows');
+    if(rows)rows.innerHTML=adminGiveaway.length?adminGiveaway.map(x=>`<tr>
+      <td>${CRStore.esc(x.prizeName||x.prizeId||'')}</td>
+      <td>${CRStore.esc(x.firstName||'')}</td>
+      <td>${CRStore.esc(x.lastName||'')}</td>
+      <td>${CRStore.esc(x.email||'')}</td>
+      <td><select class="admin-input compact" onchange="setGiveawayStatus('${x.$id}',this.value)">${['entered','winner','contacted','invalid'].map(s=>`<option value="${s}" ${String(x.status||'entered')===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td>${x.$createdAt?new Date(x.$createdAt).toLocaleString():'—'}</td>
+      <td><button class="icon-btn danger" onclick="deleteGiveawayEntry('${x.$id}')">Delete</button></td>
+    </tr>`).join(''):'<tr><td colspan="7">No giveaway entries yet.</td></tr>';
+    if(msg)msg.textContent=adminGiveaway.length?`${adminGiveaway.length} entr${adminGiveaway.length===1?'y':'ies'} loaded.`:'No giveaway entries yet.';
+  }catch(e){
+    adminGiveaway=[];
+    const rows=document.getElementById('giveawayRows');if(rows)rows.innerHTML='<tr><td colspan="7">Giveaway table not ready yet.</td></tr>';
+    if(msg)msg.textContent='Create the cr_giveaway table in Appwrite. See APPWRITE-SETUP-GENAU.html.';
+  }
+  renderOverview();
+}
+
+async function setGiveawayStatus(rowId,status){
+  try{
+    await CRCommerce.updateGiveawayStatus(rowId,status);
+    const row=adminGiveaway.find(x=>x.$id===rowId);if(row)row.status=status;
+    setMsg('giveawayAdminMsg','Status saved.','success');
+  }catch(e){setMsg('giveawayAdminMsg','Could not update the giveaway status.','error')}
+}
+
+async function deleteGiveawayEntry(rowId){
+  if(!confirm('Delete this giveaway entry?'))return;
+  try{
+    await CRCommerce.deleteGiveawayEntry(rowId);
+    adminGiveaway=adminGiveaway.filter(x=>x.$id!==rowId);
+    await loadGiveawayEntries();
+  }catch(e){setMsg('giveawayAdminMsg','Could not delete this entry.','error')}
+}
+
+function downloadGiveawayCSV(){
+  if(!adminGiveaway.length)return setMsg('giveawayAdminMsg','There are no giveaway entries to export.','error');
+  const q=v=>'"'+String(v??'').replaceAll('"','""')+'"';
+  const lines=[['Prize','First name','Last name','Email','Status','Date'].map(q).join(',')];
+  for(const x of adminGiveaway){
+    lines.push([x.prizeName||x.prizeId||'',x.firstName||'',x.lastName||'',x.email||'',x.status||'entered',x.$createdAt||''].map(q).join(','));
+  }
+  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Chevalier-Roth-Giveaway-Entries.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
 async function loadOrders(){
   try{
     adminOrders=await CRCommerce.listOrders();
@@ -313,6 +400,7 @@ function renderOverview(){
   statSoldOut.textContent=adminProducts.filter(p=>Number(p.stock||0)<=0).length;
   statCodes.textContent=adminCodes.filter(c=>c.active).length;
   statOrders.textContent=adminOrders.length;
+  const sg=document.getElementById('statGiveaway');if(sg)sg.textContent=adminGiveaway.length;
   lowStockGrid.innerHTML=adminProducts.filter(p=>p.active&&Number(p.stock||0)<=8).sort((a,b)=>a.stock-b.stock).slice(0,8).map(p=>`
     <button onclick="openAdminTab('products');selectProductToEdit('${p.id}')"><b>${CRStore.esc(p.name)}</b><span>${p.stock<=0?'SOLD OUT':p.stock+' left'}</span></button>`).join('')||'<div class="admin-empty">No low-stock products.</div>';
 }

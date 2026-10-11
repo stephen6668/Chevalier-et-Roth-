@@ -6,6 +6,7 @@ const CRCommerce = (() => {
   const productTableId=window.CRSiteConfig?.productTableId || 'cr_products';
   const codeTableId=window.CRSiteConfig?.codeTableId || 'cr_codes';
   const orderTableId=window.CRSiteConfig?.orderTableId || 'cr_orders';
+  const giveawayTableId=window.CRSiteConfig?.giveawayTableId || 'cr_giveaway';
 
   let client=null,tables=null;
 
@@ -164,14 +165,73 @@ const CRCommerce = (() => {
     return tables.deleteRow({databaseId,tableId:codeTableId,rowId});
   }
 
+
+  function normalizeEmail(value){
+    return String(value||'').trim().toLowerCase();
+  }
+
+  function validEmail(value){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value||''));
+  }
+
+  async function createGiveawayEntry(entry){
+    init();
+    const firstName=String(entry.firstName||'').trim();
+    const lastName=String(entry.lastName||'').trim();
+    const email=normalizeEmail(entry.email);
+    const prizeId=String(entry.prizeId||'').trim();
+    const prizeName=String(entry.prizeName||'').trim();
+    if(!firstName || !lastName) throw new Error('Bitte Vor- und Nachname eingeben.');
+    if(!validEmail(email)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
+    if(!prizeId || !prizeName) throw new Error('Bitte zuerst einen Gewinn auswählen.');
+    if(!entry.privacyAccepted) throw new Error('Bitte den Teilnahme- und Datenschutzhinweisen zustimmen.');
+
+    return tables.createRow({
+      databaseId,
+      tableId:giveawayTableId,
+      rowId:Appwrite.ID.unique(),
+      data:{
+        firstName,
+        lastName,
+        email,
+        prizeId,
+        prizeName,
+        status:'entered',
+        source:'website-giveaway-2027',
+        privacyAccepted:true
+      }
+    });
+  }
+
+  async function listGiveawayEntries(){
+    const rows=await listAll(giveawayTableId);
+    return rows.sort((a,b)=>String(b.$createdAt||'').localeCompare(String(a.$createdAt||'')));
+  }
+
+  async function updateGiveawayStatus(rowId,status){
+    init();
+    return tables.updateRow({
+      databaseId,
+      tableId:giveawayTableId,
+      rowId,
+      data:{status:String(status||'entered')}
+    });
+  }
+
+  async function deleteGiveawayEntry(rowId){
+    init();
+    return tables.deleteRow({databaseId,tableId:giveawayTableId,rowId});
+  }
+
   async function listOrders(){
     const rows=await listAll(orderTableId);
     return rows.sort((a,b)=>String(b.date||b.$createdAt||'').localeCompare(String(a.date||a.$createdAt||'')));
   }
 
   return {
-    databaseId,productTableId,codeTableId,orderTableId,
+    databaseId,productTableId,codeTableId,orderTableId,giveawayTableId,
     init,listProducts,syncProducts,saveProduct,deleteProduct,
-    listCodes,saveCode,deleteCode,listOrders
+    listCodes,saveCode,deleteCode,listOrders,
+    createGiveawayEntry,listGiveawayEntries,updateGiveawayStatus,deleteGiveawayEntry
   };
 })();

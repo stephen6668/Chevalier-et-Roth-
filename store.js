@@ -22,6 +22,7 @@ const CRStore = (() => {
     localStorage.setItem('cr_catalog_update_v3','1');
   })();
 
+  const defaultProducts=()=>JSON.parse(JSON.stringify(defaults));
   const products=()=>{
     let ps=get('products',defaults);
     const imageDefaults={
@@ -76,5 +77,5 @@ const CRStore = (() => {
     }
     return {ok:true,msg:`${c.percent}% applied`,discount:eligible*(Number(c.percent)/100),code:c};
   }
-  return {products,saveProducts,codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatOnNet,grossFromNet,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set};
+  return {defaultProducts,products,saveProducts,codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatOnNet,grossFromNet,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set};
 })();

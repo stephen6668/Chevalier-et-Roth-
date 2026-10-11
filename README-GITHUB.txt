@@ -407,3 +407,24 @@ Fix:
 - login() renamed to adminLogin()
 - admin panels are now accessed with document.getElementById()
 - login form fields/status elements use explicit DOM lookups
+
+
+ADMIN READABILITY + EXACT APPWRITE SETUP
+----------------------------------------
+- Admin text/input/select/table contrast is explicitly fixed.
+- Browser autofill text remains dark/readable.
+- Empty cr_products table no longer wipes the local starter catalogue.
+- Admin now has IMPORT START PRODUCTS.
+- Exact German Appwrite setup: APPWRITE-SETUP-GENAU.html
+
+
+FIRST COLLECTION GIVEAWAY
+-------------------------
+- Immediate luxury popup on first site visit per browser session.
+- Clickable product/prize selection with product photos.
+- First name, last name and email are stored centrally in Appwrite.
+- Table ID: cr_giveaway.
+- Admin tab: Giveaway with status management + CSV export.
+- Site-wide countdown to 02.01.2027 Luxembourg time.
+- Persistent GIVEAWAY button reopens the popup.
+- Exact Appwrite table setup is in APPWRITE-SETUP-GENAU.html.

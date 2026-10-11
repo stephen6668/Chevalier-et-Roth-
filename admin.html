@@ -41,6 +41,7 @@
       <button data-tab="products" onclick="openAdminTab('products',this)">Products & Stock</button>
       <button data-tab="discounts" onclick="openAdminTab('discounts',this)">Discount Codes</button>
       <button data-tab="waitlist" onclick="openAdminTab('waitlist',this)">Waitlist</button>
+      <button data-tab="giveaway" onclick="openAdminTab('giveaway',this)">Giveaway</button>
       <button data-tab="orders" onclick="openAdminTab('orders',this)">Orders</button>
     </nav>
     <div class="admin-sidebar-foot">
@@ -67,6 +68,7 @@
         <article><span>Sold out</span><b id="statSoldOut">0</b><small>Products with zero stock</small></article>
         <article><span>Active codes</span><b id="statCodes">0</b><small>Current promotions</small></article>
         <article><span>Waitlist</span><b id="statWaitlist">0</b><small>Customer interest</small></article>
+        <article><span>Giveaway</span><b id="statGiveaway">0</b><small>Competition entries</small></article>
         <article><span>Orders</span><b id="statOrders">0</b><small>Recorded payments</small></article>
       </div>
       <div class="admin-panel luxury-panel">
@@ -79,7 +81,7 @@
       <div class="admin-panel luxury-panel">
         <div class="admin-panel-head">
           <div><span class="eyebrow">CATALOGUE</span><h2>Products & inventory</h2><p>Create products, edit details and control stock.</p></div>
-          <button class="btn" onclick="newProduct()">+ NEW PRODUCT</button>
+          <div class="admin-actions-row" style="margin-top:0"><button class="btn light" onclick="importStartProducts()">IMPORT START PRODUCTS</button><button class="btn" onclick="newProduct()">+ NEW PRODUCT</button></div>
         </div>
 
         <div class="admin-toolbar">
@@ -162,6 +164,18 @@
         </div>
         <div id="waitlistMsg" class="admin-message"></div>
         <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Product</th><th>Name</th><th>Email</th><th>Size</th><th>Colour</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="waitlistRows"></tbody></table></div>
+      </div>
+    </section>
+
+
+    <section class="admin-tab" id="tab-giveaway">
+      <div class="admin-panel luxury-panel">
+        <div class="admin-panel-head">
+          <div><span class="eyebrow">FIRST COLLECTION · 02.01.2027</span><h2>Giveaway entries</h2><p>Every website entry stored centrally in Appwrite.</p></div>
+          <div class="admin-actions-row"><button class="btn light" onclick="loadGiveawayEntries()">REFRESH</button><button class="btn" onclick="downloadGiveawayCSV()">DOWNLOAD CSV</button></div>
+        </div>
+        <div id="giveawayAdminMsg" class="admin-message"></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Prize</th><th>First name</th><th>Last name</th><th>Email</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="giveawayRows"></tbody></table></div>
       </div>
     </section>
 
