@@ -428,3 +428,24 @@ FIRST COLLECTION GIVEAWAY
 - Site-wide countdown to 02.01.2027 Luxembourg time.
 - Persistent GIVEAWAY button reopens the popup.
 - Exact Appwrite table setup is in APPWRITE-SETUP-GENAU.html.
+
+FOUR-IMAGE PRODUCT NAMING + SETS
+--------------------------------
+Product images are now automatic. No image path needs to be typed in the Admin.
+Each pN product uses exactly four JPG files:
+- images/produktN-1.jpg
+- images/produktN-2.jpg
+- images/produktN-3.jpg
+- images/produktN-4.jpg
+
+Examples:
+p1 -> produkt1-1.jpg ... produkt1-4.jpg
+p2 -> produkt2-1.jpg ... produkt2-4.jpg
+New products receive p5, p6, p7 ... automatically.
+
+Set products:
+- Heritage Men's Set: p1 + p2 = EUR 210 before VAT
+- Maison Women's Set: p3 + p4 = EUR 200 before VAT
+The set builder lets the customer choose size and colour separately for both pieces.
+A set is sold out automatically when either component has no stock.
+Stripe checkout accepts bundle lines and the stock webhook reduces stock for both component products after payment.

@@ -2,9 +2,9 @@ window.CRSiteConfig = {
   brandName: 'Chevalier & Roth',
   currency: 'EUR',
 
-  // Luxembourg standard VAT. Prices on the website are gross prices.
+  // Luxembourg standard VAT. Product and set prices are shown before VAT; VAT is added to the final total.
   vatRate: 0.17,
-  pricesIncludeVat: true,
+  pricesIncludeVat: false,
 
   // REQUIRED BEFORE PUBLIC SALES — replace with verified business data.
   legalName: '[ENTER LEGAL COMPANY / TRADER NAME]',

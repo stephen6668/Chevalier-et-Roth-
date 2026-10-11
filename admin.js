@@ -1,5 +1,6 @@
 
 let editId=null;
+let pendingNewProductId=null;
 let editingCodeId=null;
 let currentWaitlistRows=[];
 let adminProducts=[];
@@ -149,25 +150,26 @@ function renderProductsAdmin(){
   const list=adminProducts.filter(p=>!q||`${p.name} ${p.sku} ${p.category}`.toLowerCase().includes(q));
   productCardsAdmin.innerHTML=list.length?list.map(p=>`
     <button class="admin-product-card ${editId===p.id?'selected':''}" onclick="selectProductToEdit('${p.id}')">
-      <div class="admin-product-thumb">${p.images?.[0]?`<img src="${CRStore.esc(p.images[0])}" alt="">`:'CR'}</div>
+      <div class="admin-product-thumb">${CRStore.productImages(p)[0]?`<img src="${CRStore.esc(CRStore.productImages(p)[0])}" alt="">`:'CR'}</div>
       <div class="admin-product-card-copy"><b>${CRStore.esc(p.name)}</b><span>${CRStore.esc(p.sku||p.category)}</span><small>${money(p.price)} · <i class="stock-dot ${stockClass(p.stock)}"></i>${p.stock} in stock</small></div>
       <span class="admin-status-chip ${p.stock<=0?'sold':''}">${p.stock<=0?'SOLD OUT':(p.active?'LIVE':'HIDDEN')}</span>
     </button>`).join(''):'<div class="admin-empty">No products found.</div>';
 }
 
 function newProduct(){
-  editId=null;productForm.reset();pActive.checked=true;pCategory.value='Men';pStock.value='0';
-  productEditorEyebrow.textContent='NEW PRODUCT';productEditorTitle.textContent='Create product';deleteProductBtn.hidden=true;
-  productEditSelect.value='';renderProductsAdmin();productSaveMsg.textContent='';
+  editId=null;pendingNewProductId=CRStore.nextProductId(adminProducts);productForm.reset();pActive.checked=true;pCategory.value='Men';pStock.value='0';
+  pImages.value=CRStore.productImages({id:pendingNewProductId}).join(', ');
+  productEditorEyebrow.textContent='NEW PRODUCT · '+pendingNewProductId.toUpperCase();productEditorTitle.textContent='Create product';deleteProductBtn.hidden=true;
+  productEditSelect.value='';renderProductsAdmin();productSaveMsg.textContent='Bildnamen automatisch: '+CRStore.productImages({id:pendingNewProductId}).map(x=>x.split('/').pop()).join(', ');
 }
 
 function selectProductToEdit(id){
   if(!id){newProduct();return}
   const p=adminProducts.find(x=>x.id===id);if(!p)return;
-  editId=id;
+  editId=id;pendingNewProductId=null;
   pName.value=p.name||'';pCategory.value=p.category||'Men';pPrice.value=p.price||0;pSale.value=p.salePrice||'';
   pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');pStock.value=p.stock||0;
-  pSku.value=p.sku||'';pBadge.value=p.badge||'';pImages.value=(p.images||[]).join(', ');pDesc.value=p.description||'';pActive.checked=!!p.active;
+  pSku.value=p.sku||'';pBadge.value=p.badge||'';pImages.value=CRStore.productImages(p).join(', ');pDesc.value=p.description||'';pActive.checked=!!p.active;
   productEditorEyebrow.textContent='EDIT PRODUCT';productEditorTitle.textContent=p.name;deleteProductBtn.hidden=false;
   productEditSelect.value=id;renderProductsAdmin();
   if(window.innerWidth<900)productForm.scrollIntoView({behavior:'smooth',block:'start'});
@@ -175,7 +177,7 @@ function selectProductToEdit(id){
 
 async function saveProduct(){
   const data={
-    id:editId||('prod_'+Date.now()),
+    id:editId||pendingNewProductId||CRStore.nextProductId(adminProducts),
     name:val('pName').trim(),
     category:val('pCategory'),
     price:Number(val('pPrice')||0),
@@ -186,7 +188,7 @@ async function saveProduct(){
     sku:val('pSku').trim(),
     badge:val('pBadge'),
     active:pActive.checked,
-    images:splitCsv(val('pImages')),
+    images:CRStore.productImages({id:editId||pendingNewProductId||CRStore.nextProductId(adminProducts)}),
     description:val('pDesc').trim()
   };
   if(!data.name)return setMsg('productSaveMsg','Enter a product name.','error');
@@ -198,7 +200,7 @@ async function saveProduct(){
     const i=adminProducts.findIndex(x=>x.id===saved.id);
     if(i>=0)adminProducts[i]=saved;else adminProducts.push(saved);
     CRStore.saveProducts(adminProducts);
-    editId=saved.id;
+    editId=saved.id;pendingNewProductId=null;
     renderProductsAdmin();renderProductSelect();renderDiscountProductChoices();renderOverview();
     selectProductToEdit(saved.id);
     setMsg('productSaveMsg','Saved. The store catalogue is updated centrally.','success');
@@ -207,7 +209,7 @@ async function saveProduct(){
     const i=adminProducts.findIndex(x=>x.id===data.id);
     if(i>=0)adminProducts[i]=data;else adminProducts.push(data);
     CRStore.saveProducts(adminProducts);
-    editId=data.id;renderProductsAdmin();renderProductSelect();renderDiscountProductChoices();renderOverview();
+    editId=data.id;pendingNewProductId=null;renderProductsAdmin();renderProductSelect();renderDiscountProductChoices();renderOverview();
     setMsg('productSaveMsg','Saved only in this browser because the Appwrite product table is not ready. Open APPWRITE-COMMERCE-SETUP.html.','error');
   }finally{saveProductBtn.disabled=false}
 }
@@ -223,10 +225,10 @@ async function deleteCurrentProduct(){
 
 function duplicateCurrentProduct(){
   const p=adminProducts.find(x=>x.id===editId);if(!p)return;
-  editId=null;
+  editId=null;pendingNewProductId=CRStore.nextProductId(adminProducts);
   pName.value=p.name+' Copy';pCategory.value=p.category;pPrice.value=p.price;pSale.value=p.salePrice||'';
   pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');pStock.value=p.stock;
-  pSku.value=(p.sku||'')+'-COPY';pBadge.value=p.badge||'';pImages.value=(p.images||[]).join(', ');pDesc.value=p.description||'';pActive.checked=false;
+  pSku.value=(p.sku||'')+'-COPY';pBadge.value=p.badge||'';pImages.value=CRStore.productImages({id:pendingNewProductId}).join(', ');pDesc.value=p.description||'';pActive.checked=false;
   productEditorEyebrow.textContent='DUPLICATE PRODUCT';productEditorTitle.textContent='Create copy';deleteProductBtn.hidden=true;
 }
 

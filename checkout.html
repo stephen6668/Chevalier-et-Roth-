@@ -75,7 +75,17 @@
 <script>
 function checkoutItems(){
   const products=CRStore.products();
-  return CRStore.cart().map(item=>({...item,product:products.find(p=>p.id===item.id)})).filter(x=>x.product);
+  return CRStore.cart().map(item=>{
+    if(item.bundleId){
+      const bundle=CRStore.bundleById(item.bundleId);
+      if(!bundle)return null;
+      const components=(item.components||[]).map(c=>({...c,product:products.find(p=>p.id===c.id)})).filter(x=>x.product);
+      if(components.length!==bundle.componentIds.length)return null;
+      return {...item,bundle,components};
+    }
+    const product=products.find(p=>p.id===item.id);
+    return product?{...item,product}:null;
+  }).filter(Boolean);
 }
 
 function renderCheckout(){
@@ -87,12 +97,15 @@ function renderCheckout(){
     return;
   }
 
-  checkoutLines.innerHTML=lines.map(x=>`<div class="checkout-line">
-    <div><b>${CRStore.esc(x.product.name)}</b><small>${CRStore.esc(x.size)} · ${CRStore.esc(x.color)} · Qty ${x.qty}</small></div>
-    <div style="text-align:right"><b>${CRStore.money(CRStore.price(x.product)*x.qty)}</b><small>+ ${CRStore.vatPercent()}% VAT</small></div>
-  </div>`).join('');
+  checkoutLines.innerHTML=lines.map(x=>{
+    if(x.bundle){
+      const details=x.components.map(c=>`${CRStore.esc(c.product.name)} — ${CRStore.esc(c.size)} · ${CRStore.esc(c.color)}`).join('<br>');
+      return `<div class="checkout-line"><div><b>${CRStore.esc(x.bundle.name)}</b><small>${details}<br>Qty ${x.qty}</small></div><div style="text-align:right"><b>${CRStore.money(x.bundle.price*x.qty)}</b><small>+ ${CRStore.vatPercent()}% VAT</small></div></div>`;
+    }
+    return `<div class="checkout-line"><div><b>${CRStore.esc(x.product.name)}</b><small>${CRStore.esc(x.size)} · ${CRStore.esc(x.color)} · Qty ${x.qty}</small></div><div style="text-align:right"><b>${CRStore.money(CRStore.price(x.product)*x.qty)}</b><small>+ ${CRStore.vatPercent()}% VAT</small></div></div>`;
+  }).join('');
 
-  const subtotal=lines.reduce((s,x)=>s+CRStore.price(x.product)*x.qty,0);
+  const subtotal=lines.reduce((s,x)=>s+CRStore.cartLineNet(x),0);
   const saved=CRStore.get('checkoutDiscount',null);
   const discount=Number(saved?.discount||0);
   const taxableNet=Math.max(0,subtotal-discount);
@@ -113,17 +126,11 @@ async function startStripeCheckout(e){
   const publishableKey=String(window.CRSiteConfig?.stripePublishableKey||'').trim();
   const msg=document.getElementById('checkoutMsg');
 
-  if(!publishableKey){
-    msg.textContent='Stripe is not activated yet. Add your Stripe publishable key to site-config.js.';
-    return;
-  }
-  if(!endpoint){
-    msg.textContent='Stripe is not activated yet. Add your Appwrite Function domain to site-config.js.';
-    return;
-  }
+  if(!publishableKey){msg.textContent='Stripe is not activated yet. Add your Stripe publishable key to site-config.js.';return}
+  if(!endpoint){msg.textContent='Stripe is not activated yet. Add your Appwrite Function domain to site-config.js.';return}
 
   const lines=checkoutItems();
-  if(!lines.length){ msg.textContent='Your bag is empty.'; return; }
+  if(!lines.length){msg.textContent='Your bag is empty.';return}
 
   payBtn.disabled=true;
   payBtn.textContent='LOADING SECURE PAYMENT…';
@@ -133,81 +140,37 @@ async function startStripeCheckout(e){
     const saved=CRStore.get('checkoutDiscount',null);
     const payload={
       action:'checkout:create',
-      cart:lines.map(x=>({id:x.product.id,qty:x.qty,size:x.size,color:x.color})),
+      cart:lines.map(x=>x.bundle?{
+        id:`bundle:${x.bundle.id}`,
+        bundleId:x.bundle.id,
+        qty:x.qty,
+        components:x.components.map(c=>({id:c.id,size:c.size,color:c.color}))
+      }:{id:x.product.id,qty:x.qty,size:x.size,color:x.color}),
       discountCode:saved?.code||'',
       customer:{
-        firstName:first.value.trim(),
-        lastName:last.value.trim(),
-        email:email.value.trim(),
-        phone:phone.value.trim(),
-        street:street.value.trim(),
-        house:house.value.trim(),
-        postalCode:zip.value.trim(),
-        city:city.value.trim(),
-        country:country.value
+        firstName:first.value.trim(),lastName:last.value.trim(),email:email.value.trim(),phone:phone.value.trim(),street:street.value.trim(),house:house.value.trim(),postalCode:zip.value.trim(),city:city.value.trim(),country:country.value
       }
     };
 
-    const appearance = {
-      "theme": "flat",
-      "labels": "above",
-      "inputs": "spaced",
-      "variables": {
-        "borderRadius": "4px",
-        "colorBackground": "#ffffff",
-        "colorDanger": "#df1b41",
-        "colorPrimary": "#0570de",
-        "colorSuccess": "#00c853",
-        "colorText": "#30313d",
-        "fontFamily": "default",
-        "fontSizeBase": "16px",
-        "spacingUnit": "4px"
-      }
-    };
-
+    const appearance={"theme":"flat","labels":"above","inputs":"spaced","variables":{"borderRadius":"4px","colorBackground":"#ffffff","colorDanger":"#df1b41","colorPrimary":"#0570de","colorSuccess":"#00c853","colorText":"#30313d","fontFamily":"default","fontSizeBase":"16px","spacingUnit":"4px"}};
     const stripe=Stripe(publishableKey,{betas:['custom_checkout_payment_form_1']});
 
-    const clientSecret=fetch(endpoint,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    })
-      .then(async response=>{
-        const data=await response.json().catch(()=>({}));
-        if(!response.ok || !data.client_secret){
-          throw new Error(data.error||'Stripe Checkout could not be started.');
-        }
-        return data.client_secret;
-      });
+    const clientSecret=fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok||!data.client_secret)throw new Error(data.error||'Stripe Checkout could not be started.');return data.client_secret});
 
-    const stripeFormSection=document.getElementById('stripeFormSection');
     stripeFormSection.hidden=false;
-
     const checkoutSdk=stripe.initCheckoutFormSdk({clientSecret,appearance});
     const form=checkoutSdk.createForm({layout:'expanded'});
     form.mount('#checkout-form');
 
     const loadActionsResult=await checkoutSdk.loadActions();
     if(loadActionsResult.type==='success'){
-      form.on('confirm',async event=>{
-        try{
-          await loadActionsResult.actions.confirm({formConfirmEvent:event});
-        }catch(error){
-          console.error('Payment confirmation error:',error);
-          msg.textContent=error?.message||'Payment confirmation failed.';
-        }
-      });
-    }else{
-      throw new Error(loadActionsResult.error?.message||'Stripe payment form could not be loaded.');
-    }
+      form.on('confirm',async event=>{try{await loadActionsResult.actions.confirm({formConfirmEvent:event})}catch(error){console.error('Payment confirmation error:',error);msg.textContent=error?.message||'Payment confirmation failed.'}});
+    }else throw new Error(loadActionsResult.error?.message||'Stripe payment form could not be loaded.');
 
-    payBtn.hidden=true;
-    msg.textContent='';
+    payBtn.hidden=true;msg.textContent='';
   }catch(err){
-    console.error(err);
-    msg.textContent=err.message||'Payment could not be started.';
-    payBtn.disabled=false;
-    payBtn.textContent='CONTINUE TO SECURE PAYMENT';
+    console.error(err);msg.textContent=err.message||'Payment could not be started.';payBtn.disabled=false;payBtn.textContent='CONTINUE TO SECURE PAYMENT';
   }
 }
 

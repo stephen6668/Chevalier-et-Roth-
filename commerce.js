@@ -38,7 +38,7 @@ const CRCommerce = (() => {
       sku:r.sku||'',
       badge:r.badge||'',
       active:r.active!==false,
-      images:jsonArray(r.images),
+      images:CRStore.productImages({id:r.$id,images:jsonArray(r.images)}),
       description:r.description||''
     };
   }

@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – refined menswear and womenswear designed in Luxembourg and produced in Italy."><title>Product · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="commerce.js"></script><script src="app.js" defer></script></head><body><main class="page product-page"><section class="gallery" id="gallery"></section><section class="product-info"><div class="eyebrow" id="cat"></div><h1 id="name"></h1><div><span class="price" id="price"></span><span class="old" id="old"></span></div><div class="vat-note" id="vatInfo">VAT is added automatically to the final total.</div><p id="desc"></p><div class="options"><div class="eyebrow">SIZE</div><div class="chips" id="sizes"></div></div><div class="options"><div class="eyebrow">COLOUR</div><div class="chips" id="colors"></div></div><p id="stock"></p><button class="btn" id="addBagBtn" style="width:100%" onclick="addToCart()">ADD TO BAG</button><button class="btn light waitlist-btn" onclick="openWaitlist(product.id)">JOIN WAITLIST</button><div class="trust"><div>DESIGNED IN LUXEMBOURG</div><div>PRODUCED IN ITALY</div><div>14 DAY RETURNS</div></div></section></main>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – refined menswear and womenswear designed in Luxembourg and produced in Italy."><title>Product · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="commerce.js"></script><script src="app.js" defer></script></head><body><main class="page product-page"><section class="gallery" id="gallery"></section><section class="product-info"><div class="eyebrow" id="cat"></div><h1 id="name"></h1><div><span class="price" id="price"></span><span class="old" id="old"></span></div><div class="vat-note" id="vatInfo">VAT is added automatically to the final total.</div><p id="desc"></p><div class="options"><div class="eyebrow">SIZE</div><div class="chips" id="sizes"></div></div><div class="options"><div class="eyebrow">COLOUR</div><div class="chips" id="colors"></div></div><p id="stock"></p><button class="btn" id="addBagBtn" style="width:100%" onclick="addToCart()">ADD TO BAG</button><button class="btn light waitlist-btn" onclick="openWaitlist(product.id)">JOIN WAITLIST</button><div id="setOffer"></div><div class="trust"><div>DESIGNED IN LUXEMBOURG</div><div>PRODUCED IN ITALY</div><div>14 DAY RETURNS</div></div></section></main>
 <script>
 let product,selectedSize='',selectedColor='';
 document.addEventListener('DOMContentLoaded',async()=>{
@@ -15,10 +15,25 @@ document.addEventListener('DOMContentLoaded',async()=>{
   stock.className=soldOut?'stock-state sold-out':'stock-state in-stock';
   addBagBtn.disabled=soldOut;
   addBagBtn.textContent=soldOut?'SOLD OUT':'ADD TO BAG';
-  gallery.innerHTML=(product.images&&product.images.length?product.images:[null,null]).map(x=>`<div class="gallery-box">${x?`<img src="${CRStore.esc(x)}" alt="${CRStore.esc(product.name)}" loading="eager" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span>CR</span>')">`:'CR'}</div>`).join('');
+  gallery.innerHTML=CRStore.productImages(product).map(x=>`<div class="gallery-box">${x?`<img src="${CRStore.esc(x)}" alt="${CRStore.esc(product.name)}" loading="eager" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span>CR</span>')">`:'CR'}</div>`).join('');
   sizes.innerHTML=(product.sizes||[]).map(s=>`<button class="chip" onclick="pick(this,'s','${CRStore.esc(s)}')">${CRStore.esc(s)}</button>`).join('');
   colors.innerHTML=(product.colors||[]).map(c=>`<button class="chip" onclick="pick(this,'c','${CRStore.esc(c)}')">${CRStore.esc(c)}</button>`).join('');
+  renderSetOffer();
 });
+
+function renderSetOffer(){
+  const bundle=CRStore.bundleForProduct(product.id);
+  const el=document.getElementById('setOffer');
+  if(!el||!bundle){if(el)el.innerHTML='';return}
+  const ps=CRStore.bundleProducts(bundle);
+  const stock=CRStore.bundleStock(bundle);
+  el.innerHTML=`<section class="product-set-offer">
+    <div><span class="eyebrow">SET OPTION</span><h3>${CRStore.esc(bundle.name)}</h3><p>${ps.map(p=>CRStore.esc(p.name)).join(' + ')}</p></div>
+    <div class="product-set-price"><b>${CRStore.money(bundle.price)}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total</small></div>
+    <button class="btn" ${stock<=0?'disabled':''} onclick="openSetBuilder('${bundle.id}')">${stock<=0?'SET SOLD OUT':'BUY AS SET'}</button>
+  </section>`;
+}
+
 function pick(el,t,v){el.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));el.classList.add('active');if(t==='s')selectedSize=v;else selectedColor=v}
 function addToCart(){
   if(Number(product.stock||0)<=0)return alert('This product is sold out.');

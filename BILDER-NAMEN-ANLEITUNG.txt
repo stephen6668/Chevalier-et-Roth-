@@ -1,0 +1,44 @@
+CHEVALIER & ROTH — PRODUKTBILDER
+
+Du musst die Bildpfade im Admin nicht mehr selbst eintippen.
+Jedes Produkt verwendet automatisch GENAU 4 Bilder.
+
+Produkt 1 (p1):
+images/produkt1-1.jpg
+images/produkt1-2.jpg
+images/produkt1-3.jpg
+images/produkt1-4.jpg
+
+Produkt 2 (p2):
+images/produkt2-1.jpg
+images/produkt2-2.jpg
+images/produkt2-3.jpg
+images/produkt2-4.jpg
+
+Produkt 3 (p3):
+images/produkt3-1.jpg
+images/produkt3-2.jpg
+images/produkt3-3.jpg
+images/produkt3-4.jpg
+
+Produkt 4 (p4):
+images/produkt4-1.jpg
+images/produkt4-2.jpg
+images/produkt4-3.jpg
+images/produkt4-4.jpg
+
+Für neue Produkte geht es automatisch weiter:
+Produkt 5 = produkt5-1.jpg bis produkt5-4.jpg
+Produkt 6 = produkt6-1.jpg bis produkt6-4.jpg
+usw.
+
+WICHTIG:
+- Alle Bilder in den Ordner "images" hochladen.
+- Dateiendung in dieser Version: .jpg
+- Klein schreiben: produkt1-1.jpg
+- Der Admin vergibt neue Produkt-IDs automatisch als p5, p6, p7 usw.
+
+SETS:
+Men Set = p1 + p2 = 210 EUR vor VAT
+Women Set = p3 + p4 = 200 EUR vor VAT
+VAT wird wie bei allen anderen Produkten erst zur Endsumme addiert.

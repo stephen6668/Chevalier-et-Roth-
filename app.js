@@ -44,7 +44,7 @@ function cookie(){
 }
 function consent(v){CRStore.set('consent',v);document.getElementById('cookie')?.remove()}
 function productCard(p){
-  const img=(p.images&&p.images[0])?CRStore.esc(p.images[0]):'';
+  const img=CRStore.esc(CRStore.productImages(p)[0]||'');
   const soldOut=Number(p.stock||0)<=0;
   return `<article class="card ${soldOut?'is-sold-out':''}">
     <a href="product.html?id=${encodeURIComponent(p.id)}">
@@ -73,7 +73,7 @@ function renderProducts(target, filter=null, limit=999){
     CRCommerce.syncProducts().then(draw).catch(()=>{});
   }
 }
-document.addEventListener('DOMContentLoaded',()=>{header();footer();ensureWaitlistModal();ensureGiveawayUI();startLaunchCountdown();updateCartCount();refreshAuthChrome();setTimeout(()=>openGiveawayIntro(false),350)});
+document.addEventListener('DOMContentLoaded',()=>{header();footer();ensureWaitlistModal();ensureSetUI();ensureGiveawayUI();startLaunchCountdown();updateCartCount();refreshAuthChrome();setTimeout(()=>openGiveawayIntro(false),350)});
 window.addEventListener('cartchange',updateCartCount);
 
 let _waitlistProduct=null;
@@ -110,6 +110,105 @@ async function submitWaitlist(){
   }catch(e){waitMsg.textContent=e.message||'Fehler beim Speichern.'}
 }
 
+
+
+
+// =========================
+// SET BUILDER
+// =========================
+let _activeSetId='';
+
+function ensureSetUI(){
+  if(document.getElementById('setBuilderModal'))return;
+  document.body.insertAdjacentHTML('beforeend',`
+    <div class="set-builder-modal" id="setBuilderModal" role="dialog" aria-modal="true" aria-labelledby="setBuilderTitle">
+      <div class="set-builder-card">
+        <button class="giveaway-x" onclick="closeSetBuilder()" aria-label="Schließen">×</button>
+        <div class="set-builder-head">
+          <div><div class="eyebrow">CHEVALIER & ROTH · SET</div><h2 id="setBuilderTitle">Complete the look.</h2></div>
+          <div class="set-builder-price"><span>SET PRICE</span><b id="setBuilderPrice">—</b><small id="setBuilderVat"></small></div>
+        </div>
+        <p class="set-builder-lead">Wähle für beide Teile Größe und Farbe. Danach wird das komplette Set mit einem Klick in den Warenkorb gelegt.</p>
+        <div id="setBuilderItems" class="set-builder-items"></div>
+        <button class="btn set-builder-add" id="setBuilderAdd" onclick="addActiveSetToCart()">SET IN DEN WARENKORB</button>
+        <div id="setBuilderMsg" class="giveaway-msg"></div>
+      </div>
+    </div>`);
+}
+
+function closeSetBuilder(){document.getElementById('setBuilderModal')?.classList.remove('open')}
+
+async function openSetBuilder(bundleId){
+  ensureSetUI();
+  if(window.CRCommerce){try{await CRCommerce.syncProducts()}catch(e){}}
+  const bundle=CRStore.bundleById(bundleId);
+  if(!bundle)return;
+  const ps=CRStore.bundleProducts(bundle);
+  if(ps.length!==bundle.componentIds.length)return alert('Das Set ist noch nicht vollständig eingerichtet.');
+  _activeSetId=bundle.id;
+  setBuilderTitle.textContent=bundle.name;
+  setBuilderPrice.textContent=CRStore.money(bundle.price);
+  setBuilderVat.textContent=`+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total`;
+  const stock=CRStore.bundleStock(bundle);
+  setBuilderAdd.disabled=stock<=0;
+  setBuilderAdd.textContent=stock<=0?'SET AUSVERKAUFT':'SET IN DEN WARENKORB';
+  setBuilderMsg.textContent='';
+  setBuilderItems.innerHTML=ps.map((p,index)=>{
+    const img=CRStore.productImages(p)[0]||'';
+    return `<article class="set-builder-item" data-product-id="${CRStore.esc(p.id)}">
+      <div class="set-builder-image">${img?`<img src="${CRStore.esc(img)}" alt="${CRStore.esc(p.name)}" onerror="this.style.display='none'">`:''}<span>CR</span></div>
+      <div class="set-builder-copy"><div class="eyebrow">PIECE ${index+1}</div><h3>${CRStore.esc(p.name)}</h3><small>${p.stock>0?p.stock+' in stock':'Sold out'}</small>
+        <label class="field"><span>Größe</span><select class="set-size set-select"><option value="">Auswählen…</option>${(p.sizes||[]).map(s=>`<option value="${CRStore.esc(s)}">${CRStore.esc(s)}</option>`).join('')}</select></label>
+        <label class="field"><span>Farbe</span><select class="set-color set-select"><option value="">Auswählen…</option>${(p.colors||[]).map(c=>`<option value="${CRStore.esc(c)}">${CRStore.esc(c)}</option>`).join('')}</select></label>
+      </div>
+    </article>`;
+  }).join('');
+  setBuilderModal.classList.add('open');
+}
+
+function addActiveSetToCart(){
+  const bundle=CRStore.bundleById(_activeSetId);
+  if(!bundle)return;
+  const rows=[...document.querySelectorAll('#setBuilderItems .set-builder-item')];
+  const components=rows.map(row=>({
+    id:row.dataset.productId,
+    size:row.querySelector('.set-size')?.value||'',
+    color:row.querySelector('.set-color')?.value||''
+  }));
+  if(components.some(x=>!x.size||!x.color)){setBuilderMsg.textContent='Bitte für beide Teile Größe und Farbe auswählen.';return}
+  const stock=CRStore.bundleStock(bundle);
+  if(stock<=0){setBuilderMsg.textContent='Dieses Set ist ausverkauft.';return}
+  const cart=CRStore.cart();
+  const key=JSON.stringify(components);
+  let item=cart.find(x=>x.bundleId===bundle.id&&JSON.stringify(x.components||[])===key);
+  if(item){
+    if(item.qty>=stock){setBuilderMsg.textContent='Für dieses Set ist kein weiterer Bestand verfügbar.';return}
+    item.qty++;
+  }else{
+    cart.push({id:`bundle:${bundle.id}`,bundleId:bundle.id,components,qty:1});
+  }
+  CRStore.saveCart(cart);
+  setBuilderMsg.textContent='Set wurde zum Warenkorb hinzugefügt.';
+  setTimeout(closeSetBuilder,900);
+}
+
+function setCard(bundle){
+  const ps=CRStore.bundleProducts(bundle);
+  const stock=CRStore.bundleStock(bundle);
+  const imgs=ps.map(p=>CRStore.productImages(p)[0]).filter(Boolean);
+  return `<article class="set-shop-card">
+    <div class="set-shop-images">${imgs.map((img,i)=>`<div><img src="${CRStore.esc(img)}" alt="${CRStore.esc(ps[i]?.name||bundle.name)}" onerror="this.style.display='none'"></div>`).join('')}</div>
+    <div class="set-shop-copy"><span class="eyebrow">COMPLETE SET · ${CRStore.esc(bundle.category)}</span><h3>${CRStore.esc(bundle.name)}</h3><p>${ps.map(p=>CRStore.esc(p.name)).join(' + ')}</p>
+      <div class="set-shop-price"><b>${CRStore.money(bundle.price)}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total</small></div>
+      <button class="btn" ${stock<=0?'disabled':''} onclick="openSetBuilder('${bundle.id}')">${stock<=0?'SOLD OUT':'SET AUSWÄHLEN'}</button>
+    </div>
+  </article>`;
+}
+
+function renderSetCards(target){
+  const el=document.querySelector(target);if(!el)return;
+  el.innerHTML=CRStore.bundles().map(setCard).join('');
+}
 
 // =========================
 // FIRST COLLECTION GIVEAWAY
@@ -237,7 +336,7 @@ function renderGiveawayPrizes(){
   const grid=document.getElementById('giveawayPrizeGrid');if(!grid)return;
   const products=CRStore.products().filter(p=>p.active).slice(0,8);
   grid.innerHTML=products.length?products.map(p=>{
-    const img=p.images?.[0]||'';
+    const img=CRStore.productImages(p)[0]||'';
     return `<button type="button" class="giveaway-prize ${_giveawayPrizeId===p.id?'selected':''}" onclick="selectGiveawayPrize('${CRStore.esc(p.id)}')">
       <div class="giveaway-prize-media">${img?`<img src="${CRStore.esc(img)}" alt="${CRStore.esc(p.name)}">`:'<div class="giveaway-prize-placeholder">CR</div>'}<span>SELECT</span></div>
       <div class="giveaway-prize-copy"><b>${CRStore.esc(p.name)}</b><small>${CRStore.esc(p.category||'')}</small></div>

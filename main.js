@@ -4,6 +4,10 @@ import { Client, TablesDB, Query } from 'node-appwrite';
 const DATABASE_ID='6ac7d6740035408079f7';
 const PRODUCTS_TABLE='cr_products';
 const CODES_TABLE='cr_codes';
+const BUNDLES={
+  'men-set':{id:'men-set',name:'Heritage Men’s Set',category:'Men',price:210,componentIds:['p1','p2']},
+  'women-set':{id:'women-set',name:'Maison Women’s Set',category:'Women',price:200,componentIds:['p3','p4']}
+};
 
 function cors(origin='https://stephen6668.github.io'){
   return {
@@ -29,7 +33,8 @@ export default async ({ req, res, log, error }) => {
   try{
     if(req.method!=='POST') return res.json({error:'Method not allowed'},405,headers);
 
-    const key=req.headers['x-appwrite-key'];
+    const key=process.env.APPWRITE_FUNCTION_API_KEY || req.headers['x-appwrite-key'];
+    if(!key)return res.json({error:'Appwrite function API key is unavailable.'},500,headers);
     const endpoint=process.env.APPWRITE_FUNCTION_API_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';
     const project=process.env.APPWRITE_FUNCTION_PROJECT_ID || '6ac779cc001f0d093856';
     const client=new Client().setEndpoint(endpoint).setProject(project).setKey(key);
@@ -40,28 +45,60 @@ export default async ({ req, res, log, error }) => {
     const cart=Array.isArray(payload.cart)?payload.cart:[];
     const discountCode=String(payload.discountCode||'').trim().toUpperCase();
 
+    async function getProduct(id){
+      return tables.getRow({databaseId:DATABASE_ID,tableId:PRODUCTS_TABLE,rowId:String(id)});
+    }
+
     async function loadCart(){
       if(!cart.length) throw new Error('Cart is empty.');
       const items=[];
       for(const item of cart){
-        const p=await tables.getRow({databaseId:DATABASE_ID,tableId:PRODUCTS_TABLE,rowId:String(item.id)});
         const qty=Math.max(1,Math.min(20,Number(item.qty)||1));
+        if(item.bundleId){
+          const bundle=BUNDLES[item.bundleId];
+          if(!bundle)throw new Error('Unknown set.');
+          const requested=Array.isArray(item.components)?item.components:[];
+          const components=[];
+          for(const id of bundle.componentIds){
+            const p=await getProduct(id);
+            const selection=requested.find(x=>String(x.id)===id)||{};
+            if(p.active===false)throw new Error(`${p.name} is not available.`);
+            if(Number(p.stock||0)<qty)throw new Error(`${p.name} has only ${p.stock} item(s) left.`);
+            if(!selection.size||!selection.color)throw new Error(`Choose size and colour for ${p.name}.`);
+            components.push({p,selection});
+          }
+          items.push({kind:'bundle',item,bundle,components,qty});
+          continue;
+        }
+        const p=await getProduct(item.id);
         if(p.active===false) throw new Error(`${p.name} is not available.`);
         if(Number(p.stock||0)<qty) throw new Error(`${p.name} has only ${p.stock} item(s) left.`);
-        items.push({item,p,qty});
+        items.push({kind:'product',item,p,qty});
       }
       return items;
     }
 
+    function lineBase(x){
+      return x.kind==='bundle'?Number(x.bundle.price||0):Number((x.p.salePrice>0?x.p.salePrice:x.p.price)||0);
+    }
+
+    function lineEligibleForCode(x,c){
+      const allowedProducts=parseList(c.products),allowedCategories=parseList(c.categories);
+      if(!allowedProducts.length&&!allowedCategories.length)return true;
+      if(x.kind==='bundle'){
+        const productMatch=allowedProducts.length && x.bundle.componentIds.every(id=>allowedProducts.includes(id));
+        const categoryMatch=allowedCategories.includes(x.bundle.category);
+        return productMatch||categoryMatch;
+      }
+      return allowedProducts.includes(x.p.$id)||allowedCategories.includes(x.p.category);
+    }
+
     async function getDiscount(items){
       if(!discountCode)return null;
-      const result=await tables.listRows({
-        databaseId:DATABASE_ID,tableId:CODES_TABLE,
-        queries:[Query.equal('code',[discountCode]),Query.limit(1)]
-      });
+      const result=await tables.listRows({databaseId:DATABASE_ID,tableId:CODES_TABLE,queries:[Query.equal('code',[discountCode]),Query.limit(1)]});
       const c=result.rows?.[0];
       if(!c || !activeCode(c))return null;
-      const subtotal=items.reduce((s,x)=>s+Number((x.p.salePrice>0?x.p.salePrice:x.p.price)||0)*x.qty,0);
+      const subtotal=items.reduce((s,x)=>s+lineBase(x)*x.qty,0);
       if(subtotal<Number(c.minOrder||0))return null;
       return c;
     }
@@ -82,59 +119,45 @@ export default async ({ req, res, log, error }) => {
 
     const items=await loadCart();
     const code=await getDiscount(items);
-    const allowedProducts=code?parseList(code.products):[];
-    const allowedCategories=code?parseList(code.categories):[];
-
     const VAT_RATE=0.17;
     let taxableNetCents=0;
     const lineItems=[];
 
-    for(const {item,p,qty} of items){
-      const base=Number((p.salePrice>0?p.salePrice:p.price)||0);
-      let eligible=!!code;
-      if(eligible && allowedProducts.length && !allowedProducts.includes(p.$id))eligible=false;
-      if(eligible && allowedCategories.length && !allowedCategories.includes(p.category))eligible=false;
-      const rate=eligible?Number(code.percent||0)/100:0;
+    for(const x of items){
+      const base=lineBase(x);
+      const rate=code&&lineEligibleForCode(x,code)?Number(code.percent||0)/100:0;
       const netCents=Math.round(base*100*(1-rate));
-      taxableNetCents+=netCents*qty;
+      taxableNetCents+=netCents*x.qty;
 
-      lineItems.push({
-        quantity:qty,
-        price_data:{
-          currency:'eur',
-          unit_amount:netCents,
-          product_data:{
-            name:p.name,
-            description:`${String(item.size||'')} · ${String(item.color||'')} · VAT added at checkout`.slice(0,240),
-            metadata:{
-              productId:p.$id,
-              size:String(item.size||'').slice(0,80),
-              color:String(item.color||'').slice(0,80)
-            }
-          }
-        }
-      });
+      if(x.kind==='bundle'){
+        const selections=x.components.map(c=>({id:c.p.$id,size:String(c.selection.size||''),color:String(c.selection.color||'')}));
+        lineItems.push({
+          quantity:x.qty,
+          price_data:{currency:'eur',unit_amount:netCents,product_data:{
+            name:x.bundle.name,
+            description:selections.map(s=>`${s.id}: ${s.size} / ${s.color}`).join(' · ').slice(0,240),
+            metadata:{bundleId:x.bundle.id,componentIds:x.bundle.componentIds.join(','),componentSelections:JSON.stringify(selections).slice(0,500)}
+          }}
+        });
+      }else{
+        lineItems.push({
+          quantity:x.qty,
+          price_data:{currency:'eur',unit_amount:netCents,product_data:{
+            name:x.p.name,
+            description:`${String(x.item.size||'')} · ${String(x.item.color||'')} · VAT added at checkout`.slice(0,240),
+            metadata:{productId:x.p.$id,size:String(x.item.size||'').slice(0,80),color:String(x.item.color||'').slice(0,80)}
+          }}
+        });
+      }
     }
 
     const vatCents=Math.round(taxableNetCents*VAT_RATE);
-    if(vatCents>0){
-      lineItems.push({quantity:1,price_data:{currency:'eur',unit_amount:vatCents,product_data:{name:'VAT (17%)'}}});
-    }
+    if(vatCents>0)lineItems.push({quantity:1,price_data:{currency:'eur',unit_amount:vatCents,product_data:{name:'VAT (17%)'}}});
 
     const session=await stripe.checkout.sessions.create({
-      ui_mode:'custom',
-      mode:'payment',
-      line_items:lineItems,
-      billing_address_collection:'auto',
-      phone_number_collection:{enabled:false},
-      automatic_tax:{enabled:false},
-      submit_type:'auto',
-      shipping_address_collection:{
-        allowed_countries:['AD','AL','AT','AX','BA','BE','BG','BY','CH','CZ','DE','DK','EE','ES','FI','FO','FR','GB','GG','GI','GR','HR','HU','IE','IM','IS','IT','JE','LI','LT','LU','LV','MC','MD','ME','MK','MT','NL','NO','PL','PT','RO','RS','RU','SE','SI','SJ','SK','SM','UA','VA']
-      },
-      name_collection:{individual:{enabled:true,optional:true}},
-      saved_payment_method_options:{payment_method_save:'enabled'},
-      integration_identifier:'custom_embedded_web_0002'
+      ui_mode:'custom',mode:'payment',line_items:lineItems,billing_address_collection:'auto',phone_number_collection:{enabled:false},automatic_tax:{enabled:false},submit_type:'auto',
+      shipping_address_collection:{allowed_countries:['AD','AL','AT','AX','BA','BE','BG','BY','CH','CZ','DE','DK','EE','ES','FI','FO','FR','GB','GG','GI','GR','HR','HU','IE','IM','IS','IT','JE','LI','LT','LU','LV','MC','MD','ME','MK','MT','NL','NO','PL','PT','RO','RS','RU','SE','SI','SJ','SK','SM','UA','VA']},
+      name_collection:{individual:{enabled:true,optional:true}},saved_payment_method_options:{payment_method_save:'enabled'},integration_identifier:'custom_embedded_web_0002'
     });
 
     log(`Created checkout ${session.id}`);
