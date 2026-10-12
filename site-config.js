@@ -24,6 +24,10 @@ window.CRSiteConfig = {
   shippingCountries: ['Luxembourg', 'Belgium', 'France', 'Germany'],
   deliveryEstimate: '[ENTER DELIVERY TIME, e.g. 3–7 business days]',
 
+  // Appwrite connection used by the public giveaway, waitlist and admin.
+  appwriteEndpoint: 'https://fra.cloud.appwrite.io/v1',
+  appwriteProjectId: '6ac779cc001f0d093856',
+
   // Central Appwrite commerce tables. Create these exact custom IDs once.
   commerceDatabaseId: '6ac7d6740035408079f7',
   productTableId: 'cr_products',
