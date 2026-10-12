@@ -331,3 +331,6 @@ const CRAppwrite = (() => {
     explainError
   };
 })();
+
+// Expose the Appwrite auth/waitlist API globally for app.js and admin.js.
+window.CRAppwrite = CRAppwrite;
