@@ -27,8 +27,57 @@ const CRStore = (() => {
     const found=[...collectionColorDefs,...standardColorDefs].find(x=>x.name===n);
     return found?found.slug:String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   };
-  const autoImagesForNumber=n=>colorDefsForNumber(n).map(c=>`images/produkt${n}-${c.slug}.jpg`);
-  const autoColorImageMapForNumber=n=>Object.fromEntries(colorDefsForNumber(n).map(c=>[c.name,`images/produkt${n}-${c.slug}.jpg`]));
+  // Exact filenames currently used in the GitHub repository Chevalier-et-Roth-.
+  // Some filenames intentionally contain capital letters / 'weis' / '.jpg.jpg' because the website
+  // now follows the files that already exist in the repository.
+  const repoImageMap={
+    1:{
+      'Beige/Braun':['images/produkt1-beige-braun.jpg','images/produkt1-beige.jpg'],
+      'Bordeaux':['images/produkt1-bordo.jpg'],
+      'Schwarz':['images/produkt1-schwarz.jpg'],
+      'Weiß':['images/Produkt1-weis.jpg']
+    },
+    2:{
+      'Beige/Braun':['images/produkt2-beige.jpg','images/produkt2-beige-braun.jpg'],
+      'Bordeaux':['images/produkt2-bordo.jpg'],
+      'Schwarz':['images/produkt2-schwarz.jpg'],
+      'Weiß':['images/produkt2-weis.jpg.jpg']
+    },
+    3:{
+      'Beige/Braun':['images/produkt3-beige.jpg','images/produkt3-beige-braun.jpg'],
+      'Bordeaux':['images/produkt3-bordo.jpg'],
+      'Schwarz':['images/produkt3-schwarz.jpg'],
+      'Weiß':['images/produkt3-weis.jpg']
+    }
+  };
+  const imageCandidatesForNumber=(n,color)=>{
+    const normalized=normalizeColorName(color);
+    const exact=repoImageMap[Number(n)]?.[normalized];
+    if(Array.isArray(exact)&&exact.length)return [...exact];
+    const slug=colorSlug(normalized);
+    return [`images/produkt${n}-${slug}.jpg`];
+  };
+  const autoImagesForNumber=n=>colorDefsForNumber(n).map(c=>imageCandidatesForNumber(n,c.name)[0]);
+  const autoColorImageMapForNumber=n=>Object.fromEntries(colorDefsForNumber(n).map(c=>[c.name,imageCandidatesForNumber(n,c.name)[0]]));
+  const productImageCandidatesForColor=(p,color)=>{
+    const n=productNumber(p);
+    if(n)return imageCandidatesForNumber(n,color||'Beige/Braun');
+    const colors=productColors(p);
+    const index=Math.max(0,colors.findIndex(c=>normalizeColorName(c)===normalizeColorName(color)));
+    const images=Array.isArray(p?.images)?p.images.filter(Boolean):[];
+    return images[index]?[images[index]]:(images[0]?[images[0]]:[]);
+  };
+  const tryNextImage=img=>{
+    try{
+      const raw=img?.dataset?.crFallbacks||'';
+      const list=raw?JSON.parse(decodeURIComponent(raw)):[];
+      if(!Array.isArray(list)||!list.length)return false;
+      const next=list.shift();
+      img.dataset.crFallbacks=encodeURIComponent(JSON.stringify(list));
+      img.src=next;
+      return true;
+    }catch{return false}
+  };
   const defaults = [
     {id:'p1',name:'Heritage Half-Zip',category:'Men',price:110,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:24,sku:'CR-HZ-001',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(1),description:'A refined half-zip defined by clean lines, balanced proportions and understated detail. Designed in Luxembourg and produced in Italy, it combines polished elegance with the comfort needed for everyday wear.'},
     {id:'p2',name:'Tailored Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:18,sku:'CR-TR-002',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(2),description:'A tailored trouser with a precise, comfortable silhouette that follows the body without feeling restrictive. Designed to pair naturally with the Heritage Half-Zip for a complete, refined look.'},
@@ -62,16 +111,8 @@ const CRStore = (() => {
     return imgs;
   };
   const productImageForColor=(p,color)=>{
-    const n=productNumber(p);
-    if(n){
-      const map=autoColorImageMapForNumber(n);
-      const normalized=normalizeColorName(color||'Beige/Braun');
-      return map[normalized]||map['Beige/Braun']||map.Beige||Object.values(map)[0]||'';
-    }
-    const colors=productColors(p);
-    const index=Math.max(0,colors.findIndex(c=>normalizeColorName(c)===normalizeColorName(color)));
-    const images=productImages(p);
-    return images[index]||images[0]||'';
+    const candidates=productImageCandidatesForColor(p,color);
+    return candidates[0]||'';
   };
   const primaryProductImage=p=>{
     const first=productColors(p)[0]||'Beige/Braun';
@@ -184,7 +225,7 @@ const CRStore = (() => {
   }
 
   return {
-    defaultProducts,products,saveProducts,nextProductId,productNumber,productColors,standardColors,colorDefsForNumber,normalizeColorName,colorSlug,productImages,productImageForColor,primaryProductImage,autoImagesForNumber,autoColorImageMapForNumber,
+    defaultProducts,products,saveProducts,nextProductId,productNumber,productColors,standardColors,colorDefsForNumber,normalizeColorName,colorSlug,productImages,productImageForColor,productImageCandidatesForColor,tryNextImage,primaryProductImage,autoImagesForNumber,autoColorImageMapForNumber,
     bundles,bundleById,bundleForProduct,bundleProducts,bundleStock,cartLineNet,
     codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatOnNet,grossFromNet,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set
   };

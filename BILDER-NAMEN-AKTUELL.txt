@@ -1,0 +1,26 @@
+CHEVALIER & ROTH — AKTUELLE GITHUB-BILDERNAMEN
+Repository: stephen6668/Chevalier-et-Roth-
+
+Die Website wurde auf genau diese vorhandenen Dateinamen angepasst:
+
+PRODUKT 1 — HALF-ZIP
+Beige/Braun: images/produkt1-beige-braun.jpg
+Bordeaux:    images/produkt1-bordo.jpg
+Schwarz:     images/produkt1-schwarz.jpg
+Weiß:        images/Produkt1-weis.jpg
+
+PRODUKT 2 — HOSE
+Beige/Braun: images/produkt2-beige.jpg
+Bordeaux:    images/produkt2-bordo.jpg
+Schwarz:     images/produkt2-schwarz.jpg
+Weiß:        images/produkt2-weis.jpg.jpg
+
+PRODUKT 3 — BODY
+Beige/Braun: images/produkt3-beige.jpg
+Bordeaux:    images/produkt3-bordo.jpg
+Schwarz:     images/produkt3-schwarz.jpg
+Weiß:        images/produkt3-weis.jpg
+
+WICHTIG:
+Einige Dateien im GitHub-Ordner sind momentan nur 2 Bytes groß und enthalten kein echtes Bild.
+Die Website kann einen leeren Bildplatzhalter nicht reparieren. Ersetze diese Dateien später einfach durch das echte Foto mit demselben Namen.

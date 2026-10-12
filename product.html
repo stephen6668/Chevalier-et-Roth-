@@ -40,8 +40,10 @@ function renderSetOffer(){
 }
 
 function renderSelectedColorImage(){
-  const img=CRStore.productImageForColor(product,selectedColor||'Beige/Braun');
-  gallery.innerHTML=`<div class="gallery-box color-main-image">${img?`<img src="${CRStore.esc(img)}" alt="${CRStore.esc(product.name)} · ${CRStore.esc(selectedColor)}" loading="eager" onerror="this.style.display='none';this.parentElement.querySelector('.color-image-fallback').style.display='grid'"><span class="color-image-fallback" style="display:none">CR</span>`:'<span class="color-image-fallback">CR</span>'}<div class="color-image-label">${CRStore.esc(selectedColor||'')}</div></div>`;
+  const candidates=CRStore.productImageCandidatesForColor(product,selectedColor||'Beige/Braun');
+  const img=candidates[0]||'';
+  const fallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(candidates.slice(1))));
+  gallery.innerHTML=`<div class="gallery-box color-main-image">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(product.name)} · ${CRStore.esc(selectedColor)}" loading="eager" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none';this.parentElement.querySelector('.color-image-fallback').style.display='grid'}"><span class="color-image-fallback" style="display:none">CR</span>`:'<span class="color-image-fallback">CR</span>'}<div class="color-image-label">${CRStore.esc(selectedColor||'')}</div></div>`;
 }
 function pick(el,t,v){
   el.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
