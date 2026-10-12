@@ -571,7 +571,7 @@ img{max-width:100%;display:block} a{color:inherit}
 .social-follow-btn.tiktok{background:#171613;color:#fff}.social-follow-btn.instagram{background:#fff;color:#171613}.social-follow-btn:hover{transform:translateY(-1px);opacity:.9}
 .giveaway-follow-confirm{background:#f1ebe1;border:1px solid rgba(13,13,13,.09);padding:15px;display:grid;gap:10px}
 .giveaway-follow-confirm>b{font-size:9px;letter-spacing:1.7px;color:#7e6846}.giveaway-follow-confirm label{display:flex;gap:9px;align-items:flex-start;font-size:11px;line-height:1.55;color:#5f574f}.giveaway-follow-confirm input{margin-top:2px;width:17px;height:17px}
-.giveaway-prize-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.giveaway-prize-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:1050px){.giveaway-prize-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.giveaway-prize-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.giveaway-social-actions{display:grid;grid-template-columns:1fr 1fr}.social-follow-btn{padding:0 8px}}
 
