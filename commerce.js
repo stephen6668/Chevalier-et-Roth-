@@ -1,7 +1,7 @@
 
 const CRCommerce = (() => {
-  const endpoint='https://fra.cloud.appwrite.io/v1';
-  const projectId='6ac779cc001f0d093856';
+  const endpoint=window.CRSiteConfig?.appwriteEndpoint || 'https://fra.cloud.appwrite.io/v1';
+  const projectId=window.CRSiteConfig?.appwriteProjectId || '6ac779cc001f0d093856';
   const databaseId=window.CRSiteConfig?.commerceDatabaseId || '6ac7d6740035408079f7';
   const productTableId=window.CRSiteConfig?.productTableId || 'cr_products';
   const codeTableId=window.CRSiteConfig?.codeTableId || 'cr_codes';
@@ -15,6 +15,17 @@ const CRCommerce = (() => {
     if(tables) return;
     client=new Appwrite.Client().setEndpoint(endpoint).setProject(projectId);
     tables=new Appwrite.TablesDB(client);
+  }
+
+  function withTimeout(promise,ms=15000,label='Appwrite request'){
+    return Promise.race([
+      promise,
+      new Promise((_,reject)=>setTimeout(()=>{
+        const e=new Error(label+' timed out.');
+        e.type='appwrite_timeout';
+        reject(e);
+      },ms))
+    ]);
   }
 
   function jsonArray(v){
@@ -181,36 +192,55 @@ const CRCommerce = (() => {
 
   async function createGiveawayEntry(entry){
     init();
-    const firstName=String(entry.firstName||'').trim();
-    const lastName=String(entry.lastName||'').trim();
-    const email=normalizeEmail(entry.email);
-    const prizeId=String(entry.prizeId||'').trim();
-    const prizeName=String(entry.prizeName||'').trim();
+
+    // Public website -> Appwrite TablesDB -> cr_giveaway.
+    // No Appwrite login and no secret/API key is required in the browser.
+    const firstName=String(entry.firstName||'').trim().slice(0,120);
+    const lastName=String(entry.lastName||'').trim().slice(0,120);
+    const email=normalizeEmail(entry.email).slice(0,320);
+    const prizeId=String(entry.prizeId||'').trim().slice(0,255);
+    const prizeName=String(entry.prizeName||'').trim().slice(0,255);
+
     if(!firstName || !lastName) throw new Error('Bitte Vor- und Nachname eingeben.');
     if(!validEmail(email)) throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
     if(!prizeId || !prizeName) throw new Error('Bitte zuerst einen Gewinn auswählen.');
-    if(!entry.privacyAccepted) throw new Error('Bitte den Teilnahme- und Datenschutzhinweisen zustimmen.');
+    if(entry.socialConfirmed!==true) throw new Error('Bitte bestätige TikTok und Instagram.');
+    if(entry.privacyAccepted!==true) throw new Error('Bitte den Teilnahme- und Datenschutzhinweisen zustimmen.');
+
+    const data={
+      firstName,
+      lastName,
+      email,
+      prizeId,
+      prizeName,
+      status:'entered',
+      source:'website-giveaway-2027',
+      privacyAccepted:true
+    };
 
     try{
-      return await tables.createRow({
-        databaseId,
-        tableId:giveawayTableId,
-        rowId:Appwrite.ID.unique(),
-        data:{
-          firstName,
-          lastName,
-          email,
-          prizeId,
-          prizeName,
-          status:'entered',
-          source:'website-giveaway-social-confirmed-2027',
-          privacyAccepted:true
-        }
-      });
+      const row=await withTimeout(
+        tables.createRow({
+          databaseId,
+          tableId:giveawayTableId,
+          rowId:Appwrite.ID.unique(),
+          data
+        }),
+        15000,
+        'Giveaway speichern'
+      );
+
+      return {
+        rowId:row.$id,
+        createdAt:row.$createdAt,
+        ...data
+      };
     }catch(e){
-      console.error('Giveaway Appwrite create failed',e);
+      console.error('[Chevalier & Roth / Giveaway / Appwrite]',e);
+      if(e?.type==='appwrite_timeout') throw new Error('Appwrite antwortet gerade nicht. Bitte versuche es erneut.');
       if(e?.code===404) throw new Error('Die Appwrite-Tabelle cr_giveaway wurde nicht gefunden.');
-      if(e?.code===401 || e?.code===403) throw new Error('Appwrite blockiert das Speichern. Prüfe bei cr_giveaway: Any → CREATE.');
+      if(e?.code===401 || e?.code===403) throw new Error('Appwrite blockiert die Teilnahme. Bei cr_giveaway muss Any die Berechtigung CREATE haben.');
+      if(e?.code===400 && String(e?.message||'').toLowerCase().includes('column')) throw new Error('Die Appwrite-Tabelle cr_giveaway hat nicht alle benötigten Spalten.');
       throw new Error(e?.message||'Die Teilnahme konnte nicht in Appwrite gespeichert werden.');
     }
   }
