@@ -47,5 +47,5 @@ window.CRSiteConfig = {
   stripeCheckoutEndpoint: '',
 
   // Website URL used by the Stripe function for success/cancel redirects.
-  siteUrl: 'https://stephen6668.github.io/Chevalier-Roth'
+  siteUrl: 'https://stephen6668.github.io/Chevalier-et-Roth-'
 };
