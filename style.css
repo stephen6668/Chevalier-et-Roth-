@@ -586,3 +586,126 @@ img{max-width:100%;display:block} a{color:inherit}
 .orders-closed-panel{max-width:760px;margin:60px auto;padding:38px}
 .orders-closed-panel h1{font-family:Georgia,serif;font-size:48px;font-weight:400;margin:8px 0}
 .orders-closed-panel p{color:#6e6459;line-height:1.8}
+
+/* =========================
+   PRODUCT IMAGE FRAME UPDATE
+   Built for the 848 x 1536 product-collage format (53:96).
+   The complete image is always visible without cropping.
+   ========================= */
+@media(min-width:1001px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+}
+.card-media{
+  aspect-ratio:53/96;
+  min-height:0;
+  background:#e8ddd0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.card-media img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+.card:hover .card-media img{transform:none}
+
+/* Product detail: one large portrait frame using the same exact ratio. */
+.color-single-gallery{grid-template-columns:1fr!important}
+.color-main-image{
+  width:min(100%,680px)!important;
+  max-width:680px!important;
+  aspect-ratio:53/96!important;
+  margin:0 auto!important;
+  background:#e8ddd0!important;
+}
+.color-main-image img,
+.gallery-box img{
+  width:100%;
+  height:100%;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+
+/* Giveaway product pictures use the same portrait format so the whole collage is visible. */
+.giveaway-prize-media{
+  aspect-ratio:53/96!important;
+  background:#e8ddd0!important;
+}
+.giveaway-prize-media img{
+  width:100%;
+  height:100%;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+
+@media(max-width:760px){
+  .grid{grid-template-columns:1fr!important;gap:18px}
+  .card-media{aspect-ratio:53/96}
+  .color-main-image{width:100%!important;max-width:100%!important}
+}
+
+
+/* =========================
+   FULL PRODUCT IMAGE FIX
+   Never crop the uploaded product collage.
+   The frame follows the real image height.
+   ========================= */
+.card-media{
+  aspect-ratio:auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  overflow:visible !important;
+  display:block !important;
+  background:#e8ddd0;
+}
+.card-media img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center !important;
+}
+.color-main-image,
+.gallery-box{
+  aspect-ratio:auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  overflow:visible !important;
+}
+.color-main-image img,
+.gallery-box img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center !important;
+}
+.giveaway-prize-media{
+  aspect-ratio:auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+.giveaway-prize-media img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center !important;
+}
+.set-shop-images,
+.set-builder-image{height:auto !important;}
+.set-shop-images img,
+.set-builder-image img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center !important;
+}
