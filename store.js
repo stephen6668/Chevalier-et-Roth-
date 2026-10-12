@@ -11,7 +11,7 @@ const CRStore = (() => {
   ];
 
   const standardColorDefs = collectionColorDefs.slice(1);
-  const standardColors = () => standardColorDefs.map(x => x.name);
+  const standardColors = () => collectionColorDefs.map(x => x.name);
   const colorDefsForNumber = n => [1,2,3].includes(Number(n)) ? collectionColorDefs : standardColorDefs;
 
   const normalizeColorName = value => {
@@ -57,7 +57,7 @@ const CRStore = (() => {
   };
 
   // Cache-buster so GitHub Pages/browser does not keep old broken image paths.
-  const imageVersion = '20261012-final-products-v1';
+  const imageVersion = '20261012-final-products-v2';
   const versionedImage = path => {
     const clean = String(path || '');
     if (!clean) return '';
@@ -181,7 +181,7 @@ const CRStore = (() => {
         price: Number(old.price) > 0 ? Number(old.price) : base.price,
         salePrice: old.salePrice ? Number(old.salePrice) : base.salePrice,
         stock: Number.isFinite(Number(old.stock)) ? Math.max(0,Number(old.stock)) : base.stock,
-        active: old.active === false ? false : base.active,
+        active: true,
         colors: productColors(base),
         images: productImages(base)
       };
@@ -199,7 +199,7 @@ const CRStore = (() => {
         price: Number(p.price) > 0 ? Number(p.price) : base.price,
         salePrice: p.salePrice ? Number(p.salePrice) : base.salePrice,
         stock: Number.isFinite(Number(p.stock)) ? Math.max(0,Number(p.stock)) : base.stock,
-        active: p.active === false ? false : base.active,
+        active: true,
         colors: productColors(base),
         images: productImages(base)
       };
@@ -209,7 +209,7 @@ const CRStore = (() => {
 
   // Reset old broken local product cache to the valid 3-product catalogue once.
   try {
-    const marker = 'cr_products_exact_image_fix_v1';
+    const marker = 'cr_products_exact_image_fix_v2';
     if (localStorage.getItem(marker) !== '1') {
       set('products', defaultProducts());
       localStorage.setItem(marker,'1');
