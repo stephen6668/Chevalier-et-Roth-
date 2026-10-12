@@ -1,26 +1,23 @@
-CHEVALIER & ROTH — AKTUELLE GITHUB-BILDERNAMEN
-Repository: stephen6668/Chevalier-et-Roth-
+CHEVALIER & ROTH — AKTUELLE BILDERDATEIEN
 
-Die Website wurde auf genau diese vorhandenen Dateinamen angepasst:
+Beige/Braun wird bei allen 3 Produkten als ERSTES angezeigt.
 
-PRODUKT 1 — HALF-ZIP
-Beige/Braun: images/produkt1-beige-braun.jpg
-Bordeaux:    images/produkt1-bordo.jpg
-Schwarz:     images/produkt1-schwarz.jpg
-Weiß:        images/Produkt1-weis.jpg
+Produkt 1 — Half-Zip
+Beige/Braun: heritage-halfzip-beige-01.jpg
+Bordeaux: images/produkt1-bordo.jpg
+Schwarz: images/produkt1-schwarz.jpg
+Weiß: images/Produkt1-weis.jpg
 
-PRODUKT 2 — HOSE
+Produkt 2 — Hose
 Beige/Braun: images/produkt2-beige.jpg
-Bordeaux:    images/produkt2-bordo.jpg
-Schwarz:     images/produkt2-schwarz.jpg
-Weiß:        images/produkt2-weis.jpg.jpg
+Bordeaux: images/produkt2-bordo.jpg
+Schwarz: images/produkt2-schwarz.jpg
+Weiß: images/produkt2-weis.jpg.jpg
 
-PRODUKT 3 — BODY
+Produkt 3 — Body
 Beige/Braun: images/produkt3-beige.jpg
-Bordeaux:    images/produkt3-bordo.jpg
-Schwarz:     images/produkt3-schwarz.jpg
-Weiß:        images/produkt3-weis.jpg
+Bordeaux: images/produkt3-bordo.jpg
+Schwarz: images/produkt3-schwarz.jpg
+Weiß: images/produkt3-weis.jpg
 
-WICHTIG:
-Einige Dateien im GitHub-Ordner sind momentan nur 2 Bytes groß und enthalten kein echtes Bild.
-Die Website kann einen leeren Bildplatzhalter nicht reparieren. Ersetze diese Dateien später einfach durch das echte Foto mit demselben Namen.
+Die Website nutzt Fallbacks und einen Cache-Buster, damit kaputte 2-Byte-Dateien nicht dauerhaft als leere Bilder erscheinen.

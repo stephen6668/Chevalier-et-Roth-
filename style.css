@@ -709,3 +709,12 @@ img{max-width:100%;display:block} a{color:inherit}
   object-fit:contain !important;
   object-position:center !important;
 }
+\n\n/* FINAL IMAGE DISPLAY FIX — complete image, never crop */
+.card-media,.color-main-image,.gallery-box,.giveaway-prize-media{
+  height:auto !important;min-height:0 !important;aspect-ratio:auto !important;
+}
+.card-media img,.color-main-image img,.gallery-box img,.giveaway-prize-media img{
+  display:block !important;width:100% !important;height:auto !important;max-height:none !important;
+  object-fit:contain !important;object-position:center center !important;
+}
+.card-media,.color-main-image,.giveaway-prize-media{overflow:hidden !important}

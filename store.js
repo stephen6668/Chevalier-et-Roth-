@@ -27,46 +27,126 @@ const CRStore = (() => {
     const found=[...collectionColorDefs,...standardColorDefs].find(x=>x.name===n);
     return found?found.slug:String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   };
-  // Exact filenames currently used in the GitHub repository Chevalier-et-Roth-.
-  // Some filenames intentionally contain capital letters / 'weis' / '.jpg.jpg' because the website
-  // now follows the files that already exist in the repository.
+  // Bilddateien aus dem richtigen GitHub-Repo:
+  // stephen6668/Chevalier-et-Roth-
+  // Für die drei Produkte wird Beige/Braun IMMER zuerst angezeigt.
+  const imageVersion='cr-img-20261012-v3';
+  const versionedImage=path=>{
+    const clean=String(path||'').trim();
+    if(!clean)return '';
+    return clean+(clean.includes('?')?'&':'?')+'v='+imageVersion;
+  };
+
   const repoImageMap={
     1:{
-      'Beige/Braun':['images/produkt1-beige-braun.jpg','images/produkt1-beige.jpg'],
-      'Bordeaux':['images/produkt1-bordo.jpg'],
-      'Schwarz':['images/produkt1-schwarz.jpg'],
-      'Weiß':['images/Produkt1-weis.jpg']
+      'Beige/Braun':[
+        'heritage-halfzip-beige-01.jpg',
+        'images/produkt1-beige-braun.jpg',
+        'images/produkt1-beige.jpg',
+        'images/produkt1-schwarz.jpg',
+        'images/Produkt1-weis.jpg'
+      ],
+      'Bordeaux':[
+        'images/produkt1-bordo.jpg',
+        'images/produkt1-schwarz.jpg',
+        'images/Produkt1-weis.jpg',
+        'heritage-halfzip-beige-01.jpg'
+      ],
+      'Schwarz':[
+        'images/produkt1-schwarz.jpg',
+        'images/Produkt1-weis.jpg',
+        'heritage-halfzip-beige-01.jpg'
+      ],
+      'Weiß':[
+        'images/Produkt1-weis.jpg',
+        'images/produkt1-schwarz.jpg',
+        'heritage-halfzip-beige-01.jpg'
+      ]
     },
     2:{
-      'Beige/Braun':['images/produkt2-beige.jpg','images/produkt2-beige-braun.jpg'],
-      'Bordeaux':['images/produkt2-bordo.jpg'],
-      'Schwarz':['images/produkt2-schwarz.jpg'],
-      'Weiß':['images/produkt2-weis.jpg.jpg']
+      'Beige/Braun':[
+        'images/produkt2-beige.jpg',
+        'images/produkt2-beige-braun.jpg',
+        'images/produkt2-bordo.jpg',
+        'images/produkt2-schwarz.jpg',
+        'images/produkt2-weis.jpg.jpg'
+      ],
+      'Bordeaux':[
+        'images/produkt2-bordo.jpg',
+        'images/produkt2-schwarz.jpg',
+        'images/produkt2-beige.jpg',
+        'images/produkt2-weis.jpg.jpg'
+      ],
+      'Schwarz':[
+        'images/produkt2-schwarz.jpg',
+        'images/produkt2-beige.jpg',
+        'images/produkt2-bordo.jpg',
+        'images/produkt2-weis.jpg.jpg'
+      ],
+      'Weiß':[
+        'images/produkt2-weis.jpg.jpg',
+        'images/produkt2-beige.jpg',
+        'images/produkt2-schwarz.jpg',
+        'images/produkt2-bordo.jpg'
+      ]
     },
     3:{
-      'Beige/Braun':['images/produkt3-beige.jpg','images/produkt3-beige-braun.jpg'],
-      'Bordeaux':['images/produkt3-bordo.jpg'],
-      'Schwarz':['images/produkt3-schwarz.jpg'],
-      'Weiß':['images/produkt3-weis.jpg']
+      'Beige/Braun':[
+        'images/produkt3-beige.jpg',
+        'images/produkt3-beige-braun.jpg',
+        'images/produkt3-schwarz.jpg',
+        'images/produkt3-weis.jpg'
+      ],
+      'Bordeaux':[
+        'images/produkt3-bordo.jpg',
+        'images/produkt3-schwarz.jpg',
+        'images/produkt3-weis.jpg',
+        'images/produkt3-beige.jpg'
+      ],
+      'Schwarz':[
+        'images/produkt3-schwarz.jpg',
+        'images/produkt3-beige.jpg',
+        'images/produkt3-weis.jpg'
+      ],
+      'Weiß':[
+        'images/produkt3-weis.jpg',
+        'images/produkt3-beige.jpg',
+        'images/produkt3-schwarz.jpg'
+      ]
     }
   };
+
   const imageCandidatesForNumber=(n,color)=>{
-    const normalized=normalizeColorName(color);
-    const exact=repoImageMap[Number(n)]?.[normalized];
-    if(Array.isArray(exact)&&exact.length)return [...exact];
-    const slug=colorSlug(normalized);
-    return [`images/produkt${n}-${slug}.jpg`];
+    const normalized=normalizeColorName(color||'Beige/Braun');
+    const mapped=repoImageMap[Number(n)]?.[normalized]||[];
+    const generic=`images/produkt${n}-${colorSlug(normalized)}.jpg`;
+    const unique=[...new Set([...mapped,generic].filter(Boolean))];
+    return unique.map(versionedImage);
   };
-  const autoImagesForNumber=n=>colorDefsForNumber(n).map(c=>imageCandidatesForNumber(n,c.name)[0]);
-  const autoColorImageMapForNumber=n=>Object.fromEntries(colorDefsForNumber(n).map(c=>[c.name,imageCandidatesForNumber(n,c.name)[0]]));
+
+  const autoImagesForNumber=n=>[
+    imageCandidatesForNumber(n,'Beige/Braun')[0]||'',
+    imageCandidatesForNumber(n,'Bordeaux')[0]||'',
+    imageCandidatesForNumber(n,'Schwarz')[0]||'',
+    imageCandidatesForNumber(n,'Weiß')[0]||''
+  ];
+
+  const autoColorImageMapForNumber=n=>({
+    'Beige/Braun':imageCandidatesForNumber(n,'Beige/Braun')[0]||'',
+    'Bordeaux':imageCandidatesForNumber(n,'Bordeaux')[0]||'',
+    'Schwarz':imageCandidatesForNumber(n,'Schwarz')[0]||'',
+    'Weiß':imageCandidatesForNumber(n,'Weiß')[0]||''
+  });
+
   const productImageCandidatesForColor=(p,color)=>{
     const n=productNumber(p);
     if(n)return imageCandidatesForNumber(n,color||'Beige/Braun');
     const colors=productColors(p);
     const index=Math.max(0,colors.findIndex(c=>normalizeColorName(c)===normalizeColorName(color)));
     const images=Array.isArray(p?.images)?p.images.filter(Boolean):[];
-    return images[index]?[images[index]]:(images[0]?[images[0]]:[]);
+    return images[index]?[versionedImage(images[index])]:(images[0]?[versionedImage(images[0])]:[]);
   };
+
   const tryNextImage=img=>{
     try{
       const raw=img?.dataset?.crFallbacks||'';
@@ -78,47 +158,7 @@ const CRStore = (() => {
       return true;
     }catch{return false}
   };
-  const defaults = [
-    {id:'p1',name:'Heritage Half-Zip',category:'Men',price:110,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:24,sku:'CR-HZ-001',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(1),description:'A refined half-zip defined by clean lines, balanced proportions and understated detail. Designed in Luxembourg and produced in Italy, it combines polished elegance with the comfort needed for everyday wear.'},
-    {id:'p2',name:'Tailored Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:18,sku:'CR-TR-002',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(2),description:'A tailored trouser with a precise, comfortable silhouette that follows the body without feeling restrictive. Designed to pair naturally with the Heritage Half-Zip for a complete, refined look.'},
-    {id:'p3',name:'Maison Bodysuit',category:'Women',price:90,salePrice:null,sizes:['XS','S','M','L','XL'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:16,sku:'CR-BODY-003',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(3),description:'A clean, elegant bodysuit created to shape a polished silhouette while remaining comfortable. Minimal detailing and refined proportions make it a versatile statement piece for the first Chevalier & Roth collection.'}
-  ];
 
-  const bundleDefs=[
-    {id:'men-set',name:'Heritage Men’s Set',category:'Men',price:210,componentIds:['p1','p2']}
-  ];
-
-  const defaultCodes=[{code:'WELCOME10',percent:10,active:true,start:'',end:'',maxUses:100,uses:0,minOrder:0,products:[],categories:[]}];
-  const get=(k,d)=>{try{const v=localStorage.getItem('cr_'+k);return v?JSON.parse(v):d}catch{return d}};
-  const set=(k,v)=>localStorage.setItem('cr_'+k,JSON.stringify(v));
-
-  const productNumber=p=>{
-    const m=String(p?.id||'').match(/^p(\d+)$/i);
-    return m?Number(m[1]):null;
-  };
-  const productColors=p=>{
-    const n=productNumber(p);
-    if(n)return colorDefsForNumber(n).map(x=>x.name);
-    const source=Array.isArray(p?.colors)?p.colors:[];
-    const normalized=[...new Set(source.map(normalizeColorName).filter(Boolean))];
-    return normalized.length?normalized:standardColors();
-  };
-  const productImages=p=>{
-    const n=productNumber(p);
-    if(n)return autoImagesForNumber(n);
-    const imgs=Array.isArray(p?.images)?p.images.filter(Boolean).slice(0,4):[];
-    while(imgs.length<4)imgs.push('');
-    return imgs;
-  };
-  const productImageForColor=(p,color)=>{
-    const candidates=productImageCandidatesForColor(p,color);
-    return candidates[0]||'';
-  };
-  const primaryProductImage=p=>{
-    const first=productColors(p)[0]||'Beige/Braun';
-    const preferred='Beige/Braun';
-    return productImageForColor(p,productColors(p).includes(preferred)?preferred:first)||productImages(p)[0]||'';
-  };
   const nextProductId=(list)=>{
     const nums=(Array.isArray(list)?list:products()).map(productNumber).filter(Number.isFinite);
     return `p${Math.max(0,...nums)+1}`;
