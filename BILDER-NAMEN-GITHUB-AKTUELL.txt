@@ -1,0 +1,27 @@
+CHEVALIER & ROTH — EXAKTE AKTUELLE GITHUB-BILDNAMEN
+Repo: stephen6668/Chevalier-et-Roth-
+Ordner: images/
+
+PRODUKT 1 — HERITAGE HALF-ZIP
+1 Beige/Braun: produkt1-beige-braun.jpg.png
+2 Beige:       produkt1-beige.jpg.png
+3 Bordeaux:    produkt1-bordo.jpg.png
+4 Schwarz:     produkt1-schwarz.jpg
+5 Weiß:        Produkt1-weis.jpg
+
+PRODUKT 2 — TAILORED TROUSER
+1 Beige/Braun: produkt2-beige-braun.jpg.png
+2 Beige:       produkt2-beige.jpg
+3 Bordeaux:    produkt2-bordo.jpg
+4 Schwarz:     produkt2-schwarz.jpg
+5 Weiß:        produkt2-weis.jpg
+
+PRODUKT 3 — MAISON BODYSUIT
+1 Beige/Braun: produkt3-beige-braun.jpg .png
+2 Beige:       produkt3-beige.jpg
+3 Bordeaux:    produkt3-bordo.jpg.png
+4 Schwarz:     produkt3-schwarz.jpg
+5 Weiß:        produkt3-weis.jpg
+
+Wichtig: Bei Produkt 3 Beige/Braun ist im GitHub-Dateinamen tatsächlich ein Leerzeichen zwischen .jpg und .png.
+Beige/Braun wird bei allen drei Produkten zuerst angezeigt.
