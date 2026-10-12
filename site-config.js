@@ -18,6 +18,9 @@ window.CRSiteConfig = {
   businessPermit: '[ENTER BUSINESS PERMIT NUMBER IF APPLICABLE]',
 
   // Public sales settings
+  // Ordering is temporarily disabled while the first collection is being prepared.
+  orderingEnabled: false,
+  currentCollectionProductIds: ['p1', 'p2', 'p3'],
   shippingCountries: ['Luxembourg', 'Belgium', 'France', 'Germany'],
   deliveryEstimate: '[ENTER DELIVERY TIME, e.g. 3–7 business days]',
 
@@ -27,6 +30,11 @@ window.CRSiteConfig = {
   codeTableId: 'cr_codes',
   orderTableId: 'cr_orders',
   giveawayTableId: 'cr_giveaway',
+
+
+  // Giveaway social profiles. Replace these two URLs if your real handles are different.
+  tiktokUrl: 'https://www.tiktok.com/@chevalierandroth',
+  instagramUrl: 'https://www.instagram.com/chevalierandroth/',
 
   // First collection launch + giveaway draw (Luxembourg time).
   launchAt: '2027-01-02T00:00:00+01:00',

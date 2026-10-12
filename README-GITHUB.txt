@@ -439,7 +439,9 @@ Each pN product uses exactly four JPG files:
 - images/produktN-4.jpg
 
 Examples:
-p1 -> produkt1-1.jpg ... produkt1-4.jpg
+Produkt 1: produkt1-beige-braun.jpg, produkt1-bordo.jpg, produkt1-schwarz.jpg, produkt1-weiss.jpg
+Produkt 2: produkt2-beige-braun.jpg, produkt2-bordo.jpg, produkt2-schwarz.jpg, produkt2-weiss.jpg
+Produkt 3: produkt3-beige-braun.jpg, produkt3-bordo.jpg, produkt3-schwarz.jpg, produkt3-weiss.jpg
 p2 -> produkt2-1.jpg ... produkt2-4.jpg
 New products receive p5, p6, p7 ... automatically.
 
@@ -449,3 +451,12 @@ Set products:
 The set builder lets the customer choose size and colour separately for both pieces.
 A set is sold out automatically when either component has no stock.
 Stripe checkout accepts bundle lines and the stock webhook reduces stock for both component products after payment.
+
+
+COLOR-AWARE PRODUCT IMAGE UPDATE
+--------------------------------
+- Every numbered product uses exactly 4 colour-specific JPG files.
+- Names: produktN-bordo.jpg, produktN-beige.jpg, produktN-schwarz.jpg, produktN-weiss.jpg.
+- Product page displays only one image at a time and changes it when colour changes.
+- Beige is the default preview for store/admin/giveaway cards.
+- Giveaway submissions are written directly to Appwrite table cr_giveaway.

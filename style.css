@@ -547,3 +547,42 @@ img{max-width:100%;display:block} a{color:inherit}
 .set-builder-modal{position:fixed;inset:0;z-index:320;background:rgba(9,8,7,.82);backdrop-filter:blur(9px);display:none;align-items:center;justify-content:center;padding:20px;overflow:auto}.set-builder-modal.open{display:flex}.set-builder-card{position:relative;width:min(980px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#f7f3eb;border:1px solid rgba(175,147,96,.6);box-shadow:0 35px 120px rgba(0,0,0,.45);padding:34px}.set-builder-head{display:flex;justify-content:space-between;gap:30px;align-items:flex-start;border-bottom:1px solid rgba(13,13,13,.12);padding-bottom:22px}.set-builder-head h2{font-family:Georgia,serif;font-size:clamp(38px,5vw,58px);font-weight:400;margin:7px 0}.set-builder-price{text-align:right;display:grid;gap:4px}.set-builder-price span{font-size:9px;letter-spacing:2px;color:#866d49}.set-builder-price b{font-family:Georgia,serif;font-size:34px;font-weight:400}.set-builder-price small{color:#746a5f}.set-builder-lead{color:#71685e;line-height:1.7;margin:20px 0}.set-builder-items{display:grid;grid-template-columns:1fr 1fr;gap:16px}.set-builder-item{background:#fff;border:1px solid rgba(13,13,13,.1);display:grid;grid-template-columns:minmax(180px,.9fr) 1.1fr;min-height:320px}.set-builder-image{position:relative;background:#eae0d2;overflow:hidden}.set-builder-image img{width:100%;height:100%;object-fit:cover;position:relative;z-index:2}.set-builder-image>span{position:absolute;inset:0;display:grid;place-items:center;font-family:Georgia,serif;font-size:46px;color:#9a8363}.set-builder-copy{padding:22px}.set-builder-copy h3{font-family:Georgia,serif;font-size:26px;font-weight:400;margin:6px 0}.set-builder-copy>small{display:block;color:#7a7269;margin-bottom:14px}.set-select{width:100%;padding:12px;border:1px solid var(--line);background:#fff;color:#171613}.set-builder-add{width:100%;margin-top:20px;min-height:50px}.set-cart-item{border-left:3px solid #a88b5a}
 @media(max-width:900px){.set-shop-grid{grid-template-columns:1fr}.set-shop-card{grid-template-columns:1fr}.set-shop-images{min-height:360px}.set-builder-items{grid-template-columns:1fr}.set-builder-item{grid-template-columns:150px 1fr}.set-builder-head{display:block}.set-builder-price{text-align:left;margin-top:12px}}
 @media(max-width:560px){.set-builder-card{padding:26px 16px}.set-builder-item{grid-template-columns:1fr}.set-builder-image{min-height:260px}.set-shop-images{min-height:280px}}
+
+
+/* COLOR-AWARE PRODUCT IMAGES */
+.color-single-gallery{grid-template-columns:1fr!important;align-items:start}
+.color-main-image{position:relative;max-width:760px;width:100%;margin:0 auto;aspect-ratio:4/5;background:linear-gradient(145deg,#efe7dc,#cbbba7)}
+.color-main-image img{width:100%;height:100%;object-fit:cover;transition:opacity .18s ease}
+.color-image-fallback{position:absolute;inset:0;place-items:center;font-family:Georgia,serif;font-size:64px;color:#8a735a}
+.color-image-label{position:absolute;left:16px;bottom:16px;background:rgba(20,18,15,.86);color:#fff;padding:8px 11px;font-size:9px;letter-spacing:1.8px;text-transform:uppercase}
+.color-chip{display:inline-flex;align-items:center;gap:8px}
+.color-swatch{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.2);box-shadow:0 0 0 1px rgba(255,255,255,.25) inset}
+.swatch-bordo{background:#6f1d32}.swatch-beige{background:#d7c2a0}.swatch-schwarz{background:#151515}.swatch-weiss{background:#f7f5ef}
+.chip.active .color-swatch{border-color:rgba(255,255,255,.7)}
+
+
+/* GIVEAWAY SOCIAL FOLLOW + FIVE DESIGNS */
+.swatch-beige-braun{background:linear-gradient(135deg,#d8c4a7 0 52%,#74523b 52% 100%)!important}
+.giveaway-social-banner,.giveaway-social-panel{border:1px solid rgba(157,126,77,.28);background:#fffaf2;padding:16px 18px;margin:0 0 18px;display:grid;gap:10px;text-align:left}
+.giveaway-social-banner>b,.giveaway-social-panel b{font-size:10px;letter-spacing:1.9px;color:#8a6b43}
+.giveaway-social-banner>span,.giveaway-social-panel span{font-size:12px;color:#665e55;line-height:1.55}
+.giveaway-social-actions{display:flex;gap:9px;flex-wrap:wrap}
+.social-follow-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border:1px solid #171613;text-decoration:none;font-size:9px;letter-spacing:1.5px;font-weight:700;cursor:pointer;transition:.2s}
+.social-follow-btn.tiktok{background:#171613;color:#fff}.social-follow-btn.instagram{background:#fff;color:#171613}.social-follow-btn:hover{transform:translateY(-1px);opacity:.9}
+.giveaway-follow-confirm{background:#f1ebe1;border:1px solid rgba(13,13,13,.09);padding:15px;display:grid;gap:10px}
+.giveaway-follow-confirm>b{font-size:9px;letter-spacing:1.7px;color:#7e6846}.giveaway-follow-confirm label{display:flex;gap:9px;align-items:flex-start;font-size:11px;line-height:1.55;color:#5f574f}.giveaway-follow-confirm input{margin-top:2px;width:17px;height:17px}
+.giveaway-prize-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1050px){.giveaway-prize-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.giveaway-prize-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.giveaway-social-actions{display:grid;grid-template-columns:1fr 1fr}.social-follow-btn{padding:0 8px}}
+
+
+/* --- THREE PRODUCT LAUNCH / ORDERING TEMPORARILY DISABLED --- */
+.nav-launch-note,.drawer-launch-note{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:#8a7350}
+.drawer-launch-note{display:block;padding:12px 0}
+.launch-badge{background:#efe4d3!important;color:#705a39!important}
+.ordering-disabled-note,.shop-launch-notice,.orders-closed-panel{border:1px solid rgba(166,135,86,.34);background:linear-gradient(135deg,#fbf7f0,#f1e5d3);padding:18px 20px;margin:18px 0;display:grid;gap:7px}
+.ordering-disabled-note b,.shop-launch-notice b{font-size:10px;letter-spacing:2px;color:#80633b}
+.ordering-disabled-note span,.shop-launch-notice span{color:#6e6459;line-height:1.6;font-size:12px}
+.orders-closed-panel{max-width:760px;margin:60px auto;padding:38px}
+.orders-closed-panel h1{font-family:Georgia,serif;font-size:48px;font-weight:400;margin:8px 0}
+.orders-closed-panel p{color:#6e6459;line-height:1.8}

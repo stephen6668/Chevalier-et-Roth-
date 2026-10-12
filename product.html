@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – refined menswear and womenswear designed in Luxembourg and produced in Italy."><title>Product · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="commerce.js"></script><script src="app.js" defer></script></head><body><main class="page product-page"><section class="gallery" id="gallery"></section><section class="product-info"><div class="eyebrow" id="cat"></div><h1 id="name"></h1><div><span class="price" id="price"></span><span class="old" id="old"></span></div><div class="vat-note" id="vatInfo">VAT is added automatically to the final total.</div><p id="desc"></p><div class="options"><div class="eyebrow">SIZE</div><div class="chips" id="sizes"></div></div><div class="options"><div class="eyebrow">COLOUR</div><div class="chips" id="colors"></div></div><p id="stock"></p><button class="btn" id="addBagBtn" style="width:100%" onclick="addToCart()">ADD TO BAG</button><button class="btn light waitlist-btn" onclick="openWaitlist(product.id)">JOIN WAITLIST</button><div id="setOffer"></div><div class="trust"><div>DESIGNED IN LUXEMBOURG</div><div>PRODUCED IN ITALY</div><div>14 DAY RETURNS</div></div></section></main>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – refined menswear and womenswear designed in Luxembourg and produced in Italy."><title>Product · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js"></script><script src="commerce.js"></script><script src="app.js" defer></script></head><body><main class="page product-page"><section class="gallery" id="gallery"></section><section class="product-info"><div class="eyebrow" id="cat"></div><h1 id="name"></h1><div><span class="price" id="price"></span><span class="old" id="old"></span></div><div class="vat-note" id="vatInfo">VAT is added automatically to the final total.</div><p id="desc"></p><div class="options"><div class="eyebrow">SIZE</div><div class="chips" id="sizes"></div></div><div class="options"><div class="eyebrow">COLOUR</div><div class="chips" id="colors"></div></div><p id="stock"></p><div id="orderingNotice" class="ordering-disabled-note" hidden><b>FIRST COLLECTION · 02.01.2027</b><span>Bestellungen sind vorerst deaktiviert. Du kannst die Collection bereits ansehen und am Gewinnspiel teilnehmen.</span></div><button class="btn" id="addBagBtn" style="width:100%" onclick="addToCart()">ADD TO BAG</button><button class="btn light waitlist-btn" onclick="openWaitlist(product.id)">JOIN WAITLIST</button><div id="setOffer"></div><div class="trust"><div>DESIGNED IN LUXEMBOURG</div><div>PRODUCED IN ITALY</div><div>14 DAY RETURNS</div></div></section></main>
 <script>
 let product,selectedSize='',selectedColor='';
 document.addEventListener('DOMContentLoaded',async()=>{
@@ -10,14 +10,19 @@ document.addEventListener('DOMContentLoaded',async()=>{
   price.textContent=CRStore.money(CRStore.price(product));
   vatInfo.textContent='+ '+CRStore.vatPercent()+'% VAT · Final price '+CRStore.money(CRStore.grossFromNet(CRStore.price(product)));
   old.textContent=product.salePrice?CRStore.money(product.price):'';
-  const soldOut=Number(product.stock||0)<=0;
-  stock.textContent=soldOut?'Sold out':product.stock+' in stock';
+  const ordersOpen=window.CRSiteConfig?.orderingEnabled===true;
+  const soldOut=ordersOpen && Number(product.stock||0)<=0;
+  stock.textContent=ordersOpen?(soldOut?'Sold out':product.stock+' in stock'):'Preview · ordering opens 02.01.2027';
   stock.className=soldOut?'stock-state sold-out':'stock-state in-stock';
-  addBagBtn.disabled=soldOut;
-  addBagBtn.textContent=soldOut?'SOLD OUT':'ADD TO BAG';
-  gallery.innerHTML=CRStore.productImages(product).map(x=>`<div class="gallery-box">${x?`<img src="${CRStore.esc(x)}" alt="${CRStore.esc(product.name)}" loading="eager" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span>CR</span>')">`:'CR'}</div>`).join('');
+  orderingNotice.hidden=ordersOpen;
+  addBagBtn.disabled=!ordersOpen||soldOut;
+  addBagBtn.textContent=!ordersOpen?'ORDERING OPENS 02.01.2027':(soldOut?'SOLD OUT':'ADD TO BAG');
+  gallery.classList.add('color-single-gallery');
+  const preferredColor='Beige/Braun';
+  selectedColor=(CRStore.productColors(product).includes(preferredColor)?preferredColor:CRStore.productColors(product)[0]||'');
+  renderSelectedColorImage();
   sizes.innerHTML=(product.sizes||[]).map(s=>`<button class="chip" onclick="pick(this,'s','${CRStore.esc(s)}')">${CRStore.esc(s)}</button>`).join('');
-  colors.innerHTML=(product.colors||[]).map(c=>`<button class="chip" onclick="pick(this,'c','${CRStore.esc(c)}')">${CRStore.esc(c)}</button>`).join('');
+  colors.innerHTML=CRStore.productColors(product).map(c=>`<button class="chip color-chip ${c===selectedColor?'active':''}" onclick="pick(this,'c','${CRStore.esc(c)}')"><i class="color-swatch swatch-${CRStore.colorSlug(c)}"></i>${CRStore.esc(c)}</button>`).join('');
   renderSetOffer();
 });
 
@@ -30,12 +35,22 @@ function renderSetOffer(){
   el.innerHTML=`<section class="product-set-offer">
     <div><span class="eyebrow">SET OPTION</span><h3>${CRStore.esc(bundle.name)}</h3><p>${ps.map(p=>CRStore.esc(p.name)).join(' + ')}</p></div>
     <div class="product-set-price"><b>${CRStore.money(bundle.price)}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total</small></div>
-    <button class="btn" ${stock<=0?'disabled':''} onclick="openSetBuilder('${bundle.id}')">${stock<=0?'SET SOLD OUT':'BUY AS SET'}</button>
+    <button class="btn" ${((window.CRSiteConfig?.orderingEnabled!==true)||stock<=0)?'disabled':''} onclick="openSetBuilder('${bundle.id}')">${window.CRSiteConfig?.orderingEnabled!==true?'AVAILABLE 02.01.2027':(stock<=0?'SET SOLD OUT':'BUY AS SET')}</button>
   </section>`;
 }
 
-function pick(el,t,v){el.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));el.classList.add('active');if(t==='s')selectedSize=v;else selectedColor=v}
+function renderSelectedColorImage(){
+  const img=CRStore.productImageForColor(product,selectedColor||'Beige/Braun');
+  gallery.innerHTML=`<div class="gallery-box color-main-image">${img?`<img src="${CRStore.esc(img)}" alt="${CRStore.esc(product.name)} · ${CRStore.esc(selectedColor)}" loading="eager" onerror="this.style.display='none';this.parentElement.querySelector('.color-image-fallback').style.display='grid'"><span class="color-image-fallback" style="display:none">CR</span>`:'<span class="color-image-fallback">CR</span>'}<div class="color-image-label">${CRStore.esc(selectedColor||'')}</div></div>`;
+}
+function pick(el,t,v){
+  el.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  if(t==='s')selectedSize=v;
+  else{selectedColor=v;renderSelectedColorImage()}
+}
 function addToCart(){
+  if(window.CRSiteConfig?.orderingEnabled!==true)return alert('Bestellungen sind vorerst deaktiviert. Die erste Collection startet am 02.01.2027.');
   if(Number(product.stock||0)<=0)return alert('This product is sold out.');
   if(!selectedSize||!selectedColor)return alert('Please select size and colour.');
   let c=CRStore.cart(),x=c.find(i=>i.id===product.id&&i.size===selectedSize&&i.color===selectedColor);

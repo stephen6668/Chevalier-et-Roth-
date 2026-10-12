@@ -33,7 +33,7 @@ const CRCommerce = (() => {
       price:Number(r.price||0),
       salePrice:Number(r.salePrice||0)||null,
       sizes:jsonArray(r.sizes),
-      colors:jsonArray(r.colors),
+      colors:CRStore.productColors({id:r.$id,colors:jsonArray(r.colors)}),
       stock:Number(r.stock||0),
       sku:r.sku||'',
       badge:r.badge||'',
@@ -50,12 +50,12 @@ const CRCommerce = (() => {
       price:Number(p.price||0),
       salePrice:p.salePrice?Number(p.salePrice):0,
       sizes:JSON.stringify(Array.isArray(p.sizes)?p.sizes:[]),
-      colors:JSON.stringify(Array.isArray(p.colors)?p.colors:[]),
+      colors:JSON.stringify(CRStore.productColors(p)),
       stock:Math.max(0,Math.floor(Number(p.stock||0))),
       sku:String(p.sku||'').trim(),
       badge:String(p.badge||'').trim(),
       active:!!p.active,
-      images:JSON.stringify(Array.isArray(p.images)?p.images:[]),
+      images:JSON.stringify(CRStore.productImages(p)),
       description:String(p.description||'').trim()
     };
   }
@@ -109,7 +109,12 @@ const CRCommerce = (() => {
   }
 
   async function listProducts(){
-    return (await listAll(productTableId)).map(rowToProduct);
+    const allowed=new Set(window.CRSiteConfig?.currentCollectionProductIds||['p1','p2','p3']);
+    const starter=CRStore.defaultProducts();
+    return (await listAll(productTableId)).map(rowToProduct).filter(p=>allowed.has(p.id)).map(p=>{
+      const base=starter.find(x=>x.id===p.id);
+      return base?{...p,name:base.name,category:base.category,sku:base.sku,badge:base.badge,sizes:base.sizes,colors:base.colors,images:base.images,description:base.description}:p;
+    });
   }
 
   async function syncProducts(){
@@ -186,21 +191,28 @@ const CRCommerce = (() => {
     if(!prizeId || !prizeName) throw new Error('Bitte zuerst einen Gewinn auswählen.');
     if(!entry.privacyAccepted) throw new Error('Bitte den Teilnahme- und Datenschutzhinweisen zustimmen.');
 
-    return tables.createRow({
-      databaseId,
-      tableId:giveawayTableId,
-      rowId:Appwrite.ID.unique(),
-      data:{
-        firstName,
-        lastName,
-        email,
-        prizeId,
-        prizeName,
-        status:'entered',
-        source:'website-giveaway-2027',
-        privacyAccepted:true
-      }
-    });
+    try{
+      return await tables.createRow({
+        databaseId,
+        tableId:giveawayTableId,
+        rowId:Appwrite.ID.unique(),
+        data:{
+          firstName,
+          lastName,
+          email,
+          prizeId,
+          prizeName,
+          status:'entered',
+          source:'website-giveaway-social-confirmed-2027',
+          privacyAccepted:true
+        }
+      });
+    }catch(e){
+      console.error('Giveaway Appwrite create failed',e);
+      if(e?.code===404) throw new Error('Die Appwrite-Tabelle cr_giveaway wurde nicht gefunden.');
+      if(e?.code===401 || e?.code===403) throw new Error('Appwrite blockiert das Speichern. Prüfe bei cr_giveaway: Any → CREATE.');
+      throw new Error(e?.message||'Die Teilnahme konnte nicht in Appwrite gespeichert werden.');
+    }
   }
 
   async function listGiveawayEntries(){

@@ -1,0 +1,16 @@
+CHEVALIER & ROTH — AKTUELLE VERSION
+
+Sichtbare Produkte:
+1. Heritage Half-Zip
+2. Tailored Trouser
+3. Maison Bodysuit
+
+Das Gewinnspiel bleibt mit Appwrite cr_giveaway verbunden.
+Die Bestellfunktion ist vorerst deaktiviert.
+
+Später aktivieren:
+1. site-config.js -> orderingEnabled: true
+2. Appwrite Checkout Function -> Environment variable ORDERS_ENABLED=true
+3. Function danach neu deployen
+
+Body-Verkaufspreis ist in dieser Version vorläufig auf 90 EUR gesetzt und kann im Admin geändert werden.

@@ -52,3 +52,7 @@ Appwrite Function scopes required:
 - rows.read
 
 The browser checkout payload includes `action: "checkout:create"`.
+
+
+## Temporary order lock
+Ordering is disabled by default in this version. Add the Appwrite Function environment variable `ORDERS_ENABLED=true` only when you are ready to accept payments. Keep it missing or set it to `false` while the store is in preview mode.

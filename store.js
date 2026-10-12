@@ -1,15 +1,42 @@
 const CRStore = (() => {
-  const autoImagesForNumber=n=>[1,2,3,4].map(i=>`images/produkt${n}-${i}.jpg`);
+  const collectionColorDefs=[
+    {name:'Beige/Braun',slug:'beige-braun'},
+    {name:'Bordeaux',slug:'bordo'},
+    {name:'Schwarz',slug:'schwarz'},
+    {name:'Weiß',slug:'weiss'}
+  ];
+  const standardColorDefs=[
+    {name:'Bordeaux',slug:'bordo'},
+    {name:'Beige',slug:'beige'},
+    {name:'Schwarz',slug:'schwarz'},
+    {name:'Weiß',slug:'weiss'}
+  ];
+  const standardColors=()=>standardColorDefs.map(x=>x.name);
+  const colorDefsForNumber=n=>[1,2,3].includes(Number(n))?collectionColorDefs:standardColorDefs;
+  const normalizeColorName=value=>{
+    const v=String(value||'').trim().toLowerCase();
+    if(['bordeaux','bordo','burgundy','borde','bordaux'].includes(v))return 'Bordeaux';
+    if(['beige/braun','beige braun','beigebraun','beige-brown','beige brown','brown beige','taupe'].includes(v))return 'Beige/Braun';
+    if(['beige','cream','creme','stone','sand'].includes(v))return 'Beige';
+    if(['black','schwarz','noir'].includes(v))return 'Schwarz';
+    if(['white','weiß','weiss','blanc'].includes(v))return 'Weiß';
+    return String(value||'').trim();
+  };
+  const colorSlug=value=>{
+    const n=normalizeColorName(value);
+    const found=[...collectionColorDefs,...standardColorDefs].find(x=>x.name===n);
+    return found?found.slug:String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  };
+  const autoImagesForNumber=n=>colorDefsForNumber(n).map(c=>`images/produkt${n}-${c.slug}.jpg`);
+  const autoColorImageMapForNumber=n=>Object.fromEntries(colorDefsForNumber(n).map(c=>[c.name,`images/produkt${n}-${c.slug}.jpg`]));
   const defaults = [
-    {id:'p1',name:'Heritage Half-Zip',category:'Men',price:110,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige','Navy','Dark Brown'],stock:24,sku:'CR-HZ-001',badge:'NEW',active:true,images:autoImagesForNumber(1),description:'A refined half-zip with a clean silhouette, balanced proportions and an understated finish. Designed in Luxembourg and produced in Italy for a wardrobe built around timeless European elegance.'},
-    {id:'p2',name:'Heritage Men’s Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Beige','Navy','Black'],stock:18,sku:'CR-MTR-002',badge:'',active:true,images:autoImagesForNumber(2),description:'A tailored men’s trouser with a clean line and comfortable, refined fit. Designed to sit close to the body without feeling tight, with Italian production and a versatile finish for everyday and formal styling.'},
-    {id:'p3',name:'Maison Women’s Cardigan',category:'Women',price:90,salePrice:null,sizes:['XS','S','M','L'],colors:['Cream','White','Black'],stock:16,sku:'CR-WCAR-003',badge:'NEW',active:true,images:autoImagesForNumber(3),description:'An elegant women’s cardigan with refined proportions and a soft, clean silhouette. Designed in Luxembourg and produced in Italy as a versatile layer for a polished everyday wardrobe.'},
-    {id:'p4',name:'Maison Women’s Trouser',category:'Women',price:100,salePrice:null,sizes:['XS','S','M','L'],colors:['Cream','Black','Brown'],stock:12,sku:'CR-WTR-004',badge:'',active:true,images:autoImagesForNumber(4),description:'A refined women’s trouser with an elegant, comfortable cut that follows the body without feeling restrictive. Designed in Luxembourg, produced in Italy and created to pair naturally with the Maison collection.'}
+    {id:'p1',name:'Heritage Half-Zip',category:'Men',price:110,salePrice:null,sizes:['S','M','L','XL'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:24,sku:'CR-HZ-001',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(1),description:'A refined half-zip defined by clean lines, balanced proportions and understated detail. Designed in Luxembourg and produced in Italy, it combines polished elegance with the comfort needed for everyday wear.'},
+    {id:'p2',name:'Tailored Trouser',category:'Men',price:100,salePrice:null,sizes:['30','32','34','36'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:18,sku:'CR-TR-002',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(2),description:'A tailored trouser with a precise, comfortable silhouette that follows the body without feeling restrictive. Designed to pair naturally with the Heritage Half-Zip for a complete, refined look.'},
+    {id:'p3',name:'Maison Bodysuit',category:'Women',price:90,salePrice:null,sizes:['XS','S','M','L','XL'],colors:['Beige/Braun','Bordeaux','Schwarz','Weiß'],stock:16,sku:'CR-BODY-003',badge:'FIRST COLLECTION',active:true,images:autoImagesForNumber(3),description:'A clean, elegant bodysuit created to shape a polished silhouette while remaining comfortable. Minimal detailing and refined proportions make it a versatile statement piece for the first Chevalier & Roth collection.'}
   ];
 
   const bundleDefs=[
-    {id:'men-set',name:'Heritage Men’s Set',category:'Men',price:210,componentIds:['p1','p2'],badge:'SET'},
-    {id:'women-set',name:'Maison Women’s Set',category:'Women',price:200,componentIds:['p3','p4'],badge:'SET'}
+    {id:'men-set',name:'Heritage Men’s Set',category:'Men',price:210,componentIds:['p1','p2']}
   ];
 
   const defaultCodes=[{code:'WELCOME10',percent:10,active:true,start:'',end:'',maxUses:100,uses:0,minOrder:0,products:[],categories:[]}];
@@ -20,6 +47,13 @@ const CRStore = (() => {
     const m=String(p?.id||'').match(/^p(\d+)$/i);
     return m?Number(m[1]):null;
   };
+  const productColors=p=>{
+    const n=productNumber(p);
+    if(n)return colorDefsForNumber(n).map(x=>x.name);
+    const source=Array.isArray(p?.colors)?p.colors:[];
+    const normalized=[...new Set(source.map(normalizeColorName).filter(Boolean))];
+    return normalized.length?normalized:standardColors();
+  };
   const productImages=p=>{
     const n=productNumber(p);
     if(n)return autoImagesForNumber(n);
@@ -27,42 +61,77 @@ const CRStore = (() => {
     while(imgs.length<4)imgs.push('');
     return imgs;
   };
+  const productImageForColor=(p,color)=>{
+    const n=productNumber(p);
+    if(n){
+      const map=autoColorImageMapForNumber(n);
+      const normalized=normalizeColorName(color||'Beige/Braun');
+      return map[normalized]||map['Beige/Braun']||map.Beige||Object.values(map)[0]||'';
+    }
+    const colors=productColors(p);
+    const index=Math.max(0,colors.findIndex(c=>normalizeColorName(c)===normalizeColorName(color)));
+    const images=productImages(p);
+    return images[index]||images[0]||'';
+  };
+  const primaryProductImage=p=>{
+    const first=productColors(p)[0]||'Beige/Braun';
+    const preferred='Beige/Braun';
+    return productImageForColor(p,productColors(p).includes(preferred)?preferred:first)||productImages(p)[0]||'';
+  };
   const nextProductId=(list)=>{
     const nums=(Array.isArray(list)?list:products()).map(productNumber).filter(Number.isFinite);
     return `p${Math.max(0,...nums)+1}`;
   };
 
   (function(){
-    const ps=get('products',defaults);
-    let changed=false;
-    const normalized=ps.map((p,i)=>{
-      const id=p.id||`p${i+1}`;
-      const copy={...p,id};
-      const n=productNumber(copy);
-      if(n){
-        const imgs=autoImagesForNumber(n);
-        if(JSON.stringify(copy.images||[])!==JSON.stringify(imgs)){copy.images=imgs;changed=true}
-      }else if(!Array.isArray(copy.images)){copy.images=[];changed=true}
-      return copy;
+    const existing=get('products',[]);
+    const byId=Object.fromEntries((Array.isArray(existing)?existing:[]).map(p=>[p.id,p]));
+    const ps=defaults.map(base=>{
+      const old=byId[base.id]||{};
+      return {
+        ...base,
+        price:Number(old.price)>0?Number(old.price):base.price,
+        salePrice:old.salePrice?Number(old.salePrice):base.salePrice,
+        stock:Number.isFinite(Number(old.stock))?Math.max(0,Number(old.stock)):base.stock,
+        active:old.active===false?false:base.active,
+        images:autoImagesForNumber(productNumber(base)),
+        colors:productColors(base)
+      };
     });
-    if(changed||!localStorage.getItem('cr_image_naming_v1'))set('products',normalized);
-    localStorage.setItem('cr_image_naming_v1','1');
+    set('products',ps);
+    localStorage.setItem('cr_three_product_catalog_v1','1');
   })();
 
   const defaultProducts=()=>JSON.parse(JSON.stringify(defaults));
   const products=()=>{
-    let ps=get('products',defaults);
-    let changed=false;
-    ps=ps.map((p,i)=>{
-      const copy={...p,id:p.id||`p${i+1}`};
-      const imgs=productImages(copy);
-      if(JSON.stringify(copy.images||[])!==JSON.stringify(imgs)){copy.images=imgs;changed=true}
+    const allowed=new Set(window.CRSiteConfig?.currentCollectionProductIds||['p1','p2','p3']);
+    const cached=get('products',defaults);
+    const byId=Object.fromEntries((Array.isArray(cached)?cached:[]).map(p=>[p.id,p]));
+    const ps=defaults.filter(base=>allowed.has(base.id)).map(base=>{
+      const p=byId[base.id]||{};
+      const copy={
+        ...base,
+        price:Number(p.price)>0?Number(p.price):base.price,
+        salePrice:p.salePrice?Number(p.salePrice):base.salePrice,
+        stock:Number.isFinite(Number(p.stock))?Math.max(0,Number(p.stock)):base.stock,
+        active:p.active===false?false:base.active
+      };
+      copy.images=productImages(copy);
+      copy.colors=productColors(copy);
       return copy;
     });
-    if(changed)set('products',ps);
     return ps;
   };
-  const saveProducts=v=>set('products',(Array.isArray(v)?v:[]).map(p=>({...p,images:productImages(p)})));
+  const saveProducts=v=>{
+    const allowed=new Set(window.CRSiteConfig?.currentCollectionProductIds||['p1','p2','p3']);
+    const incoming=Array.isArray(v)?v:[];
+    const byId=Object.fromEntries(incoming.filter(p=>allowed.has(p.id)).map(p=>[p.id,p]));
+    const merged=defaults.filter(base=>allowed.has(base.id)).map(base=>{
+      const p=byId[base.id]||{};
+      return {...base,...p,id:base.id,name:base.name,category:base.category,sku:base.sku,badge:base.badge,description:base.description,sizes:base.sizes,colors:productColors(base),images:productImages(base)};
+    });
+    set('products',merged);
+  };
   const codes=()=>get('codes',defaultCodes);
   const saveCodes=v=>set('codes',v);
   const cart=()=>get('cart',[]);
@@ -115,7 +184,7 @@ const CRStore = (() => {
   }
 
   return {
-    defaultProducts,products,saveProducts,nextProductId,productNumber,productImages,autoImagesForNumber,
+    defaultProducts,products,saveProducts,nextProductId,productNumber,productColors,standardColors,colorDefsForNumber,normalizeColorName,colorSlug,productImages,productImageForColor,primaryProductImage,autoImagesForNumber,autoColorImageMapForNumber,
     bundles,bundleById,bundleForProduct,bundleProducts,bundleStock,cartLineNet,
     codes,saveCodes,cart,saveCart,orders,saveOrders,price,money,vatRate,vatOnNet,grossFromNet,vatFromGross,netFromGross,vatPercent,esc,validateCode,get,set
   };

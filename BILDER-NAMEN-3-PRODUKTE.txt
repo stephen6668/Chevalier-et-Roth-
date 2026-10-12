@@ -1,0 +1,29 @@
+CHEVALIER & ROTH — BILDERNAMEN
+
+Bitte speichere die Bilder genau so ab.
+Wichtig: Bei allen 3 Produkten ist das ERSTE Bild die Farbe Beige/Braun.
+Diese Farbe wird auch als erstes auf der Website angezeigt.
+
+PRODUKT 1 — Heritage Half-Zip
+images/produkt1-beige-braun.jpg
+images/produkt1-bordo.jpg
+images/produkt1-schwarz.jpg
+images/produkt1-weiss.jpg
+
+PRODUKT 2 — Tailored Trouser
+images/produkt2-beige-braun.jpg
+images/produkt2-bordo.jpg
+images/produkt2-schwarz.jpg
+images/produkt2-weiss.jpg
+
+PRODUKT 3 — Maison Bodysuit
+images/produkt3-beige-braun.jpg
+images/produkt3-bordo.jpg
+images/produkt3-schwarz.jpg
+images/produkt3-weiss.jpg
+
+HINWEIS
+- Die Website zeigt bei jedem Produkt zuerst das Bild "beige-braun".
+- Wenn ein Bild nicht erscheint, prüfe den Dateinamen genau.
+- .jpg klein schreiben.
+- Keine Leerzeichen im Dateinamen.

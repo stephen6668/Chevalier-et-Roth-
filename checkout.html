@@ -14,7 +14,7 @@
 <script src="app.js" defer></script>
 </head>
 <body>
-<main class="page">
+<main class="page"><div id="ordersClosed" class="orders-closed-panel" hidden><div class="eyebrow">FIRST COLLECTION · 02.01.2027</div><h1>Ordering opens soon.</h1><p>Bestellungen sind vorerst deaktiviert. Die Collection kann bereits angesehen werden und das Gewinnspiel bleibt aktiv.</p><a class="btn" href="shop.html">VIEW COLLECTION</a></div><div id="checkoutActive">
   <div class="eyebrow">SECURE CHECKOUT</div>
   <h1 class="page-title">Checkout</h1>
 
@@ -70,7 +70,7 @@
       <p class="legal-subtle">VAT is added automatically to the product subtotal. Shipping costs are shown before payment. Delivery is limited to the countries listed above.</p>
     </aside>
   </div>
-</main>
+</div></main>
 
 <script>
 function checkoutItems(){
@@ -121,6 +121,7 @@ function renderCheckout(){
 
 async function startStripeCheckout(e){
   e.preventDefault();
+  if(window.CRSiteConfig?.orderingEnabled!==true){checkoutMsg.textContent='Bestellungen sind vorerst deaktiviert.';return}
 
   const endpoint=String(window.CRSiteConfig?.stripeCheckoutEndpoint||'').trim();
   const publishableKey=String(window.CRSiteConfig?.stripePublishableKey||'').trim();
@@ -174,7 +175,7 @@ async function startStripeCheckout(e){
   }
 }
 
-document.addEventListener('DOMContentLoaded',async()=>{if(window.CRCommerce)await CRCommerce.syncProducts();renderCheckout();});
+document.addEventListener('DOMContentLoaded',async()=>{const open=window.CRSiteConfig?.orderingEnabled===true;ordersClosed.hidden=open;checkoutActive.hidden=!open;if(!open)return;if(window.CRCommerce)await CRCommerce.syncProducts();renderCheckout();});
 </script>
 </body>
 </html>

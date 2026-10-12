@@ -150,14 +150,14 @@ function renderProductsAdmin(){
   const list=adminProducts.filter(p=>!q||`${p.name} ${p.sku} ${p.category}`.toLowerCase().includes(q));
   productCardsAdmin.innerHTML=list.length?list.map(p=>`
     <button class="admin-product-card ${editId===p.id?'selected':''}" onclick="selectProductToEdit('${p.id}')">
-      <div class="admin-product-thumb">${CRStore.productImages(p)[0]?`<img src="${CRStore.esc(CRStore.productImages(p)[0])}" alt="">`:'CR'}</div>
+      <div class="admin-product-thumb">${CRStore.primaryProductImage(p)?`<img src="${CRStore.esc(CRStore.primaryProductImage(p))}" alt="">`:'CR'}</div>
       <div class="admin-product-card-copy"><b>${CRStore.esc(p.name)}</b><span>${CRStore.esc(p.sku||p.category)}</span><small>${money(p.price)} · <i class="stock-dot ${stockClass(p.stock)}"></i>${p.stock} in stock</small></div>
       <span class="admin-status-chip ${p.stock<=0?'sold':''}">${p.stock<=0?'SOLD OUT':(p.active?'LIVE':'HIDDEN')}</span>
     </button>`).join(''):'<div class="admin-empty">No products found.</div>';
 }
 
 function newProduct(){
-  editId=null;pendingNewProductId=CRStore.nextProductId(adminProducts);productForm.reset();pActive.checked=true;pCategory.value='Men';pStock.value='0';
+  editId=null;pendingNewProductId=CRStore.nextProductId(adminProducts);productForm.reset();pActive.checked=true;pCategory.value='Men';pStock.value='0';pColors.value=CRStore.standardColors().join(', ');
   pImages.value=CRStore.productImages({id:pendingNewProductId}).join(', ');
   productEditorEyebrow.textContent='NEW PRODUCT · '+pendingNewProductId.toUpperCase();productEditorTitle.textContent='Create product';deleteProductBtn.hidden=true;
   productEditSelect.value='';renderProductsAdmin();productSaveMsg.textContent='Bildnamen automatisch: '+CRStore.productImages({id:pendingNewProductId}).map(x=>x.split('/').pop()).join(', ');
@@ -168,7 +168,7 @@ function selectProductToEdit(id){
   const p=adminProducts.find(x=>x.id===id);if(!p)return;
   editId=id;pendingNewProductId=null;
   pName.value=p.name||'';pCategory.value=p.category||'Men';pPrice.value=p.price||0;pSale.value=p.salePrice||'';
-  pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');pStock.value=p.stock||0;
+  pSizes.value=(p.sizes||[]).join(', ');pColors.value=CRStore.standardColors().join(', ');pStock.value=p.stock||0;
   pSku.value=p.sku||'';pBadge.value=p.badge||'';pImages.value=CRStore.productImages(p).join(', ');pDesc.value=p.description||'';pActive.checked=!!p.active;
   productEditorEyebrow.textContent='EDIT PRODUCT';productEditorTitle.textContent=p.name;deleteProductBtn.hidden=false;
   productEditSelect.value=id;renderProductsAdmin();
@@ -183,7 +183,7 @@ async function saveProduct(){
     price:Number(val('pPrice')||0),
     salePrice:val('pSale')?Number(val('pSale')):null,
     sizes:splitCsv(val('pSizes')),
-    colors:splitCsv(val('pColors')),
+    colors:CRStore.standardColors(),
     stock:Math.max(0,Math.floor(Number(val('pStock')||0))),
     sku:val('pSku').trim(),
     badge:val('pBadge'),
@@ -227,7 +227,7 @@ function duplicateCurrentProduct(){
   const p=adminProducts.find(x=>x.id===editId);if(!p)return;
   editId=null;pendingNewProductId=CRStore.nextProductId(adminProducts);
   pName.value=p.name+' Copy';pCategory.value=p.category;pPrice.value=p.price;pSale.value=p.salePrice||'';
-  pSizes.value=(p.sizes||[]).join(', ');pColors.value=(p.colors||[]).join(', ');pStock.value=p.stock;
+  pSizes.value=(p.sizes||[]).join(', ');pColors.value=CRStore.standardColors().join(', ');pStock.value=p.stock;
   pSku.value=(p.sku||'')+'-COPY';pBadge.value=p.badge||'';pImages.value=CRStore.productImages({id:pendingNewProductId}).join(', ');pDesc.value=p.description||'';pActive.checked=false;
   productEditorEyebrow.textContent='DUPLICATE PRODUCT';productEditorTitle.textContent='Create copy';deleteProductBtn.hidden=true;
 }

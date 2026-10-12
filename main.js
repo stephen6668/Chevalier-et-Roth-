@@ -5,8 +5,7 @@ const DATABASE_ID='6ac7d6740035408079f7';
 const PRODUCTS_TABLE='cr_products';
 const CODES_TABLE='cr_codes';
 const BUNDLES={
-  'men-set':{id:'men-set',name:'Heritage Men’s Set',category:'Men',price:210,componentIds:['p1','p2']},
-  'women-set':{id:'women-set',name:'Maison Women’s Set',category:'Women',price:200,componentIds:['p3','p4']}
+  'men-set':{id:'men-set',name:'Heritage Men’s Set',category:'Men',price:210,componentIds:['p1','p2']}
 };
 
 function cors(origin='https://stephen6668.github.io'){
@@ -32,6 +31,7 @@ export default async ({ req, res, log, error }) => {
 
   try{
     if(req.method!=='POST') return res.json({error:'Method not allowed'},405,headers);
+    if(String(process.env.ORDERS_ENABLED||'false').toLowerCase()!=='true') return res.json({error:'Ordering is temporarily disabled.'},503,headers);
 
     const key=process.env.APPWRITE_FUNCTION_API_KEY || req.headers['x-appwrite-key'];
     if(!key)return res.json({error:'Appwrite function API key is unavailable.'},500,headers);
