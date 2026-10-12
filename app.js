@@ -413,16 +413,18 @@ async function submitGiveawayEntry(){
   if(!window.CRCommerce){if(msg)msg.textContent='Appwrite ist auf dieser Seite noch nicht verbunden.';return}
   btn.disabled=true;if(msg)msg.textContent='Teilnahme wird gespeichert…';
   try{
-    await CRCommerce.createGiveawayEntry({
+    const savedEntry=await CRCommerce.createGiveawayEntry({
       firstName:giveawayFirstName.value,
       lastName:giveawayLastName.value,
       email:giveawayEmail.value,
       prizeId:prize.id,
       prizeName:prize.name,
+      socialConfirmed:giveawayTikTokFollow.checked && giveawayInstagramFollow.checked,
       privacyAccepted:giveawayConsent.checked
     });
-    if(msg)msg.textContent='Gespeichert in Appwrite. Du bist dabei – viel Glück!';
+    if(msg)msg.textContent='Erfolgreich in Appwrite gespeichert. Du bist dabei – viel Glück!';
     localStorage.setItem('cr_giveaway_entered','1');
+    if(savedEntry?.rowId)localStorage.setItem('cr_giveaway_entry_id',savedEntry.rowId);
     giveawayFirstName.disabled=true;giveawayLastName.disabled=true;giveawayEmail.disabled=true;giveawayConsent.disabled=true;
     giveawayTikTokFollow.disabled=true;giveawayInstagramFollow.disabled=true;
     setTimeout(()=>{closeGiveawayEntry();},1800);
