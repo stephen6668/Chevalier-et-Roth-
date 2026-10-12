@@ -311,9 +311,9 @@ function ensureGiveawayUI(){
         </div>
         <div id="giveawayPrizeGrid" class="giveaway-prize-grid"></div>
         <form class="giveaway-form" onsubmit="event.preventDefault();submitGiveawayEntry()">
-          <label class="field"><span>Vorname</span><input id="giveawayFirstName" autocomplete="given-name" required></label>
-          <label class="field"><span>Nachname</span><input id="giveawayLastName" autocomplete="family-name" required></label>
-          <label class="field full"><span>E-Mail</span><input id="giveawayEmail" type="email" autocomplete="email" required></label>
+          <label class="field"><span>Vorname</span><input id="giveawayFirstName" autocomplete="off" required></label>
+          <label class="field"><span>Nachname</span><input id="giveawayLastName" autocomplete="off" required></label>
+          <label class="field full"><span>E-Mail</span><input id="giveawayEmail" type="email" autocomplete="off" required></label>
           <div class="giveaway-follow-confirm full">
             <b>TEILNAHMEBEDINGUNGEN BESTÄTIGEN</b>
             <label><input id="giveawayTikTokFollow" type="checkbox" required><span>Ich bestätige, dass ich Chevalier & Roth auf TikTok folge.</span></label>
@@ -358,15 +358,16 @@ async function openGiveawayEntry(){
   try{
     if(window.CRCommerce){await CRCommerce.syncProducts();renderGiveawayPrizes()}
   }catch(e){console.warn(e)}
-  try{
-    const user=window.CRAppwrite?await CRAppwrite.currentUser():null;
-    if(user){
-      const parts=String(user.name||'').trim().split(/\s+/);
-      if(document.getElementById('giveawayFirstName') && !giveawayFirstName.value)giveawayFirstName.value=parts.shift()||'';
-      if(document.getElementById('giveawayLastName') && !giveawayLastName.value)giveawayLastName.value=parts.join(' ');
-      if(document.getElementById('giveawayEmail') && !giveawayEmail.value)giveawayEmail.value=user.email||'';
-    }
-  }catch(e){}
+  // Giveaway fields must never be prefilled from the logged-in admin/customer account.
+  // Every participant starts with a clean form.
+  ['giveawayFirstName','giveawayLastName','giveawayEmail'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value='';el.setAttribute('autocomplete','off');}
+  });
+  ['giveawayTikTokFollow','giveawayInstagramFollow','giveawayConsent'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.checked=false;
+  });
 }
 
 function giveawayDesigns(){
