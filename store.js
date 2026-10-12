@@ -31,7 +31,7 @@ const CRStore = (() => {
   };
 
   // EXACT current GitHub filenames. Do not "clean up" these names in code.
-  // Product 3 Beige/Braun really contains a space before .png on GitHub.
+  // Product 3 Beige/Braun has a space in the GitHub filename; %20 encodes that space safely in the URL.
   const exactImageMap = {
     1: {
       'Beige/Braun': 'images/produkt1-beige-braun.jpg.png',
@@ -48,7 +48,7 @@ const CRStore = (() => {
       'Weiß':        'images/produkt2-weis.jpg'
     },
     3: {
-      'Beige/Braun': 'images/produkt3-beige-braun.jpg .png',
+      'Beige/Braun': 'images/produkt3-beige-braun.jpg%20.png',
       'Beige':       'images/produkt3-beige.jpg',
       'Bordeaux':    'images/produkt3-bordo.jpg.png',
       'Schwarz':     'images/produkt3-schwarz.jpg',
@@ -57,7 +57,7 @@ const CRStore = (() => {
   };
 
   // Cache-buster so GitHub Pages/browser does not keep old broken image paths.
-  const imageVersion = '20261012-final-products-v2';
+  const imageVersion = '20261012-final-products-v3';
   const versionedImage = path => {
     const clean = String(path || '');
     if (!clean) return '';
