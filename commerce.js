@@ -277,3 +277,6 @@ const CRCommerce = (() => {
     createGiveawayEntry,listGiveawayEntries,updateGiveawayStatus,deleteGiveawayEntry
   };
 })();
+
+// Expose the commerce API globally because app.js checks window.CRCommerce.
+window.CRCommerce = CRCommerce;
