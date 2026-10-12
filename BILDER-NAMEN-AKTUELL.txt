@@ -1,23 +1,27 @@
-CHEVALIER & ROTH — AKTUELLE BILDERDATEIEN
+CHEVALIER & ROTH — EXAKTE BILDNAMEN AUS GITHUB
 
-Beige/Braun wird bei allen 3 Produkten als ERSTES angezeigt.
+Diese Namen wurden direkt aus dem Ordner images im Repo stephen6668/Chevalier-et-Roth- übernommen.
+Beige/Braun wird bei jedem Produkt als erstes angezeigt.
 
-Produkt 1 — Half-Zip
-Beige/Braun: heritage-halfzip-beige-01.jpg
-Bordeaux: images/produkt1-bordo.jpg
-Schwarz: images/produkt1-schwarz.jpg
-Weiß: images/Produkt1-weis.jpg
+PRODUKT 1 — HALF-ZIP
+Beige/Braun: images/produkt1-beige-braun.jpg.png
+Beige:       images/produkt1-beige.jpg.png
+Bordeaux:    images/produkt1-bordo.jpg.png
+Schwarz:     images/produkt1-schwarz.jpg
+Weiß:        images/Produkt1-weis.jpg
 
-Produkt 2 — Hose
-Beige/Braun: images/produkt2-beige.jpg
-Bordeaux: images/produkt2-bordo.jpg
-Schwarz: images/produkt2-schwarz.jpg
-Weiß: images/produkt2-weis.jpg.jpg
+PRODUKT 2 — HOSE
+Beige/Braun: images/produkt2-beige-braun.jpg.png
+Beige:       images/produkt2-beige.jpg
+Bordeaux:    images/produkt2-bordo.jpg
+Schwarz:     images/produkt2-schwarz.jpg
+Weiß:        images/produkt2-weis.jpg
 
-Produkt 3 — Body
-Beige/Braun: images/produkt3-beige.jpg
-Bordeaux: images/produkt3-bordo.jpg
-Schwarz: images/produkt3-schwarz.jpg
-Weiß: images/produkt3-weis.jpg
+PRODUKT 3 — BODY
+Beige/Braun: images/produkt3-beige-braun.jpg .png
+Beige:       images/produkt3-beige.jpg
+Bordeaux:    images/produkt3-bordo.jpg.png
+Schwarz:     images/produkt3-schwarz.jpg
+Weiß:        images/produkt3-weis.jpg
 
-Die Website nutzt Fallbacks und einen Cache-Buster, damit kaputte 2-Byte-Dateien nicht dauerhaft als leere Bilder erscheinen.
+WICHTIG: Bei Produkt 3 Beige/Braun steht im GitHub-Dateinamen tatsächlich ein Leerzeichen zwischen .jpg und .png. Die Website benutzt diesen Namen exakt so.
