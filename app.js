@@ -410,7 +410,7 @@ async function submitGiveawayEntry(){
     if(msg)msg.textContent='Bitte bestätige zuerst, dass du uns auf TikTok und Instagram folgst.';
     return;
   }
-  if(!window.CRCommerce){if(msg)msg.textContent='Appwrite ist auf dieser Seite noch nicht verbunden.';return}
+  if(typeof CRCommerce==='undefined' || !CRCommerce?.createGiveawayEntry){if(msg)msg.textContent='Appwrite-Verbindung konnte nicht geladen werden. Bitte Seite neu laden.';return}
   btn.disabled=true;if(msg)msg.textContent='Teilnahme wird gespeichert…';
   try{
     const savedEntry=await CRCommerce.createGiveawayEntry({
