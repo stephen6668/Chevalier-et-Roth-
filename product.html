@@ -6,23 +6,23 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const id=new URLSearchParams(location.search).get('id');
   product=CRStore.products().find(p=>p.id===id)||CRStore.products()[0];
   if(!product)return;
-  name.textContent=product.name;cat.textContent=product.category;desc.textContent=product.description;
-  price.textContent=CRStore.money(CRStore.price(product));
-  vatInfo.textContent='+ '+CRStore.vatPercent()+'% VAT · Final price '+CRStore.money(CRStore.grossFromNet(CRStore.price(product)));
-  old.textContent=product.salePrice?CRStore.money(product.price):'';
+  document.getElementById('name').textContent=product.name;document.getElementById('cat').textContent=product.category;document.getElementById('desc').textContent=product.description;
+  document.getElementById('price').textContent=CRStore.money(CRStore.price(product));
+  document.getElementById('vatInfo').textContent='+ '+CRStore.vatPercent()+'% VAT · Final price '+CRStore.money(CRStore.grossFromNet(CRStore.price(product)));
+  document.getElementById('old').textContent=product.salePrice?CRStore.money(product.price):'';
   const ordersOpen=window.CRSiteConfig?.orderingEnabled===true;
   const soldOut=ordersOpen && Number(product.stock||0)<=0;
-  stock.textContent=ordersOpen?(soldOut?'Sold out':product.stock+' in stock'):'Preview · ordering opens 02.01.2027';
-  stock.className=soldOut?'stock-state sold-out':'stock-state in-stock';
-  orderingNotice.hidden=ordersOpen;
-  addBagBtn.disabled=!ordersOpen||soldOut;
-  addBagBtn.textContent=!ordersOpen?'ORDERING OPENS 02.01.2027':(soldOut?'SOLD OUT':'ADD TO BAG');
-  gallery.classList.add('color-single-gallery');
+  document.getElementById('stock').textContent=ordersOpen?(soldOut?'Sold out':product.stock+' in stock'):'Preview · ordering opens 02.01.2027';
+  document.getElementById('stock').className=soldOut?'stock-state sold-out':'stock-state in-stock';
+  document.getElementById('orderingNotice').hidden=ordersOpen;
+  document.getElementById('addBagBtn').disabled=!ordersOpen||soldOut;
+  document.getElementById('addBagBtn').textContent=!ordersOpen?'ORDERING OPENS 02.01.2027':(soldOut?'SOLD OUT':'ADD TO BAG');
+  document.getElementById('gallery').classList.add('color-single-gallery');
   const preferredColor='Beige/Braun';
   selectedColor=(CRStore.productColors(product).includes(preferredColor)?preferredColor:CRStore.productColors(product)[0]||'');
   renderSelectedColorImage();
-  sizes.innerHTML=(product.sizes||[]).map(s=>`<button class="chip" onclick="pick(this,'s','${CRStore.esc(s)}')">${CRStore.esc(s)}</button>`).join('');
-  colors.innerHTML=CRStore.productColors(product).map(c=>`<button class="chip color-chip ${c===selectedColor?'active':''}" onclick="pick(this,'c','${CRStore.esc(c)}')"><i class="color-swatch swatch-${CRStore.colorSlug(c)}"></i>${CRStore.esc(c)}</button>`).join('');
+  document.getElementById('sizes').innerHTML=(product.sizes||[]).map(s=>`<button class="chip" onclick="pick(this,'s','${CRStore.esc(s)}')">${CRStore.esc(s)}</button>`).join('');
+  document.getElementById('colors').innerHTML=CRStore.productColors(product).map(c=>`<button class="chip color-chip ${c===selectedColor?'active':''}" onclick="pick(this,'c','${CRStore.esc(c)}')"><i class="color-swatch swatch-${CRStore.colorSlug(c)}"></i>${CRStore.esc(c)}</button>`).join('');
   renderSetOffer();
 });
 
@@ -43,7 +43,7 @@ function renderSelectedColorImage(){
   const candidates=CRStore.productImageCandidatesForColor(product,selectedColor||'Beige/Braun');
   const img=candidates[0]||'';
   const fallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(candidates.slice(1))));
-  gallery.innerHTML=`<div class="gallery-box color-main-image">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(product.name)} · ${CRStore.esc(selectedColor)}" loading="eager" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none';this.parentElement.querySelector('.color-image-fallback').style.display='grid'}"><span class="color-image-fallback" style="display:none">CR</span>`:'<span class="color-image-fallback">CR</span>'}<div class="color-image-label">${CRStore.esc(selectedColor||'')}</div></div>`;
+  document.getElementById('gallery').innerHTML=`<div class="gallery-box color-main-image">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(product.name)} · ${CRStore.esc(selectedColor)}" loading="eager" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none';this.parentElement.querySelector('.color-image-fallback').style.display='grid'}"><span class="color-image-fallback" style="display:none">CR</span>`:'<span class="color-image-fallback">CR</span>'}<div class="color-image-label">${CRStore.esc(selectedColor||'')}</div></div>`;
 }
 function pick(el,t,v){
   el.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
