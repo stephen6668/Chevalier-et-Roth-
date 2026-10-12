@@ -67,7 +67,7 @@ function productCard(p){
 }
 function renderProducts(target, filter=null, limit=999){
   const draw=()=>{
-    let ps=CRStore.products().filter(p=>p.active);
+    let ps=CRStore.products(); if(!ps.length && CRStore.defaultProducts) ps=CRStore.defaultProducts();
     if(filter)ps=ps.filter(filter);
     const el=document.querySelector(target);
     if(el)el.innerHTML=ps.slice(0,limit).map(productCard).join('');
@@ -283,7 +283,7 @@ function ensureGiveawayUI(){
         </div>
         <div class="giveaway-steps">
           <div><span>1</span><b>Auf TikTok & Instagram folgen</b><small>Öffne beide Profile über die sichtbaren Buttons.</small></div>
-          <div><span>2</span><b>Lieblingsprodukt auswählen</b><small>Wähle eines der fünf Designs, das du gewinnen möchtest.</small></div>
+          <div><span>2</span><b>Lieblingsprodukt auswählen</b><small>Wähle eines der drei Pieces, das du gewinnen möchtest.</small></div>
           <div><span>3</span><b>Daten eintragen</b><small>Vorname, Nachname und E-Mail eingeben.</small></div>
           <div><span>4</span><b>Auf die Auslosung warten</b><small>Die Verlosung endet am <strong>02.01.2027</strong>.</small></div>
         </div>
