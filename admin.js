@@ -343,7 +343,7 @@ async function loadGiveawayEntries(){
   }catch(e){
     adminGiveaway=[];
     const rows=document.getElementById('giveawayRows');if(rows)rows.innerHTML='<tr><td colspan="7">Giveaway table not ready yet.</td></tr>';
-    if(msg)msg.textContent='Create the cr_giveaway table in Appwrite. See APPWRITE-SETUP-GENAU.html.';
+    if(msg)msg.textContent=e?.message||'Giveaway konnte nicht aus Appwrite geladen werden. Prüfe Admin-Team READ und die Tabelle cr_giveaway.';
   }
   renderOverview();
 }
