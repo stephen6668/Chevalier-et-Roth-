@@ -1,0 +1,29 @@
+CHEVALIER & ROTH — EXAKTE BILDNAMEN
+
+WICHTIG
+Bei jedem Produkt ist Beige/Braun das ERSTE Design und das erste Bild, das im Shop,
+auf der Produktseite und im Giveaway angezeigt wird.
+
+PRODUKT 1 — HALF-ZIP
+Bild 1 / Beige-Braun: images/produkt1-beige-braun.jpg
+Beige:                images/produkt1-beige.jpg
+Bordeaux:             images/produkt1-bordo.jpg
+Schwarz:              images/produkt1-schwarz.jpg
+Weiß:                 images/Produkt1-weis.jpg
+
+PRODUKT 2 — HOSE
+Bild 1 / Beige-Braun: images/produkt2-beige-braun.jpg
+Beige:                images/produkt2-beige.jpg
+Bordeaux:             images/produkt2-bordo.jpg
+Schwarz:              images/produkt2-schwarz.jpg
+Weiß:                 images/produkt2-weis.jpg
+
+PRODUKT 3 — BODY
+Bild 1 / Beige-Braun: images/produkt3-beige-braun.jpg
+Beige:                images/produkt3-beige.jpg
+Bordeaux:             images/produkt3-bordo.jpg
+Schwarz:              images/produkt3-schwarz.jpg
+Weiß:                 images/produkt3-weis.jpg
+
+Die Schreibweise wird exakt so verwendet. GitHub Pages unterscheidet Groß-/Kleinschreibung.
+Bei Produkt 1 Weiß ist das P absichtlich groß: Produkt1-weis.jpg

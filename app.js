@@ -45,15 +45,18 @@ function cookie(){
  document.body.insertAdjacentHTML('beforeend',`<div class="cookie show" id="cookie"><p>Only necessary local storage is used by default. Optional tracking must be added later and activated only after consent.</p><div><button class="btn light" onclick="consent(false)">DECLINE</button> <button class="btn" onclick="consent(true)">ACCEPT</button></div></div>`);
 }
 function consent(v){CRStore.set('consent',v);document.getElementById('cookie')?.remove()}
+
+function crImageUrl(path){
+  const p=String(path||'');
+  return p?(p+(p.includes('?')?'&':'?')+'v=20261012-exact'):'';
+}
 function productCard(p){
-  const _imgCandidates=CRStore.productImageCandidatesForColor(p,'Beige/Braun');
-  const img=CRStore.esc(_imgCandidates[0]||'');
-  const imgFallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(_imgCandidates.slice(1))));
+  const img=CRStore.esc(crImageUrl(CRStore.primaryProductImage(p)||''));
   const soldOut=orderingEnabled() && Number(p.stock||0)<=0;
   return `<article class="card ${soldOut?'is-sold-out':''}">
     <a href="product.html?id=${encodeURIComponent(p.id)}">
       <div class="card-media">
-        ${img?`<img src="${img}" data-cr-fallbacks="${imgFallbacks}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none';this.nextElementSibling.style.display='grid'}"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
+        ${img?`<img src="${img}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
         ${soldOut?'<div class="soldout-overlay">SOLD OUT</div>':''}
       </div>
       <div class="card-body">
@@ -159,11 +162,9 @@ async function openSetBuilder(bundleId){
   setBuilderAdd.textContent=stock<=0?'SET AUSVERKAUFT':'SET IN DEN WARENKORB';
   setBuilderMsg.textContent='';
   setBuilderItems.innerHTML=ps.map((p,index)=>{
-    const _cands=CRStore.productImageCandidatesForColor(p,'Beige/Braun');
-    const img=_cands[0]||'';
-    const fallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(_cands.slice(1))));
+    const img=crImageUrl(CRStore.primaryProductImage(p)||'');
     return `<article class="set-builder-item" data-product-id="${CRStore.esc(p.id)}">
-      <div class="set-builder-image">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(p.name)}" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none'}">`:''}<span>CR</span></div>
+      <div class="set-builder-image">${img?`<img src="${CRStore.esc(img)}" alt="${CRStore.esc(p.name)}" onerror="this.style.display='none'">`:''}<span>CR</span></div>
       <div class="set-builder-copy"><div class="eyebrow">PIECE ${index+1}</div><h3>${CRStore.esc(p.name)}</h3><small>${p.stock>0?p.stock+' in stock':'Sold out'}</small>
         <label class="field"><span>Größe</span><select class="set-size set-select"><option value="">Auswählen…</option>${(p.sizes||[]).map(s=>`<option value="${CRStore.esc(s)}">${CRStore.esc(s)}</option>`).join('')}</select></label>
         <label class="field"><span>Farbe</span><select class="set-color set-select"><option value="">Auswählen…</option>${(p.colors||[]).map(c=>`<option value="${CRStore.esc(c)}">${CRStore.esc(c)}</option>`).join('')}</select></label>
@@ -203,9 +204,9 @@ function addActiveSetToCart(){
 function setCard(bundle){
   const ps=CRStore.bundleProducts(bundle);
   const stock=CRStore.bundleStock(bundle);
-  const imgs=ps.map(p=>({p,c:CRStore.productImageCandidatesForColor(p,'Beige/Braun')})).filter(x=>x.c.length);
+  const imgs=ps.map(p=>crImageUrl(CRStore.primaryProductImage(p))).filter(Boolean);
   return `<article class="set-shop-card">
-    <div class="set-shop-images">${imgs.map(({p,c})=>`<div><img src="${CRStore.esc(c[0])}" data-cr-fallbacks="${CRStore.esc(encodeURIComponent(JSON.stringify(c.slice(1))))}" alt="${CRStore.esc(p.name||bundle.name)}" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none'}"></div>`).join('')}</div>
+    <div class="set-shop-images">${imgs.map((img,i)=>`<div><img src="${CRStore.esc(img)}" alt="${CRStore.esc(ps[i]?.name||bundle.name)}" onerror="this.style.display='none'"></div>`).join('')}</div>
     <div class="set-shop-copy"><span class="eyebrow">COMPLETE SET · ${CRStore.esc(bundle.category)}</span><h3>${CRStore.esc(bundle.name)}</h3><p>${ps.map(p=>CRStore.esc(p.name)).join(' + ')}</p>
       <div class="set-shop-price"><b>${CRStore.money(bundle.price)}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total</small></div>
       <button class="btn" ${(!orderingEnabled()||stock<=0)?'disabled':''} onclick="openSetBuilder('${bundle.id}')">${!orderingEnabled()?'AVAILABLE 02.01.2027':(stock<=0?'SOLD OUT':'SET AUSWÄHLEN')}</button>
@@ -385,11 +386,9 @@ function renderGiveawayPrizes(){
   const grid=document.getElementById('giveawayPrizeGrid');if(!grid)return;
   const products=giveawayDesigns();
   grid.innerHTML=products.length?products.map(p=>{
-    const _cands=CRStore.productImageCandidatesForColor(p,'Beige/Braun');
-    const img=_cands[0]||'';
-    const fallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(_cands.slice(1))));
+    const img=crImageUrl(CRStore.primaryProductImage(p)||'');
     return `<button type="button" class="giveaway-prize ${_giveawayPrizeId===p.id?'selected':''}" onclick="selectGiveawayPrize('${CRStore.esc(p.id)}')">
-      <div class="giveaway-prize-media">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(p.name)}" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none'}">`:'<div class="giveaway-prize-placeholder">CR</div>'}<span>SELECT</span></div>
+      <div class="giveaway-prize-media">${img?`<img src="${CRStore.esc(img)}" alt="${CRStore.esc(p.name)}">`:'<div class="giveaway-prize-placeholder">CR</div>'}<span>SELECT</span></div>
       <div class="giveaway-prize-copy"><b>${CRStore.esc(p.name)}</b><small>${CRStore.esc(p.category||'')}</small></div>
     </button>`;
   }).join(''):'<div class="giveaway-empty">Die Gewinn-Auswahl wird gerade vorbereitet.</div>';
