@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Chevalier & Roth – Zeitlose europäische Haute Couture. Entwickelt in Luxemburg, gefertigt in italienischen Ateliers.">
-  <title>Maison Chevalier & Roth · Haute Couture Européenne</title>
+  <meta name="description" content="Chevalier & Roth – The European Luxury Maison. Designed in Luxembourg. Mastered in Italy. First collection launches 02.01.2027.">
+  <title>Chevalier & Roth · Official Store</title>
   
   <link rel="stylesheet" href="style.css">
   <script src="site-config.js"></script>
@@ -16,96 +16,225 @@
 </head>
 <body>
 
-  <!-- 1. HERO SECTION -->
-  <section class="hero">
-    <div class="hero-copy">
-      <span class="eyebrow">PREMIÈRE COLLECTION · 2027</span>
-      <h1>Form Follows<br>Refinement.</h1>
-      <div class="hero-subtitle">Luxemburger Vision. Italienische Perfektion.</div>
-      <p>
-        Gegründet in Luxemburg mit dem Anspruch absoluter Schlichtheit. Chevalier & Roth vereint reduzierte architektonische Schnitte mit meisterhafter italienischer Textilverarbeitung.
-      </p>
-      <div class="hero-actions">
-        <a class="btn" href="shop.html">DIE KOLLEKTION ENTDECKEN</a>
-        <button type="button" class="btn light" onclick="openGiveawayIntro(true)">GIVEAWAY ÖFFNEN</button>
-      </div>
+  <!-- 1. APPLE FLAGSHIP HERO STAGE -->
+  <section class="apple-hero-stage">
+    <span class="stage-eyebrow">PREMIÈRE COLLECTION · 02.01.2027</span>
+    <h1>Chevalier & Roth.</h1>
+    <div class="stage-headline-sub">Designed in Luxembourg. Mastered in Italy.</div>
+    
+    <div class="apple-btn-group">
+      <a class="btn dark-pill" href="shop.html">Kollektion entdecken</a>
+      <button type="button" class="btn light" onclick="openGiveawayIntro(true)">Am Giveaway teilnehmen &gt;</button>
     </div>
-    <div class="hero-media">
-      <div class="hero-badge-overlay">
-        <small>HANDCRAFTED IN LOMBARDY</small>
-        <strong>100% Feinste Merinowolle & Mailänder Kaschmir-Haptik.</strong>
+
+    <div class="stage-pricing-note">
+      Exklusive Vorpremiere. Streng limitierte Stückzahlen pro Manufakturcharge.
+    </div>
+
+    <!-- Centered Floating Hero Showcase -->
+    <div class="hero-stage-media">
+      <div class="hero-stage-glow"></div>
+      <img id="hero-flagship-img" src="images/produkt1-beige-braun.jpg.png" alt="Heritage Half-Zip Stage" onerror="if(!CRStore.tryNextImage(this)){this.style.opacity='0.8'}">
+    </div>
+  </section>
+
+  <!-- 2. PRODUCT STAGE 1: HERITAGE HALF-ZIP (DARK TITANIUM WORLD) -->
+  <section class="product-stage stage-dark-obsidian" id="stage-halfzip">
+    <span class="stage-eyebrow">HERITAGE KNITWEAR</span>
+    <h2>Heritage Half-Zip.</h2>
+    <div class="stage-headline-sub">Architectural knit. Absolute tactile luxury.</div>
+
+    <div class="apple-btn-group">
+      <button class="btn gold-pill" onclick="openWaitlist('p1')">Auf die Warteliste</button>
+      <a class="btn outline-pill-dark" href="product.html?id=p1">Details ansehen &gt;</a>
+    </div>
+
+    <!-- Interactive Stage Color Picker -->
+    <div class="stage-color-picker">
+      <div class="color-dot dot-beige-braun active" title="Beige/Braun" onclick="switchStageColor('p1', 'p1', 'Beige/Braun', this)"></div>
+      <div class="color-dot dot-bordeaux" title="Bordeaux" onclick="switchStageColor('p1', 'p1', 'Bordeaux', this)"></div>
+      <div class="color-dot dot-schwarz" title="Schwarz" onclick="switchStageColor('p1', 'p1', 'Schwarz', this)"></div>
+      <div class="color-dot dot-weiss" title="Weiß" onclick="switchStageColor('p1', 'p1', 'Weiß', this)"></div>
+    </div>
+
+    <div class="stage-media-wrap">
+      <div class="stage-pedestal-light"></div>
+      <img id="stage-img-p1" src="images/produkt1-beige-braun.jpg.png" alt="Heritage Half-Zip" onerror="CRStore.tryNextImage(this)">
+    </div>
+
+    <div class="stage-specs-grid">
+      <div class="spec-item">
+        <span>MATERIAL</span>
+        <strong>100% Feinster Milano-Strick</strong>
+      </div>
+      <div class="spec-item">
+        <span>HERKUNFT</span>
+        <strong>Lombardei, Italien</strong>
+      </div>
+      <div class="spec-item">
+        <span>PREIS</span>
+        <strong>110,00 € <small style="font-size:11px;opacity:0.7">+ MwSt.</small></strong>
       </div>
     </div>
   </section>
 
-  <!-- 2. MAISON PHILOSOPHY -->
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">DIE PHILOSOPHIE</span>
-        <h2>Ikonische Essentials.</h2>
+  <!-- 3. PRODUCT STAGE 2: TAILORED TROUSER (CASHMERE ALABASTER WORLD) -->
+  <section class="product-stage stage-cashmere" id="stage-trouser">
+    <span class="stage-eyebrow">SARTORIAL SILHOUETTE</span>
+    <h2>Tailored Trouser.</h2>
+    <div class="stage-headline-sub">Fließender Fall. Perfektionierte Bundfalten-Geometrie.</div>
+
+    <div class="apple-btn-group">
+      <button class="btn dark-pill" onclick="openWaitlist('p2')">Warteliste beitreten</button>
+      <a class="btn light" href="product.html?id=p2">Mehr erfahren &gt;</a>
+    </div>
+
+    <div class="stage-color-picker">
+      <div class="color-dot dot-beige-braun active" title="Beige/Braun" onclick="switchStageColor('p2', 'p2', 'Beige/Braun', this)"></div>
+      <div class="color-dot dot-bordeaux" title="Bordeaux" onclick="switchStageColor('p2', 'p2', 'Bordeaux', this)"></div>
+      <div class="color-dot dot-schwarz" title="Schwarz" onclick="switchStageColor('p2', 'p2', 'Schwarz', this)"></div>
+      <div class="color-dot dot-weiss" title="Weiß" onclick="switchStageColor('p2', 'p2', 'Weiß', this)"></div>
+    </div>
+
+    <div class="stage-media-wrap">
+      <div class="stage-pedestal-light"></div>
+      <img id="stage-img-p2" src="images/produkt2-beige.jpg" alt="Tailored Trouser" onerror="CRStore.tryNextImage(this)">
+    </div>
+
+    <div class="stage-specs-grid">
+      <div class="spec-item">
+        <span>SCHNITT</span>
+        <strong>Relaxed Tailored Fit</strong>
       </div>
-      <a href="shop.html" class="btn light" style="border:0">ALLE ANSEHEN →</a>
+      <div class="spec-item">
+        <span>DETAILS</span>
+        <strong>Verdeckte Hornschließen</strong>
+      </div>
+      <div class="spec-item">
+        <span>PREIS</span>
+        <strong>100,00 € <small style="font-size:11px;opacity:0.7">+ MwSt.</small></strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. PRODUCT STAGE 3: MAISON BODYSUIT -->
+  <section class="product-stage stage-bodysuit" id="stage-bodysuit">
+    <span class="stage-eyebrow">SECOND SKIN HAUTE COUTURE</span>
+    <h2>Maison Bodysuit.</h2>
+    <div class="stage-headline-sub">Nahtlose Eleganz. Höchster Tragekomfort für Tag und Abend.</div>
+
+    <div class="apple-btn-group">
+      <button class="btn dark-pill" onclick="openWaitlist('p3')">Prioritätsliste sichern</button>
+      <a class="btn light" href="product.html?id=p3">Produkt ansehen &gt;</a>
+    </div>
+
+    <div class="stage-color-picker">
+      <div class="color-dot dot-beige-braun active" title="Beige/Braun" onclick="switchStageColor('p3', 'p3', 'Beige/Braun', this)"></div>
+      <div class="color-dot dot-bordeaux" title="Bordeaux" onclick="switchStageColor('p3', 'p3', 'Bordeaux', this)"></div>
+      <div class="color-dot dot-schwarz" title="Schwarz" onclick="switchStageColor('p3', 'p3', 'Schwarz', this)"></div>
+      <div class="color-dot dot-weiss" title="Weiß" onclick="switchStageColor('p3', 'p3', 'Weiß', this)"></div>
+    </div>
+
+    <div class="stage-media-wrap">
+      <div class="stage-pedestal-light"></div>
+      <img id="stage-img-p3" src="images/produkt3-beige.jpg" alt="Maison Bodysuit" onerror="CRStore.tryNextImage(this)">
+    </div>
+
+    <div class="stage-specs-grid">
+      <div class="spec-item">
+        <span>VERARBEITUNG</span>
+        <strong>Seamless Contour Knit</strong>
+      </div>
+      <div class="spec-item">
+        <span>FINISH</span>
+        <strong>Atmungsaktive Seidenhaptik</strong>
+      </div>
+      <div class="spec-item">
+        <span>PREIS</span>
+        <strong>90,00 € <small style="font-size:11px;opacity:0.7">+ MwSt.</small></strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. COMPLETE THE LOOK ENSEMBLE STAGE -->
+  <section style="padding:80px 0;background:var(--apple-canvas-pure)">
+    <div class="section-apple-title">
+      <span class="stage-eyebrow">HARMONISCHE KOMPOSITION</span>
+      <h2>The Full Ensemble.</h2>
+      <p>Kombinieren Sie Half-Zip und Hose zu einem aufeinander abgestimmten Luxus-Set.</p>
     </div>
     
-    <!-- Dynamic Product Showcase Grid -->
-    <div class="grid" id="featured"></div>
-  </section>
-
-  <!-- 3. BRAND PILLARS STORY -->
-  <section class="story-wrapper">
-    <div class="story-inner">
-      <div class="story-copy">
-        <span class="eyebrow" style="color:var(--cr-gold)">HERKUNFT & HANDWERK</span>
-        <h2>Keine Trends.<br>Nur Haltung.</h2>
-        <p>
-          Während schnelllebige Modezyklen die Textilindustrie dominieren, besinnt sich Chevalier & Roth auf die Tradition europäischer Luxusmanufakturen. Jede Silhouette entsteht am Reißbrett in Luxemburg und wird in Norditalien mit höchster Stichdichte maßgeschneidert.
-        </p>
-        <div class="story-pillars">
-          <div class="pillar-box">
-            <b>Luxembourg Design</b>
-            <span>Reduzierte Konturen, kompromissloser Tragekomfort und präzise Proportionen für Damen und Herren.</span>
+    <div class="set-shop-grid">
+      <div class="set-shop-card">
+        <div class="set-shop-images">
+          <img src="images/produkt1-beige-braun.jpg.png" alt="Half-Zip">
+          <img src="images/produkt2-beige.jpg" alt="Trouser">
+        </div>
+        <div class="set-shop-copy">
+          <span class="stage-eyebrow">SIGNATURE SET</span>
+          <h3>Heritage Ensemble</h3>
+          <p>Heritage Half-Zip + Tailored Trouser im farblich perfekt abgestimmten Look.</p>
+          <div class="set-shop-price" style="margin-bottom:20px">
+            <b>210,00 €</b> <small style="color:#86868b">+ 17% MwSt.</small>
           </div>
-          <div class="pillar-box">
-            <b>Italian Atelier</b>
-            <span>Strenge Selektion natürlicher Garne und traditionelle italienische Konfektionierung.</span>
-          </div>
+          <button class="btn dark-pill" onclick="openSetBuilder('b1')">Ensemble anpassen &gt;</button>
         </div>
       </div>
-      <div class="story-art">
-        <div class="story-art-frame"></div>
-        <div class="story-art-monogram">CR</div>
+
+      <div class="set-shop-card">
+        <div class="set-shop-images">
+          <img src="images/produkt3-beige.jpg" alt="Bodysuit">
+          <img src="images/produkt2-beige.jpg" alt="Trouser">
+        </div>
+        <div class="set-shop-copy">
+          <span class="stage-eyebrow">WOMEN'S ATELIER</span>
+          <h3>Maison Ensemble</h3>
+          <p>Maison Bodysuit kombiniert mit der Tailored Trouser für kompromisslose Silhouette.</p>
+          <div class="set-shop-price" style="margin-bottom:20px">
+            <b>190,00 €</b> <small style="color:#86868b">+ 17% MwSt.</small>
+          </div>
+          <button class="btn dark-pill" onclick="openSetBuilder('b2')">Ensemble anpassen &gt;</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. ENSEMBLE SHOWCASE (COMPLETE THE LOOK) -->
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">HARMONISCHE KOMPOSITION</span>
-        <h2>The Iconic Sets.</h2>
+  <!-- 6. ATELIER MAISON CARDS (APPLE PRO HIGHLIGHT GRID) -->
+  <section class="atelier-grid-section">
+    <div class="section-apple-title">
+      <span class="stage-eyebrow">DIE CR WERTE</span>
+      <h2>Warum Chevalier & Roth?</h2>
+    </div>
+
+    <div class="atelier-cards-grid">
+      <div class="atelier-card">
+        <div class="atelier-card-copy">
+          <span class="stage-eyebrow">VISION</span>
+          <h3>Luxembourg Architecture.</h3>
+          <p>Proportionen, die Ruhe ausstrahlen. Entwickelt für Persönlichkeiten, die keinen Modetrends hinterherlaufen, sondern bleibenden Stil definieren.</p>
+        </div>
+        <div class="atelier-card-bottom">ENTWICKELT IN LUXEMBURG</div>
+      </div>
+
+      <div class="atelier-card">
+        <div class="atelier-card-copy">
+          <span class="stage-eyebrow">HANDWERK</span>
+          <h3>Italian Mastery.</h3>
+          <p>Traditionelle Schneiderei in der Lombardei. Höchste Stichdichte, ausgewählte Naturfasern und ein Tragegefühl, das seinesgleichen sucht.</p>
+        </div>
+        <div class="atelier-card-bottom">MANUFAKTUR IN ITALIEN</div>
+      </div>
+
+      <div class="atelier-card">
+        <div class="atelier-card-copy">
+          <span class="stage-eyebrow">VERANTWORTUNG</span>
+          <h3>Seasonless Quality.</h3>
+          <p>Kleidungsstücke, die für Jahre geschaffen sind. Zeitlose Farbwelten in Bordeaux, Sandstein-Beige, Tiefschwarz und Reines Alabasterweiß.</p>
+        </div>
+        <div class="atelier-card-bottom">LIMITIERTE AUFLAGEN</div>
       </div>
     </div>
-    <div class="set-shop-grid" id="setShopGrid"></div>
   </section>
 
-  <!-- 5. PRIVATE SALON NEWSLETTER -->
-  <section class="newsletter">
-    <span class="eyebrow" style="color:var(--cr-gold-light)">EXKLUSIVE VORZÜGE</span>
-    <h2>Treten Sie der Maison bei.</h2>
-    <p>Erhalten Sie vorab privaten Zugang zur Kollektionsfreigabe am 02.01.2027 sowie persönliche Einladungen zu Concierge-Präsentationen.</p>
-    <form onsubmit="event.preventDefault();alert('Vielen Dank für Ihr Interesse. Die Registrierung wurde vorgemerkt.');this.reset();">
-      <input type="email" placeholder="Ihre E-Mail-Adresse" required>
-      <button class="btn" style="background:var(--cr-gold);color:var(--cr-obsidian)">BEITRETEN</button>
-    </form>
-  </section>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      renderProducts('#featured', null, 3);
-      renderSetCards('#setShopGrid');
-    });
-  </script>
 </body>
 </html>
