@@ -3,3 +3,4 @@
 <div class="filters"><button onclick="showCat('all')">ALL</button><button onclick="showCat('Men')">MEN</button><button onclick="showCat('Women')">WOMEN</button></div>
 <div class="grid" id="products"></div><section class="shop-set-section"><div class="section-head"><div><div class="eyebrow">COMPLETE THE LOOK</div><h2>Discover the set.</h2></div></div><div class="set-shop-grid" id="setShopGrid"></div></section></main>
 <script>function showCat(c){renderProducts('#products',c==='all'?null:p=>p.category===c)}document.addEventListener('DOMContentLoaded',()=>{showCat('all');renderSetCards('#setShopGrid')})</script></body></html>
+
