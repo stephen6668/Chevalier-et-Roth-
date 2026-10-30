@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Maison Administration · Chevalier & Roth</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="luxe.css?v=20261030-admin1">
 <script src="site-config.js"></script>
 <script src="store.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
@@ -18,22 +18,22 @@
 
 <div id="login" class="admin-login-shell">
   <div class="admin-login-card">
-    <img src="logo.PNG" alt="Chevalier & Roth" class="admin-login-logo">
+    <div class="admin-login-type-logo" aria-label="Chevalier & Roth">C<span>R</span></div>
     <div class="eyebrow">MAISON ADMINISTRATION</div>
-    <h1>Private access.</h1>
+    <h1>Maison Administration.</h1>
     <p>Manage the Chevalier & Roth collection, inventory, discount codes, waitlist and orders.</p>
     <label class="field"><span>Email</span><input class="admin-input" id="email" type="email" autocomplete="email"></label>
-    <label class="field"><span>Password</span><input class="admin-input" id="password" type="password" autocomplete="current-password"></label>
+    <label class="field"><span>Passwort</span><input class="admin-input" id="password" type="password" autocomplete="current-password"></label><label class="admin-show-password"><input type="checkbox" onchange="document.getElementById('password').type=this.checked?'text':'password'"> Passwort anzeigen</label>
     <div id="msg" class="admin-message"></div>
     <div id="debug" class="admin-debug"></div>
-    <button id="loginBtn" class="btn admin-login-btn" onclick="adminLogin()">ENTER ADMIN</button>
+    <button id="loginBtn" class="btn admin-login-btn" onclick="adminLogin()">SICHER ANMELDEN</button><p class="admin-login-help">Nur für autorisierte Mitglieder des Appwrite-Adminteams. Melde dich mit deiner bestehenden E-Mail-Adresse und deinem Passwort an.</p><a class="admin-back-link" href="index.html">← Zurück zum Shop</a>
   </div>
 </div>
 
 <div id="dashboard" class="admin-shell" style="display:none">
   <aside class="admin-sidebar">
     <div class="admin-brand">
-      <img src="logo.PNG" alt="">
+      <span class="admin-brand-monogram" aria-hidden="true">CR</span>
       <div><b>CHEVALIER & ROTH</b><span>MAISON ADMIN</span></div>
     </div>
     <nav class="admin-nav">
