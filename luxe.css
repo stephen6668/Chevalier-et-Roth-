@@ -87,3 +87,60 @@ body:has(#detailMainImg) main>div:first-child>div:first-child{background:radial-
  .grid,.story,.cart-layout,.checkout-grid{animation-delay:.2s}
 }
 @keyframes cr-page-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+
+/* Final responsive overrides — intentionally last so they win over legacy rules. */
+html, body { min-width:320px; width:100%; overflow-x:clip; }
+*, *::before, *::after { box-sizing:border-box; }
+img, picture, video { max-width:100%; }
+.card-media { display:grid; place-items:center; aspect-ratio:4/5; overflow:hidden; }
+.card-media img, .card img { width:100%; height:100%; max-height:none; object-fit:contain; object-position:center; padding:clamp(10px,2vw,24px); }
+#detailMainImg { width:100%; height:clamp(340px,62vw,680px); max-width:100%; max-height:72vh; object-fit:contain; object-position:center; }
+.lx-stage { display:grid; place-items:center; min-width:0; overflow:hidden; }
+.lx-stage img { width:100%; height:auto; max-width:min(100%,720px); max-height:min(76vh,760px); object-fit:contain; object-position:center; }
+.lx-hero-emblem { width:clamp(92px,14vw,190px); margin:0 auto 20px; }
+.lx-hero-emblem img { width:100%; height:auto; object-fit:contain; }
+.page { width:min(100%,1320px); margin-inline:auto; padding-left:clamp(16px,4vw,56px); padding-right:clamp(16px,4vw,56px); }
+.cart-layout, .checkout-grid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr); align-items:start; }
+.field input, .field select, .field textarea { width:100%; min-width:0; }
+.newsletter form { width:min(100%,560px); margin-inline:auto; display:flex; gap:10px; }
+.newsletter input { flex:1 1 220px; min-width:0; }
+@media(max-width:980px) {
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cart-layout, .checkout-grid { grid-template-columns:minmax(0,1fr) minmax(240px,.8fr); }
+  .lx-world { min-height:0; }
+}
+@media(max-width:800px) {
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cart-layout, .checkout-grid { grid-template-columns:minmax(0,1fr)!important; }
+  #detailMainImg { height:min(112vw,480px); max-height:60svh; }
+  body:has(#detailMainImg) main { padding:22px 18px 64px!important; }
+  body:has(#detailMainImg) main>div:first-child { grid-template-columns:minmax(0,1fr)!important; gap:22px!important; }
+  body:has(#detailMainImg) main>div:first-child>div:first-child { min-height:0!important; padding:12px!important; position:relative!important; top:auto!important; }
+  .lx-world { grid-template-columns:minmax(0,1fr); text-align:center; gap:24px; padding:64px clamp(16px,4vw,24px); }
+  .lx-world-copy, .lx-world.flip .lx-world-copy { order:0!important; margin-inline:auto; }
+  .lx-stage { order:1; min-height:0; }
+  .lx-stage img { max-height:58svh; }
+  .lx-world .lx-actions { justify-content:center; }
+  .lx-hero { min-height:min(760px,88svh); padding:76px 18px; }
+  .lx-hero h1 { font-size:clamp(42px,12vw,76px); line-height:.94; }
+}
+@media(max-width:600px) {
+  .grid { grid-template-columns:minmax(0,1fr); gap:18px; }
+  .card-media { aspect-ratio:4/5; }
+  .lx-hero .lx-actions { width:100%; flex-direction:column; align-items:stretch; }
+  .lx-hero .btn { width:100%; }
+  .lx-mark { width:min(72vw,360px); }
+  .newsletter form { flex-direction:column; }
+  .newsletter form input, .newsletter form button { width:100%; min-height:48px; }
+  .cart-item { display:grid; grid-template-columns:64px minmax(0,1fr); gap:12px; }
+  .cart-item>:last-child { grid-column:2; }
+}
+@media(max-width:380px) {
+  .page-title { font-size:clamp(38px,11vw,48px); }
+  .btn { padding:13px 18px; letter-spacing:.1em; }
+}
+@media(prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  *, *::before, *::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+}
