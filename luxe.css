@@ -222,3 +222,17 @@ body:before{content:"";position:fixed;z-index:10000;left:0;top:0;width:100%;heig
  .newsletter h2{font-size:clamp(40px,11vw,56px);line-height:1.02}
  .newsletter p{max-width:34ch;margin:16px auto 24px;line-height:1.65}
 }
+
+/* Newsletter: compact, touch-friendly controls with explicit dimensions */
+.newsletter form{display:flex;align-items:stretch;justify-content:center;gap:12px;width:min(100%,520px);margin:28px auto 0}
+.newsletter form input[type="email"]{display:block;flex:1 1 auto;width:100%;min-width:0;height:52px!important;min-height:52px!important;max-height:52px!important;padding:0 18px!important;margin:0!important;border:1px solid #b7aa92;border-radius:8px;background:#f9f7f1;color:#191714;font-size:16px;line-height:52px;box-shadow:none;appearance:none}
+.newsletter form button{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;height:52px!important;min-height:52px!important;max-height:52px!important;padding:0 24px!important;margin:0!important;border-radius:8px;background:#bda477;color:#171511;font-size:12px;letter-spacing:.13em}
+.cr-legal-footer{background:#100f0d;color:#f5f0e8;border-top:1px solid #bda47755;padding:clamp(38px,6vw,76px) clamp(20px,5vw,76px) 24px}
+.cr-footer-top{max-width:1240px;margin:auto;display:flex;justify-content:space-between;align-items:flex-start;gap:36px}
+.cr-footer-brand{font-family:Georgia,serif;font-size:clamp(21px,3vw,32px);letter-spacing:.1em}.cr-footer-brand span{color:#c3a978}
+.cr-footer-top p{color:#a8a095;font-size:13px;margin:14px 0}
+.cr-footer-links{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
+.cr-footer-links a{color:#e2d9c9;text-decoration:none;font-size:13px;border-bottom:1px solid transparent;padding-bottom:4px}
+.cr-footer-links a:hover,.cr-footer-links a:focus-visible{border-color:#c3a978;color:#fff}
+.cr-footer-bottom{max-width:1240px;margin:46px auto 0;padding-top:20px;border-top:1px solid #ffffff22;display:flex;justify-content:space-between;gap:16px;color:#91897c;font-size:12px}
+@media(max-width:680px){.newsletter form{flex-direction:column;gap:12px;width:100%;max-width:420px}.newsletter form input[type="email"],.newsletter form button{flex:none;width:100%;height:50px!important;min-height:50px!important;max-height:50px!important}.cr-footer-top,.cr-footer-bottom{flex-direction:column;gap:22px}.cr-footer-links{gap:14px 22px}.cr-footer-bottom{margin-top:34px}}
