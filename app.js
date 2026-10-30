@@ -1,488 +1,685 @@
+/**
+ * CHEVALIER & ROTH (CR) — LUXURY APPLICATION ENGINE
+ * Features: High-Jewelry Logo Intro, Apple-grade Scroll Reveals, 
+ * Cart & Modals, Appwrite & Stripe Integration
+ */
 
-function openMenu(){document.getElementById('drawer')?.classList.add('open')}
-function closeMenu(){document.getElementById('drawer')?.classList.remove('open')}
-function updateCartCount(){const n=CRStore.cart().reduce((s,x)=>s+x.qty,0);document.querySelectorAll('[data-cart-count]').forEach(e=>e.textContent=n)}
-function orderingEnabled(){return window.CRSiteConfig?.orderingEnabled===true}
-function header(){
-  document.body.insertAdjacentHTML('afterbegin',`
-  <div class="topbar">DESIGNED IN LUXEMBOURG · PRODUCED IN ITALY · CHEVALIER & ROTH</div>
-  <section class="launch-countdown" id="launchCountdown">
-    <div class="launch-countdown-inner">
-      <div class="launch-countdown-copy">
-        <span class="launch-kicker">FIRST COLLECTION · 02.01.2027</span>
-        <strong>Collection launch & giveaway ending soon</strong>
-        <small>Live countdown until the first collection release and giveaway draw.</small>
+// ==========================================
+// 1. MAISON INTRO ANIMATION (SESSION-CONTROLLED)
+// ==========================================
+function initCRIntroAnimation() {
+  const introSeen = sessionStorage.getItem('cr_intro_seen');
+  
+  // Create Intro DOM if it does not already exist
+  if (!document.getElementById('crIntroOverlay')) {
+    const introHTML = `
+      <div id="crIntroOverlay" role="dialog" aria-modal="true" aria-label="Chevalier & Roth Welcome">
+        <div class="intro-halo"></div>
+        <div class="intro-content">
+          <div class="intro-monogram">CR</div>
+          <div class="intro-brand">CHEVALIER & ROTH</div>
+          <div class="intro-provenance">HAUTE COUTURE · LUXEMBOURG & MILANO</div>
+          <div class="intro-line"></div>
+        </div>
+        <button type="button" class="intro-skip-btn" onclick="dismissCRIntro()">SKIP INTRO</button>
       </div>
-      <div class="launch-countdown-time" id="launchCountdownTime" aria-live="polite"></div>
-      <button type="button" class="launch-countdown-cta" onclick="openGiveawayIntro(true)">JETZT TEILNEHMEN</button>
+    `;
+    document.body.insertAdjacentHTML('afterbegin', introHTML);
+  }
+
+  const overlay = document.getElementById('crIntroOverlay');
+
+  // If already viewed or prefers-reduced-motion, dismiss instantly
+  if (introSeen === '1' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (overlay) overlay.style.display = 'none';
+    return;
+  }
+
+  // Smooth exit after 2.6 seconds
+  setTimeout(() => {
+    dismissCRIntro();
+  }, 2600);
+}
+
+function dismissCRIntro() {
+  const overlay = document.getElementById('crIntroOverlay');
+  if (!overlay) return;
+  overlay.classList.add('hidden');
+  sessionStorage.setItem('cr_intro_seen', '1');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+  }, 850);
+}
+
+// ==========================================
+// 2. SCROLL REVEAL OBSERVER (APPLE-STYLE)
+// ==========================================
+function initScrollAnimations() {
+  const revealElements = document.querySelectorAll('.reveal-fade-up, .card, .story-copy, .pillar-box');
+  if (!('IntersectionObserver' in window)) {
+    revealElements.forEach(el => el.classList.add('is-revealed'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    rootMargin: '0px 0px -60px 0px',
+    threshold: 0.12
+  });
+
+  revealElements.forEach(el => {
+    el.classList.add('reveal-fade-up');
+    observer.observe(el);
+  });
+}
+
+// ==========================================
+// 3. CORE NAVIGATION & SHELL
+// ==========================================
+function openMenu() { document.getElementById('drawer')?.classList.add('open'); }
+function closeMenu() { document.getElementById('drawer')?.classList.remove('open'); }
+
+function updateCartCount() {
+  const n = CRStore.cart().reduce((s, x) => s + x.qty, 0);
+  document.querySelectorAll('[data-cart-count]').forEach(e => e.textContent = n);
+}
+
+function orderingEnabled() {
+  return window.CRSiteConfig?.orderingEnabled === true;
+}
+
+function header() {
+  if (document.querySelector('.header')) return;
+  document.body.insertAdjacentHTML('afterbegin', `
+    <div class="topbar">DESIGNED IN LUXEMBOURG · CRAFTED IN ITALY · FIRST COLLECTION 02.01.2027</div>
+    <section class="launch-countdown" id="launchCountdown">
+      <div class="launch-countdown-inner">
+        <div class="launch-countdown-copy">
+          <span class="launch-kicker">FIRST COLLECTION · 02.01.2027</span>
+          <strong>Collection Launch & Exklusives Giveaway</strong>
+          <small>Offizieller Countdown zur ersten Edition & Ziehung der Gewinnerstücke.</small>
+        </div>
+        <div class="launch-countdown-time" id="launchCountdownTime" aria-live="polite"></div>
+        <button type="button" class="launch-countdown-cta" onclick="openGiveawayIntro(true)">JETZT TEILNEHMEN</button>
+      </div>
+    </section>
+    <header class="header">
+      <div class="header-inner">
+        <nav class="nav">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="collections.html">Collections</a>
+          <a href="about.html">Maison</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <a class="brand" href="index.html">
+          <img src="logo.PNG" alt="Chevalier & Roth Logo">
+          <span>CHEVALIER & ROTH</span>
+        </a>
+        <nav class="nav right">
+          <a href="search.html">Search</a>
+          <a href="account.html" id="accountLink">Account</a>
+          ${orderingEnabled() ? '<a href="cart.html">Bag (<span data-cart-count>0</span>)</a>' : '<span class="nav-launch-note">LAUNCH 02.01.2027</span>'}
+        </nav>
+        <button class="burger" onclick="openMenu()" aria-label="Menü öffnen">☰</button>
+      </div>
+    </header>
+    <div class="drawer" id="drawer">
+      <button class="drawer-close" onclick="closeMenu()" aria-label="Menü schließen">×</button>
+      <nav class="drawer-nav">
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="collections.html">Collections</a>
+        <a href="about.html">Maison</a>
+        <a href="contact.html">Contact</a>
+        <a href="search.html">Search</a>
+        <a href="account.html" id="drawerAccountLink">Account</a>
+        ${orderingEnabled() ? '<a href="cart.html">Bag</a>' : '<span class="drawer-launch-note">LAUNCH 02.01.2027</span>'}
+        <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:15px 0">
+        <a href="impressum.html" style="font-size:16px">Legal Notice</a>
+        <a href="datenschutz.html" style="font-size:16px">Privacy</a>
+        <a href="agb.html" style="font-size:16px">Terms</a>
+        <a href="admin.html" style="font-size:16px">Admin</a>
+      </nav>
     </div>
-  </section>
-  <header class="header"><div class="header-inner">
-    <nav class="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
-    <a class="brand" href="index.html"><img src="logo.PNG" alt="Chevalier & Roth logo"><span>CHEVALIER & ROTH</span></a>
-    <nav class="nav right"><a href="search.html">Search</a><a href="account.html" id="accountLink">Account</a>${orderingEnabled()?'<a href="cart.html">Bag (<span data-cart-count>0</span>)</a>':'<span class="nav-launch-note">ORDERS OPEN 02.01.2027</span>'}</nav>
-    <button class="burger" onclick="openMenu()" aria-label="Open menu">☰</button>
-  </div></header>
-  <div class="drawer" id="drawer"><button class="drawer-close" onclick="closeMenu()">×</button><nav class="drawer-nav">
-    <a href="index.html">Home</a><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="search.html">Search</a><a href="account.html" id="accountLink">Account</a>
-    ${orderingEnabled()?'<a href="cart.html">Bag</a>':'<span class="drawer-launch-note">ORDERS OPEN 02.01.2027</span>'}
-    <a href="impressum.html">Legal Notice</a><a href="datenschutz.html">Privacy</a><a href="cookies.html">Cookie Policy</a><a href="agb.html">Terms</a><a href="versand.html">Shipping</a><a href="zahlung.html">Payments</a><a href="widerruf.html">Returns</a><a href="admin.html">Admin</a>
-  </nav></div>`);
+  `);
   updateCartCount();
 }
-function footer(){
- document.body.insertAdjacentHTML('beforeend',`
- <footer class="footer"><div class="footer-grid">
-  <div><h3>CHEVALIER & ROTH</h3><p style="color:#8f887f;line-height:1.8">Refined European wardrobe pieces designed in Luxembourg and produced in Italy.</p><small>© 2026 Chevalier & Roth</small></div>
-  <div><h4>SHOP</h4><a href="shop.html">Shop</a><a href="collections.html">Collections</a><a href="search.html">Search</a></div>
-  <div><h4>SERVICE</h4><a href="contact.html">Contact</a><a href="versand.html">Shipping</a><a href="zahlung.html">Payments</a><a href="widerruf.html">Returns</a><a href="agb.html#guarantee">Legal guarantee</a></div>
-  <div><h4>COMPANY</h4><a href="about.html">Our Story</a><a href="account.html">Account</a><a href="giveaway-rules.html">Giveaway</a></div>
-  <div><h4>LEGAL</h4><a href="impressum.html">Legal Notice</a><a href="datenschutz.html">Privacy</a><a href="cookies.html">Cookies</a><a href="agb.html">Terms</a></div>
- </div></footer>`);
-}
-function cookie(){
- if(CRStore.get('consent',null)!==null)return;
- document.body.insertAdjacentHTML('beforeend',`<div class="cookie show" id="cookie"><p>Only necessary local storage is used by default. Optional tracking must be added later and activated only after consent.</p><div><button class="btn light" onclick="consent(false)">DECLINE</button> <button class="btn" onclick="consent(true)">ACCEPT</button></div></div>`);
-}
-function consent(v){CRStore.set('consent',v);document.getElementById('cookie')?.remove()}
-function productCard(p){
-  const _imgCandidates=CRStore.productImageCandidatesForColor(p,'Beige/Braun');
-  const img=CRStore.esc(_imgCandidates[0]||'');
-  const imgFallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(_imgCandidates.slice(1))));
-  const soldOut=orderingEnabled() && Number(p.stock||0)<=0;
-  return `<article class="card ${soldOut?'is-sold-out':''}">
-    <a href="product.html?id=${encodeURIComponent(p.id)}">
-      <div class="card-media">
-        ${img?`<img src="${img}" data-cr-fallbacks="${imgFallbacks}" alt="${CRStore.esc(p.name)}" loading="eager" decoding="async" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none';this.nextElementSibling.style.display='grid'}"><div class="ph image-fallback" style="display:none">CR</div>`:`<div class="ph">CR</div>`}
-        ${soldOut?'<div class="soldout-overlay">SOLD OUT</div>':''}
+
+function footer() {
+  if (document.querySelector('.footer')) return;
+  document.body.insertAdjacentHTML('beforeend', `
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <h3>CHEVALIER & ROTH</h3>
+          <p style="color:rgba(255,255,255,0.65);line-height:1.8;max-width:380px;font-size:13px;margin-bottom:16px">
+            Refined European wardrobe pieces designed in Luxembourg and produced with sartorial perfection in Italy.
+          </p>
+          <small style="color:rgba(255,255,255,0.4)">© 2026 Chevalier & Roth. All rights reserved.</small>
+        </div>
+        <div>
+          <h4>KOLLEKTION</h4>
+          <a href="shop.html">Katalog</a>
+          <a href="collections.html">Editionen</a>
+          <a href="search.html">Suche</a>
+        </div>
+        <div>
+          <h4>SERVICE</h4>
+          <a href="contact.html">Kundenservice</a>
+          <a href="versand.html">Versand & Logistik</a>
+          <a href="zahlung.html">Zahlungsarten</a>
+          <a href="widerruf.html">Rückgabe</a>
+        </div>
+        <div>
+          <h4>MAISON</h4>
+          <a href="about.html">Unsere Geschichte</a>
+          <a href="account.html">Kundenkonto</a>
+          <a href="giveaway-rules.html">Gewinnspielregeln</a>
+        </div>
+        <div>
+          <h4>RECHTLICHES</h4>
+          <a href="impressum.html">Impressum</a>
+          <a href="datenschutz.html">Datenschutz</a>
+          <a href="cookies.html">Cookie-Richtlinie</a>
+          <a href="agb.html">AGB</a>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="card-title">${CRStore.esc(p.name)}</div>
-        <div class="meta"><span>${CRStore.esc(p.category)}</span><span class="price-stack"><b>${CRStore.money(CRStore.price(p))}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(CRStore.price(p)))} total</small></span></div>
-        ${!orderingEnabled()?'<span class="badge launch-badge">AVAILABLE 02.01.2027</span>':(soldOut?'<span class="badge soldout-badge">SOLD OUT</span>':(p.badge?`<span class="badge">${CRStore.esc(p.badge)}</span>`:''))}
+      <div class="footer-legal-bar">
+        <span>LUXEMBOURG · MILAN · PARIS</span>
+        <span>HÖCHSTE EUROPÄISCHE QUALITÄTSSTANDARDS</span>
       </div>
-    </a>
-    <div class="card-actions"><button class="btn light waitlist-btn" onclick="event.preventDefault();event.stopPropagation();openWaitlist('${p.id}')">JOIN WAITLIST</button></div>
-  </article>`;
+    </footer>
+  `);
 }
-function renderProducts(target, filter=null, limit=999){
-  const draw=()=>{
-    let ps=CRStore.products(); if(!ps.length && CRStore.defaultProducts) ps=CRStore.defaultProducts();
-    if(filter)ps=ps.filter(filter);
-    const el=document.querySelector(target);
-    if(el)el.innerHTML=ps.slice(0,limit).map(productCard).join('');
+
+// ==========================================
+// 4. PRODUCT CARDS & RENDERING
+// ==========================================
+function productCard(p) {
+  const _imgCandidates = CRStore.productImageCandidatesForColor(p, 'Beige/Braun');
+  const img = CRStore.esc(_imgCandidates[0] || '');
+  const imgFallbacks = CRStore.esc(encodeURIComponent(JSON.stringify(_imgCandidates.slice(1))));
+  const soldOut = orderingEnabled() && Number(p.stock || 0) <= 0;
+
+  return `
+    <article class="card ${soldOut ? 'is-sold-out' : ''}">
+      <a href="product.html?id=${encodeURIComponent(p.id)}">
+        <div class="card-media">
+          ${img ? `<img src="${img}" data-cr-fallbacks="${imgFallbacks}" alt="${CRStore.esc(p.name)}" loading="lazy" decoding="async" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none';this.nextElementSibling.style.display='grid'}"><div class="ph image-fallback" style="display:none">CR</div>` : `<div class="ph">CR</div>`}
+          ${soldOut ? '<div class="soldout-overlay">SOLD OUT</div>' : ''}
+        </div>
+        <div class="card-body">
+          <span class="card-category">${CRStore.esc(p.category)}</span>
+          <div class="card-title">${CRStore.esc(p.name)}</div>
+          <div class="meta">
+            <div class="price-stack">
+              <b>${CRStore.money(CRStore.price(p))}</b>
+              <small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(CRStore.price(p)))} total</small>
+            </div>
+            ${!orderingEnabled() ? '<span class="badge launch-badge">02.01.2027</span>' : (soldOut ? '<span class="badge soldout-badge">SOLD OUT</span>' : (p.badge ? `<span class="badge launch-badge">${CRStore.esc(p.badge)}</span>` : ''))}
+          </div>
+        </div>
+      </a>
+      <div class="card-actions">
+        <button type="button" class="btn light" onclick="event.preventDefault();event.stopPropagation();openWaitlist('${p.id}')">JOIN WAITLIST</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderProducts(target, filter = null, limit = 999) {
+  const draw = () => {
+    let ps = CRStore.products().filter(p => p.active);
+    if (filter) ps = ps.filter(filter);
+    const el = document.querySelector(target);
+    if (el) el.innerHTML = ps.slice(0, limit).map(productCard).join('');
+    initScrollAnimations();
   };
   draw();
-  if(window.CRCommerce){
-    CRCommerce.syncProducts().then(draw).catch(()=>{});
+  if (window.CRCommerce) {
+    CRCommerce.syncProducts().then(draw).catch(() => {});
   }
 }
-document.addEventListener('DOMContentLoaded',()=>{header();footer();ensureWaitlistModal();ensureSetUI();ensureGiveawayUI();startLaunchCountdown();updateCartCount();refreshAuthChrome();setTimeout(()=>openGiveawayIntro(false),350)});
-window.addEventListener('cartchange',updateCartCount);
 
-let _waitlistProduct=null;
-async function refreshAuthChrome(){
-  if(!window.CRAppwrite) return;
-  const user=await CRAppwrite.currentUser();
-  const a=document.getElementById('accountLink'),d=document.getElementById('drawerAccountLink');
-  const label=user?(user.name||user.email||'Account'):'Account';
-  if(a){a.textContent=label;a.title=user?user.email:'Login / Register'}
-  if(d){d.textContent=user?'Account · '+label:'Account'}
-}
-function ensureWaitlistModal(){
-  if(document.getElementById('waitlistModal')) return;
-  document.body.insertAdjacentHTML('beforeend',`<div class="waitlist-modal" id="waitlistModal" role="dialog" aria-modal="true"><div class="waitlist-box"><button class="waitlist-close" onclick="closeWaitlist()">×</button><div class="eyebrow">CHEVALIER & ROTH</div><h2>Join the waitlist</h2><p class="waitlist-note" id="waitProductLabel"></p><div class="form-grid"><label class="field full"><span>Name</span><input id="waitName" autocomplete="name"></label><label class="field full"><span>Email</span><input id="waitEmail" type="email" autocomplete="email"></label><label class="field"><span>Size (optional)</span><input id="waitSize" placeholder="Optional"></label><label class="field"><span>Colour (optional)</span><input id="waitColor" placeholder="Optional"></label></div><p class="waitlist-note">No account is required. Enter your name and email to join. Size and colour are optional.</p><button class="btn" style="width:100%;margin-top:14px" onclick="submitWaitlist()">SAVE TO WAITLIST</button><div class="waitlist-msg" id="waitMsg"></div></div></div>`);
-}
-async function openWaitlist(productId){
-  _waitlistProduct=CRStore.products().find(p=>p.id===productId); if(!_waitlistProduct)return;
-  ensureWaitlistModal();
-  waitProductLabel.textContent=_waitlistProduct.name;
-  waitMsg.textContent='';waitSize.value='';waitColor.value='';
-  const user=await CRAppwrite.currentUser();
-  if(user){waitName.value=user.name||'';waitEmail.value=user.email||''}
-  else {waitName.value='';waitEmail.value='';waitMsg.textContent=''}
-  waitlistModal.classList.add('open');
-}
-function closeWaitlist(){document.getElementById('waitlistModal')?.classList.remove('open')}
-async function submitWaitlist(){
-  if(!_waitlistProduct)return;
-  waitMsg.textContent='Wird gespeichert…';
-  try{
-    await CRAppwrite.addToWaitlist({productId:_waitlistProduct.id,productName:_waitlistProduct.name,name:waitName.value.trim(),email:waitEmail.value.trim(),size:waitSize.value.trim(),color:waitColor.value.trim()});
-    waitMsg.textContent='Erfolgreich zur Warteliste hinzugefügt.';
-    setTimeout(closeWaitlist,1200);
-  }catch(e){waitMsg.textContent=e.message||'Fehler beim Speichern.'}
-}
-
-
-
-
-// =========================
-// SET BUILDER
-// =========================
-let _activeSetId='';
-
-function ensureSetUI(){
-  if(document.getElementById('setBuilderModal'))return;
-  document.body.insertAdjacentHTML('beforeend',`
-    <div class="set-builder-modal" id="setBuilderModal" role="dialog" aria-modal="true" aria-labelledby="setBuilderTitle">
-      <div class="set-builder-card">
-        <button class="giveaway-x" onclick="closeSetBuilder()" aria-label="Schließen">×</button>
-        <div class="set-builder-head">
-          <div><div class="eyebrow">CHEVALIER & ROTH · SET</div><h2 id="setBuilderTitle">Complete the look.</h2></div>
-          <div class="set-builder-price"><span>SET PRICE</span><b id="setBuilderPrice">—</b><small id="setBuilderVat"></small></div>
-        </div>
-        <p class="set-builder-lead">Wähle für beide Teile Größe und Farbe. Danach wird das komplette Set mit einem Klick in den Warenkorb gelegt.</p>
-        <div id="setBuilderItems" class="set-builder-items"></div>
-        <button class="btn set-builder-add" id="setBuilderAdd" onclick="addActiveSetToCart()">SET IN DEN WARENKORB</button>
-        <div id="setBuilderMsg" class="giveaway-msg"></div>
-      </div>
-    </div>`);
-}
-
-function closeSetBuilder(){document.getElementById('setBuilderModal')?.classList.remove('open')}
-
-async function openSetBuilder(bundleId){
-  if(!orderingEnabled())return alert('Bestellungen sind vorerst deaktiviert. Die erste Collection startet am 02.01.2027.');
-  ensureSetUI();
-  if(window.CRCommerce){try{await CRCommerce.syncProducts()}catch(e){}}
-  const bundle=CRStore.bundleById(bundleId);
-  if(!bundle)return;
-  const ps=CRStore.bundleProducts(bundle);
-  if(ps.length!==bundle.componentIds.length)return alert('Das Set ist noch nicht vollständig eingerichtet.');
-  _activeSetId=bundle.id;
-  setBuilderTitle.textContent=bundle.name;
-  setBuilderPrice.textContent=CRStore.money(bundle.price);
-  setBuilderVat.textContent=`+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total`;
-  const stock=CRStore.bundleStock(bundle);
-  setBuilderAdd.disabled=stock<=0;
-  setBuilderAdd.textContent=stock<=0?'SET AUSVERKAUFT':'SET IN DEN WARENKORB';
-  setBuilderMsg.textContent='';
-  setBuilderItems.innerHTML=ps.map((p,index)=>{
-    const _cands=CRStore.productImageCandidatesForColor(p,'Beige/Braun');
-    const img=_cands[0]||'';
-    const fallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(_cands.slice(1))));
-    return `<article class="set-builder-item" data-product-id="${CRStore.esc(p.id)}">
-      <div class="set-builder-image">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(p.name)}" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none'}">`:''}<span>CR</span></div>
-      <div class="set-builder-copy"><div class="eyebrow">PIECE ${index+1}</div><h3>${CRStore.esc(p.name)}</h3><small>${p.stock>0?p.stock+' in stock':'Sold out'}</small>
-        <label class="field"><span>Größe</span><select class="set-size set-select"><option value="">Auswählen…</option>${(p.sizes||[]).map(s=>`<option value="${CRStore.esc(s)}">${CRStore.esc(s)}</option>`).join('')}</select></label>
-        <label class="field"><span>Farbe</span><select class="set-color set-select"><option value="">Auswählen…</option>${(p.colors||[]).map(c=>`<option value="${CRStore.esc(c)}">${CRStore.esc(c)}</option>`).join('')}</select></label>
-      </div>
-    </article>`;
-  }).join('');
-  setBuilderModal.classList.add('open');
-}
-
-function addActiveSetToCart(){
-  if(!orderingEnabled()){setBuilderMsg.textContent='Bestellungen sind vorerst deaktiviert.';return}
-  const bundle=CRStore.bundleById(_activeSetId);
-  if(!bundle)return;
-  const rows=[...document.querySelectorAll('#setBuilderItems .set-builder-item')];
-  const components=rows.map(row=>({
-    id:row.dataset.productId,
-    size:row.querySelector('.set-size')?.value||'',
-    color:row.querySelector('.set-color')?.value||''
-  }));
-  if(components.some(x=>!x.size||!x.color)){setBuilderMsg.textContent='Bitte für beide Teile Größe und Farbe auswählen.';return}
-  const stock=CRStore.bundleStock(bundle);
-  if(stock<=0){setBuilderMsg.textContent='Dieses Set ist ausverkauft.';return}
-  const cart=CRStore.cart();
-  const key=JSON.stringify(components);
-  let item=cart.find(x=>x.bundleId===bundle.id&&JSON.stringify(x.components||[])===key);
-  if(item){
-    if(item.qty>=stock){setBuilderMsg.textContent='Für dieses Set ist kein weiterer Bestand verfügbar.';return}
-    item.qty++;
-  }else{
-    cart.push({id:`bundle:${bundle.id}`,bundleId:bundle.id,components,qty:1});
-  }
-  CRStore.saveCart(cart);
-  setBuilderMsg.textContent='Set wurde zum Warenkorb hinzugefügt.';
-  setTimeout(closeSetBuilder,900);
-}
-
-function setCard(bundle){
-  const ps=CRStore.bundleProducts(bundle);
-  const stock=CRStore.bundleStock(bundle);
-  const imgs=ps.map(p=>({p,c:CRStore.productImageCandidatesForColor(p,'Beige/Braun')})).filter(x=>x.c.length);
-  return `<article class="set-shop-card">
-    <div class="set-shop-images">${imgs.map(({p,c})=>`<div><img src="${CRStore.esc(c[0])}" data-cr-fallbacks="${CRStore.esc(encodeURIComponent(JSON.stringify(c.slice(1))))}" alt="${CRStore.esc(p.name||bundle.name)}" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none'}"></div>`).join('')}</div>
-    <div class="set-shop-copy"><span class="eyebrow">COMPLETE SET · ${CRStore.esc(bundle.category)}</span><h3>${CRStore.esc(bundle.name)}</h3><p>${ps.map(p=>CRStore.esc(p.name)).join(' + ')}</p>
-      <div class="set-shop-price"><b>${CRStore.money(bundle.price)}</b><small>+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total</small></div>
-      <button class="btn" ${(!orderingEnabled()||stock<=0)?'disabled':''} onclick="openSetBuilder('${bundle.id}')">${!orderingEnabled()?'AVAILABLE 02.01.2027':(stock<=0?'SOLD OUT':'SET AUSWÄHLEN')}</button>
-    </div>
-  </article>`;
-}
-
-function renderSetCards(target){
-  const el=document.querySelector(target);if(!el)return;
-  el.innerHTML=CRStore.bundles().map(setCard).join('');
-}
-
-// =========================
-// FIRST COLLECTION GIVEAWAY
-// =========================
-let _giveawayPrizeId='';
-let _launchTimer=null;
-
-function launchTarget(){
+// ==========================================
+// 5. COUNTDOWN ENGINE
+// ==========================================
+let _launchTimer = null;
+function launchTarget() {
   return new Date(window.CRSiteConfig?.launchAt || '2027-01-02T00:00:00+01:00');
 }
-
-function giveawayIsOpen(){
+function giveawayIsOpen() {
   return Date.now() < launchTarget().getTime();
 }
-
-function countdownUnit(value,label){
-  return `<div class="countdown-unit"><b>${String(value).padStart(2,'0')}</b><span>${label}</span></div>`;
+function countdownUnit(value, label) {
+  return `<div class="countdown-unit"><b>${String(value).padStart(2, '0')}</b><span>${label}</span></div>`;
 }
-
-function startLaunchCountdown(){
-  const el=document.getElementById('launchCountdownTime');
-  if(!el)return;
-  const tick=()=>{
-    const ms=launchTarget().getTime()-Date.now();
-    if(ms<=0){
-      el.innerHTML=`<div class="countdown-live">THE FIRST COLLECTION IS LIVE</div>`;
+function startLaunchCountdown() {
+  const el = document.getElementById('launchCountdownTime');
+  if (!el) return;
+  const tick = () => {
+    const ms = launchTarget().getTime() - Date.now();
+    if (ms <= 0) {
+      el.innerHTML = `<div class="countdown-live">THE FIRST COLLECTION IS LIVE</div>`;
       document.getElementById('launchCountdown')?.classList.add('is-live');
-      if(_launchTimer)clearInterval(_launchTimer);
+      if (_launchTimer) clearInterval(_launchTimer);
       return;
     }
-    const total=Math.floor(ms/1000);
-    const days=Math.floor(total/86400);
-    const hours=Math.floor((total%86400)/3600);
-    const mins=Math.floor((total%3600)/60);
-    const secs=total%60;
-    el.innerHTML=[
-      countdownUnit(days,'TAGE'),
-      countdownUnit(hours,'STD'),
-      countdownUnit(mins,'MIN'),
-      countdownUnit(secs,'SEK')
+    const total = Math.floor(ms / 1000);
+    const days = Math.floor(total / 86400);
+    const hours = Math.floor((total % 86400) / 3600);
+    const mins = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+    el.innerHTML = [
+      countdownUnit(days, 'TAGE'),
+      countdownUnit(hours, 'STD'),
+      countdownUnit(mins, 'MIN'),
+      countdownUnit(secs, 'SEK')
     ].join('');
   };
   tick();
-  _launchTimer=setInterval(tick,1000);
+  _launchTimer = setInterval(tick, 1000);
 }
 
-function ensureGiveawayUI(){
-  if(document.getElementById('giveawayIntro'))return;
-  document.body.insertAdjacentHTML('beforeend',`
-    <div class="giveaway-modal giveaway-intro" id="giveawayIntro" role="dialog" aria-modal="true" aria-labelledby="giveawayIntroTitle">
-      <div class="giveaway-intro-card">
-        <button class="giveaway-x" onclick="closeGiveawayIntro()" aria-label="Schließen">×</button>
-        <div class="giveaway-intro-pill">GEWINNSPIEL · FIRST COLLECTION</div>
-        <div class="giveaway-monogram">CR</div>
-        <h2 id="giveawayIntroTitle">Jetzt teilnehmen & dein Lieblingsstück gewinnen.</h2>
-        <p>Zum Launch der ersten Chevalier & Roth Collection verlosen wir ausgewählte Pieces. Die Teilnahme dauert weniger als eine Minute.</p>
-        <div class="giveaway-social-banner">
-          <b>TEILNAHMEBEDINGUNG</b>
-          <span>Folge Chevalier & Roth auf TikTok und Instagram.</span>
-          <div class="giveaway-social-actions">
-            <a class="social-follow-btn tiktok" data-giveaway-social="tiktok" target="_blank" rel="noopener">TIKTOK FOLGEN</a>
-            <a class="social-follow-btn instagram" data-giveaway-social="instagram" target="_blank" rel="noopener">INSTAGRAM FOLGEN</a>
+// ==========================================
+// 6. WAITLIST & SET BUILDER MODALS
+// ==========================================
+let _waitlistProduct = null;
+function ensureWaitlistModal() {
+  if (document.getElementById('waitlistModal')) return;
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="waitlist-modal" id="waitlistModal" role="dialog" aria-modal="true" aria-labelledby="waitTitle">
+      <div class="waitlist-box">
+        <button class="waitlist-close" onclick="closeWaitlist()" aria-label="Schließen">×</button>
+        <div class="eyebrow">CHEVALIER & ROTH · PRIVATKUNDEN</div>
+        <h2 id="waitTitle">Join the Waitlist</h2>
+        <p class="waitlist-note" id="waitProductLabel" style="font-size:14px;color:var(--cr-gold-dark);margin-bottom:12px;font-weight:600;"></p>
+        <div class="form-grid">
+          <label class="field full"><span>Name</span><input id="waitName" autocomplete="name" required></label>
+          <label class="field full"><span>Email</span><input id="waitEmail" type="email" autocomplete="email" required></label>
+          <label class="field"><span>Größe (optional)</span><input id="waitSize" placeholder="S, M, L, XL"></label>
+          <label class="field"><span>Farbe (optional)</span><input id="waitColor" placeholder="Beige, Schwarz..."></label>
+        </div>
+        <p class="waitlist-note" style="margin-top:14px;font-size:12px;color:var(--cr-ink-tertiary)">Kein Konto erforderlich. Sie erhalten bei Verfügbarkeit eine priorisierte Einladung.</p>
+        <button class="btn" style="width:100%;margin-top:18px" onclick="submitWaitlist()">EINTRAGEN</button>
+        <div class="waitlist-msg" id="waitMsg" style="margin-top:12px;text-align:center;font-size:12px;"></div>
+      </div>
+    </div>
+  `);
+}
+
+async function openWaitlist(productId) {
+  _waitlistProduct = CRStore.products().find(p => p.id === productId);
+  if (!_waitlistProduct) return;
+  ensureWaitlistModal();
+  document.getElementById('waitProductLabel').textContent = _waitlistProduct.name;
+  document.getElementById('waitMsg').textContent = '';
+  document.getElementById('waitSize').value = '';
+  document.getElementById('waitColor').value = '';
+  
+  if (window.CRAppwrite) {
+    const user = await CRAppwrite.currentUser();
+    if (user) {
+      document.getElementById('waitName').value = user.name || '';
+      document.getElementById('waitEmail').value = user.email || '';
+    }
+  }
+  document.getElementById('waitlistModal').classList.add('open');
+}
+
+function closeWaitlist() {
+  document.getElementById('waitlistModal')?.classList.remove('open');
+}
+
+async function submitWaitlist() {
+  if (!_waitlistProduct) return;
+  const msg = document.getElementById('waitMsg');
+  msg.textContent = 'Speichere in Appwrite…';
+  try {
+    await CRAppwrite.addToWaitlist({
+      productId: _waitlistProduct.id,
+      productName: _waitlistProduct.name,
+      name: document.getElementById('waitName').value.trim(),
+      email: document.getElementById('waitEmail').value.trim(),
+      size: document.getElementById('waitSize').value.trim(),
+      color: document.getElementById('waitColor').value.trim()
+    });
+    msg.textContent = '✓ Erfolgreich auf die Warteliste gesetzt.';
+    msg.style.color = '#3b7a42';
+    setTimeout(closeWaitlist, 1400);
+  } catch (e) {
+    msg.textContent = e.message || 'Fehler beim Speichern.';
+    msg.style.color = '#9a3c3c';
+  }
+}
+
+// Complete the look Set Builder
+let _activeSetId = '';
+function ensureSetUI() {
+  if (document.getElementById('setBuilderModal')) return;
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="set-builder-modal" id="setBuilderModal" role="dialog" aria-modal="true">
+      <div class="set-builder-card">
+        <button class="giveaway-x" onclick="closeSetBuilder()" aria-label="Schließen">×</button>
+        <div class="set-builder-head">
+          <div>
+            <div class="eyebrow">MAISON ENSEMBLE</div>
+            <h2 id="setBuilderTitle">Complete the Look</h2>
+          </div>
+          <div class="set-builder-price" style="text-align:right">
+            <span style="font-size:10px;letter-spacing:0.2em;color:var(--cr-gold-dark);display:block">SET PREIS</span>
+            <b id="setBuilderPrice" style="font-family:'Playfair Display',serif;font-size:32px;">—</b>
+            <small id="setBuilderVat" style="display:block;color:var(--cr-ink-tertiary);font-size:11px"></small>
           </div>
         </div>
-        <div class="giveaway-steps">
-          <div><span>1</span><b>Auf TikTok & Instagram folgen</b><small>Öffne beide Profile über die sichtbaren Buttons.</small></div>
-          <div><span>2</span><b>Lieblingsprodukt auswählen</b><small>Wähle eines der drei Pieces, das du gewinnen möchtest.</small></div>
-          <div><span>3</span><b>Daten eintragen</b><small>Vorname, Nachname und E-Mail eingeben.</small></div>
-          <div><span>4</span><b>Auf die Auslosung warten</b><small>Die Verlosung endet am <strong>02.01.2027</strong>.</small></div>
+        <p style="color:var(--cr-ink-secondary);margin-bottom:24px">Wählen Sie für jedes Ensemble-Teil Ihre individuelle Größe und Farbe.</p>
+        <div id="setBuilderItems" class="set-builder-items"></div>
+        <button class="btn" id="setBuilderAdd" style="width:100%;margin-top:24px" onclick="addActiveSetToCart()">SET IN DEN WARENKORB</button>
+        <div id="setBuilderMsg" style="margin-top:12px;text-align:center;font-size:13px"></div>
+      </div>
+    </div>
+  `);
+}
+
+function closeSetBuilder() {
+  document.getElementById('setBuilderModal')?.classList.remove('open');
+}
+
+async function openSetBuilder(bundleId) {
+  if (!orderingEnabled()) {
+    alert('Bestellungen sind vorerst deaktiviert. Die Kollektion startet am 02.01.2027.');
+    return;
+  }
+  ensureSetUI();
+  if (window.CRCommerce) { try { await CRCommerce.syncProducts(); } catch (e) {} }
+  const bundle = CRStore.bundleById(bundleId);
+  if (!bundle) return;
+  const ps = CRStore.bundleProducts(bundle);
+  if (ps.length !== bundle.componentIds.length) {
+    alert('Das Set ist momentan noch nicht vollständig konfiguriert.');
+    return;
+  }
+  _activeSetId = bundle.id;
+  document.getElementById('setBuilderTitle').textContent = bundle.name;
+  document.getElementById('setBuilderPrice').textContent = CRStore.money(bundle.price);
+  document.getElementById('setBuilderVat').textContent = `+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total`;
+  
+  const stock = CRStore.bundleStock(bundle);
+  const btn = document.getElementById('setBuilderAdd');
+  btn.disabled = stock <= 0;
+  btn.textContent = stock <= 0 ? 'SET AUSVERKAUFT' : 'SET IN DEN WARENKORB';
+  document.getElementById('setBuilderMsg').textContent = '';
+
+  document.getElementById('setBuilderItems').innerHTML = ps.map((p, idx) => {
+    const _cands = CRStore.productImageCandidatesForColor(p, 'Beige/Braun');
+    const img = _cands[0] || '';
+    return `
+      <article class="set-builder-item" data-product-id="${CRStore.esc(p.id)}">
+        <div class="set-builder-image">
+          ${img ? `<img src="${CRStore.esc(img)}" alt="${CRStore.esc(p.name)}">` : ''}
         </div>
+        <div class="set-builder-copy">
+          <div class="eyebrow" style="margin-bottom:4px">PIECE ${idx + 1}</div>
+          <h3 style="font-size:20px">${CRStore.esc(p.name)}</h3>
+          <small style="color:var(--cr-ink-tertiary)">${p.stock > 0 ? p.stock + ' vorrätig' : 'Sold out'}</small>
+          <label class="field"><span>Größe</span>
+            <select class="set-size set-select">
+              <option value="">Auswählen…</option>
+              ${(p.sizes || []).map(s => `<option value="${CRStore.esc(s)}">${CRStore.esc(s)}</option>`).join('')}
+            </select>
+          </label>
+          <label class="field"><span>Farbe</span>
+            <select class="set-color set-select">
+              <option value="">Auswählen…</option>
+              ${(p.colors || []).map(c => `<option value="${CRStore.esc(c)}">${CRStore.esc(c)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  document.getElementById('setBuilderModal').classList.add('open');
+}
+
+function addActiveSetToCart() {
+  if (!orderingEnabled()) return;
+  const bundle = CRStore.bundleById(_activeSetId);
+  if (!bundle) return;
+  const rows = [...document.querySelectorAll('#setBuilderItems .set-builder-item')];
+  const components = rows.map(row => ({
+    id: row.dataset.productId,
+    size: row.querySelector('.set-size')?.value || '',
+    color: row.querySelector('.set-color')?.value || ''
+  }));
+  if (components.some(x => !x.size || !x.color)) {
+    document.getElementById('setBuilderMsg').textContent = 'Bitte für beide Teile Größe und Farbe auswählen.';
+    return;
+  }
+  const stock = CRStore.bundleStock(bundle);
+  if (stock <= 0) {
+    document.getElementById('setBuilderMsg').textContent = 'Dieses Set ist leider vergriffen.';
+    return;
+  }
+  const cart = CRStore.cart();
+  const key = JSON.stringify(components);
+  let item = cart.find(x => x.bundleId === bundle.id && JSON.stringify(x.components || []) === key);
+  if (item) {
+    if (item.qty >= stock) {
+      document.getElementById('setBuilderMsg').textContent = 'Maximal verfügbarer Bestand erreicht.';
+      return;
+    }
+    item.qty++;
+  } else {
+    cart.push({ id: `bundle:${bundle.id}`, bundleId: bundle.id, components, qty: 1 });
+  }
+  CRStore.saveCart(cart);
+  document.getElementById('setBuilderMsg').textContent = '✓ Set erfolgreich hinzugefügt.';
+  setTimeout(closeSetBuilder, 900);
+}
+
+function setCard(bundle) {
+  const ps = CRStore.bundleProducts(bundle);
+  const stock = CRStore.bundleStock(bundle);
+  const imgs = ps.map(p => ({ p, c: CRStore.productImageCandidatesForColor(p, 'Beige/Braun') })).filter(x => x.c.length);
+
+  return `
+    <article class="set-shop-card">
+      <div class="set-shop-images">
+        ${imgs.map(({ p, c }) => `<div><img src="${CRStore.esc(c[0])}" alt="${CRStore.esc(p.name)}"></div>`).join('')}
+      </div>
+      <div class="set-shop-copy">
+        <span class="eyebrow">COMPLETE ENSEMBLE</span>
+        <h3>${CRStore.esc(bundle.name)}</h3>
+        <p>${ps.map(p => CRStore.esc(p.name)).join(' + ')}</p>
+        <div class="set-shop-price" style="margin-bottom:20px">
+          <b>${CRStore.money(bundle.price)}</b>
+          <small style="display:block;color:var(--cr-ink-tertiary)">+ ${CRStore.vatPercent()}% VAT · ${CRStore.money(CRStore.grossFromNet(bundle.price))} total</small>
+        </div>
+        <button class="btn" ${(!orderingEnabled() || stock <= 0) ? 'disabled' : ''} onclick="openSetBuilder('${bundle.id}')">
+          ${!orderingEnabled() ? 'LAUNCH 02.01.2027' : (stock <= 0 ? 'SOLD OUT' : 'ENSEMBLE WÄHLEN')}
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderSetCards(target) {
+  const el = document.querySelector(target);
+  if (!el) return;
+  el.innerHTML = CRStore.bundles().map(setCard).join('');
+}
+
+// ==========================================
+// 7. GIVEAWAY SYSTEM (FIRST COLLECTION)
+// ==========================================
+let _giveawayPrizeId = '';
+function ensureGiveawayUI() {
+  if (document.getElementById('giveawayIntro')) return;
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="giveaway-modal" id="giveawayIntro" role="dialog" aria-modal="true">
+      <div class="giveaway-intro-card">
+        <button class="giveaway-x" onclick="closeGiveawayIntro()" aria-label="Schließen">×</button>
+        <div class="eyebrow" style="color:var(--cr-gold-dark)">THE FIRST COLLECTION GIVEAWAY</div>
+        <div class="intro-monogram" style="font-size:72px;margin:10px 0 16px;">CR</div>
+        <h2>Gewinnen Sie Ihr Lieblingsstück.</h2>
+        <p>Zum feierlichen Debüt von Chevalier & Roth verlosen wir ikonische Designs unserer Première-Kollektion. Folgen Sie uns auf TikTok & Instagram für die Teilnahmeberechtigung.</p>
         <div class="giveaway-actions">
-          <button class="btn giveaway-primary" onclick="openGiveawayEntry()">JETZT TEILNEHMEN</button>
-          <button class="giveaway-text-btn" onclick="closeGiveawayIntro()">Schließen</button>
+          <button class="btn" style="min-width:240px" onclick="openGiveawayEntry()">JETZT TEILNEHMEN</button>
+          <button type="button" class="btn light" style="margin-top:10px;border:0" onclick="closeGiveawayIntro()">Später</button>
         </div>
       </div>
     </div>
 
-    <div class="giveaway-modal" id="giveawayEntry" role="dialog" aria-modal="true" aria-labelledby="giveawayEntryTitle">
-      <div class="giveaway-entry-card">
+    <div class="giveaway-modal" id="giveawayEntry" role="dialog" aria-modal="true">
+      <div class="giveaway-entry-card" style="width:min(900px,100%)">
         <button class="giveaway-x" onclick="closeGiveawayEntry()" aria-label="Schließen">×</button>
-        <div class="giveaway-entry-head">
-          <div><div class="eyebrow">THE FIRST COLLECTION · GIVEAWAY</div><h2 id="giveawayEntryTitle">Choose your piece.</h2></div>
-          <div class="giveaway-deadline"><span>DRAW</span><b>02.01.2027</b></div>
-        </div>
-        <p class="giveaway-lead">Wähle eines der drei Pieces aus unserer ersten Collection: Half-Zip, Hose oder Body. Für die Teilnahme musst du Chevalier & Roth außerdem auf TikTok und Instagram folgen.</p>
-        <div class="giveaway-social-panel">
-          <div><b>1 · SOCIAL FOLLOW</b><span>Öffne unsere Profile und folge uns auf beiden Plattformen.</span></div>
-          <div class="giveaway-social-actions">
-            <a class="social-follow-btn tiktok" data-giveaway-social="tiktok" target="_blank" rel="noopener">TIKTOK ÖFFNEN</a>
-            <a class="social-follow-btn instagram" data-giveaway-social="instagram" target="_blank" rel="noopener">INSTAGRAM ÖFFNEN</a>
+        <div class="set-builder-head">
+          <div>
+            <div class="eyebrow">FIRST COLLECTION · 02.01.2027</div>
+            <h2>Wählen Sie Ihren Gewinn</h2>
+          </div>
+          <div style="text-align:right">
+            <span style="font-size:9px;letter-spacing:0.2em;color:var(--cr-gold-dark)">ZIEHUNG</span>
+            <b style="font-family:'Playfair Display',serif;font-size:24px;display:block">02.01.2027</b>
           </div>
         </div>
-        <div id="giveawayPrizeGrid" class="giveaway-prize-grid"></div>
-        <form class="giveaway-form" onsubmit="event.preventDefault();submitGiveawayEntry()">
-          <label class="field"><span>Vorname</span><input id="giveawayFirstName" autocomplete="off" required></label>
-          <label class="field"><span>Nachname</span><input id="giveawayLastName" autocomplete="off" required></label>
-          <label class="field full"><span>E-Mail</span><input id="giveawayEmail" type="email" autocomplete="off" required></label>
-          <div class="giveaway-follow-confirm full">
-            <b>TEILNAHMEBEDINGUNGEN BESTÄTIGEN</b>
-            <label><input id="giveawayTikTokFollow" type="checkbox" required><span>Ich bestätige, dass ich Chevalier & Roth auf TikTok folge.</span></label>
-            <label><input id="giveawayInstagramFollow" type="checkbox" required><span>Ich bestätige, dass ich Chevalier & Roth auf Instagram folge.</span></label>
+        <div id="giveawayPrizeGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0;"></div>
+        <form class="giveaway-form form-grid" onsubmit="event.preventDefault();submitGiveawayEntry()">
+          <label class="field"><span>Vorname</span><input id="giveawayFirstName" required></label>
+          <label class="field"><span>Nachname</span><input id="giveawayLastName" required></label>
+          <label class="field full"><span>E-Mail</span><input id="giveawayEmail" type="email" required></label>
+          <div class="full" style="background:#fff;border:1px solid var(--cr-line);padding:16px;margin:10px 0">
+            <b style="font-size:10px;letter-spacing:0.2em;color:var(--cr-gold-dark);display:block;margin-bottom:8px">TEILNAHMEVORAUSSETZUNG</b>
+            <label style="display:flex;gap:10px;align-items:center;font-size:12px;margin-bottom:6px">
+              <input type="checkbox" id="giveawayTikTokFollow" required> Ich folge Chevalier & Roth auf TikTok.
+            </label>
+            <label style="display:flex;gap:10px;align-items:center;font-size:12px">
+              <input type="checkbox" id="giveawayInstagramFollow" required> Ich folge Chevalier & Roth auf Instagram.
+            </label>
           </div>
-          <label class="giveaway-consent full"><input id="giveawayConsent" type="checkbox" required><span>Ich stimme der Speicherung meiner Angaben für die Durchführung des Gewinnspiels zu und akzeptiere die <a href="giveaway-rules.html" target="_blank">Teilnahmehinweise</a> sowie die <a href="datenschutz.html" target="_blank">Datenschutzhinweise</a>.</span></label>
-          <div class="full"><button class="btn giveaway-submit" id="giveawaySubmitBtn">TEILNAHME ABSENDEN</button><div id="giveawayMsg" class="giveaway-msg"></div></div>
+          <label class="full" style="display:flex;gap:10px;font-size:11px;color:var(--cr-ink-secondary)">
+            <input type="checkbox" id="giveawayConsent" required>
+            <span>Ich stimme der Speicherung meiner Daten zur Durchführung des Gewinnspiels gemäß der <a href="datenschutz.html" target="_blank" style="text-decoration:underline">Datenschutzerklärung</a> zu.</span>
+          </label>
+          <div class="full">
+            <button class="btn" id="giveawaySubmitBtn" style="width:100%;margin-top:12px">TEILNAHME BESTÄTIGEN</button>
+            <div id="giveawayMsg" style="text-align:center;font-size:12px;margin-top:12px"></div>
+          </div>
         </form>
       </div>
     </div>
-
-    <button class="giveaway-fab" id="giveawayFab" onclick="openGiveawayIntro(true)" aria-label="Gewinnspiel öffnen"><span>CR</span><b>GIVEAWAY</b></button>
+    <button class="giveaway-fab" id="giveawayFab" onclick="openGiveawayIntro(true)" aria-label="Gewinnspiel öffnen">
+      <span>CR</span><b>GIVEAWAY</b>
+    </button>
   `);
-  applyGiveawaySocialLinks();
 }
 
-function applyGiveawaySocialLinks(){
-  const tiktok=window.CRSiteConfig?.tiktokUrl||'';
-  const instagram=window.CRSiteConfig?.instagramUrl||'';
-  document.querySelectorAll('[data-giveaway-social="tiktok"]').forEach(a=>a.href=tiktok||'https://www.tiktok.com/');
-  document.querySelectorAll('[data-giveaway-social="instagram"]').forEach(a=>a.href=instagram||'https://www.instagram.com/');
-}
-
-function openGiveawayIntro(force=false){
+function openGiveawayIntro(force = false) {
   ensureGiveawayUI();
-  if(!giveawayIsOpen())return;
-  if(!force && sessionStorage.getItem('cr_giveaway_intro_seen')==='1')return;
+  if (!giveawayIsOpen()) return;
+  if (!force && sessionStorage.getItem('cr_giveaway_intro_seen') === '1') return;
   document.getElementById('giveawayIntro')?.classList.add('open');
-  if(!force)sessionStorage.setItem('cr_giveaway_intro_seen','1');
+  if (!force) sessionStorage.setItem('cr_giveaway_intro_seen', '1');
 }
-function closeGiveawayIntro(){document.getElementById('giveawayIntro')?.classList.remove('open')}
-function closeGiveawayEntry(){document.getElementById('giveawayEntry')?.classList.remove('open')}
 
-async function openGiveawayEntry(){
+function closeGiveawayIntro() { document.getElementById('giveawayIntro')?.classList.remove('open'); }
+function closeGiveawayEntry() { document.getElementById('giveawayEntry')?.classList.remove('open'); }
+
+function openGiveawayEntry() {
   closeGiveawayIntro();
   ensureGiveawayUI();
-  if(!giveawayIsOpen())return;
+  if (!giveawayIsOpen()) return;
   document.getElementById('giveawayEntry')?.classList.add('open');
-  _giveawayPrizeId='';
-  const msg=document.getElementById('giveawayMsg');if(msg)msg.textContent='';
-  renderGiveawayPrizes();
-  try{
-    if(window.CRCommerce){await CRCommerce.syncProducts();renderGiveawayPrizes()}
-  }catch(e){console.warn(e)}
-  // Giveaway fields must never be prefilled from the logged-in admin/customer account.
-  // Every participant starts with a clean form.
-  ['giveawayFirstName','giveawayLastName','giveawayEmail'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){el.value='';el.setAttribute('autocomplete','off');}
-  });
-  ['giveawayTikTokFollow','giveawayInstagramFollow','giveawayConsent'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.checked=false;
-  });
-}
-
-function giveawayDesigns(){
-  const live=CRStore.products();
-  const defaults=CRStore.defaultProducts();
-  const merged=[];
-  for(let i=1;i<=3;i++){
-    const id='p'+i;
-    const found=live.find(p=>p.id===id)||defaults.find(p=>p.id===id);
-    if(found)merged.push(found);
-  }
-  return merged;
-}
-
-function renderGiveawayPrizes(){
-  const grid=document.getElementById('giveawayPrizeGrid');if(!grid)return;
-  const products=giveawayDesigns();
-  grid.innerHTML=products.length?products.map(p=>{
-    const _cands=CRStore.productImageCandidatesForColor(p,'Beige/Braun');
-    const img=_cands[0]||'';
-    const fallbacks=CRStore.esc(encodeURIComponent(JSON.stringify(_cands.slice(1))));
-    return `<button type="button" class="giveaway-prize ${_giveawayPrizeId===p.id?'selected':''}" onclick="selectGiveawayPrize('${CRStore.esc(p.id)}')">
-      <div class="giveaway-prize-media">${img?`<img src="${CRStore.esc(img)}" data-cr-fallbacks="${fallbacks}" alt="${CRStore.esc(p.name)}" onerror="if(!CRStore.tryNextImage(this)){this.style.display='none'}">`:'<div class="giveaway-prize-placeholder">CR</div>'}<span>SELECT</span></div>
-      <div class="giveaway-prize-copy"><b>${CRStore.esc(p.name)}</b><small>${CRStore.esc(p.category||'')}</small></div>
-    </button>`;
-  }).join(''):'<div class="giveaway-empty">Die Gewinn-Auswahl wird gerade vorbereitet.</div>';
-}
-
-function selectGiveawayPrize(id){
-  _giveawayPrizeId=id;
   renderGiveawayPrizes();
 }
 
-async function submitGiveawayEntry(){
-  const msg=document.getElementById('giveawayMsg');
-  const btn=document.getElementById('giveawaySubmitBtn');
-  if(!giveawayIsOpen()){if(msg)msg.textContent='Das Gewinnspiel ist bereits beendet.';return}
+function renderGiveawayPrizes() {
+  const grid = document.getElementById('giveawayPrizeGrid');
+  if (!grid) return;
+  const products = CRStore.products().slice(0, 3);
+  grid.innerHTML = products.map(p => {
+    const _cands = CRStore.productImageCandidatesForColor(p, 'Beige/Braun');
+    const img = _cands[0] || '';
+    return `
+      <div style="border:1px solid ${_giveawayPrizeId === p.id ? 'var(--cr-gold)' : 'var(--cr-line)'};background:#fff;padding:12px;cursor:pointer;text-align:center" onclick="selectGiveawayPrize('${p.id}')">
+        <div style="aspect-ratio:3/4;overflow:hidden;background:var(--cr-parchment);margin-bottom:8px">
+          ${img ? `<img src="${img}" style="width:100%;height:100%;object-fit:cover" alt="${p.name}">` : ''}
+        </div>
+        <b style="font-family:'Playfair Display',serif;font-size:14px;display:block">${p.name}</b>
+        <span style="font-size:9px;color:var(--cr-gold-dark);letter-spacing:0.16em">${_giveawayPrizeId === p.id ? '✓ AUSGEWÄHLT' : 'AUSWÄHLEN'}</span>
+      </div>
+    `;
+  }).join('');
+}
 
-  const prize=giveawayDesigns().find(p=>p.id===_giveawayPrizeId);
-  if(!prize){if(msg)msg.textContent='Bitte zuerst einen Gewinn auswählen.';return}
+function selectGiveawayPrize(id) {
+  _giveawayPrizeId = id;
+  renderGiveawayPrizes();
+}
 
-  const tiktokOk=!!document.getElementById('giveawayTikTokFollow')?.checked;
-  const instagramOk=!!document.getElementById('giveawayInstagramFollow')?.checked;
-  const privacyOk=!!document.getElementById('giveawayConsent')?.checked;
-  if(!tiktokOk || !instagramOk){
-    if(msg)msg.textContent='Bitte bestätige zuerst, dass du uns auf TikTok und Instagram folgst.';
+async function submitGiveawayEntry() {
+  const msg = document.getElementById('giveawayMsg');
+  const btn = document.getElementById('giveawaySubmitBtn');
+  if (!_giveawayPrizeId) {
+    msg.textContent = 'Bitte wählen Sie zuerst Ihr gewünschtes Kleidungsstück aus.';
     return;
   }
-  if(!privacyOk){
-    if(msg)msg.textContent='Bitte die Teilnahme- und Datenschutzhinweise akzeptieren.';
-    return;
-  }
-
-  const firstName=String(document.getElementById('giveawayFirstName')?.value||'').trim();
-  const lastName=String(document.getElementById('giveawayLastName')?.value||'').trim();
-  const email=String(document.getElementById('giveawayEmail')?.value||'').trim().toLowerCase();
-
-  if(!firstName || !lastName){if(msg)msg.textContent='Bitte Vor- und Nachname eingeben.';return}
-  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){if(msg)msg.textContent='Bitte eine gültige E-Mail-Adresse eingeben.';return}
-
-  btn.disabled=true;
-  if(msg)msg.textContent='Teilnahme wird in Appwrite gespeichert…';
-
-  try{
-    if(!window.Appwrite || typeof Appwrite.Client!=='function' || typeof Appwrite.TablesDB!=='function'){
-      throw new Error('Appwrite SDK konnte nicht geladen werden. Bitte Seite neu laden.');
-    }
-
-    const endpoint=window.CRSiteConfig?.appwriteEndpoint || 'https://fra.cloud.appwrite.io/v1';
-    const projectId=window.CRSiteConfig?.appwriteProjectId || '6ac779cc001f0d093856';
-    const databaseId=window.CRSiteConfig?.commerceDatabaseId || '6ac7d6740035408079f7';
-    const tableId=window.CRSiteConfig?.giveawayTableId || 'cr_giveaway';
-
-    const client=new Appwrite.Client().setEndpoint(endpoint).setProject(projectId);
-    const tables=new Appwrite.TablesDB(client);
-
-    const row=await Promise.race([
-      tables.createRow({
-        databaseId,
-        tableId,
-        rowId:Appwrite.ID.unique(),
-        data:{
-          firstName:firstName.slice(0,120),
-          lastName:lastName.slice(0,120),
-          email:email.slice(0,320),
-          prizeId:String(prize.id||'').slice(0,255),
-          prizeName:String(prize.name||'').slice(0,255),
-          status:'entered',
-          source:'website-giveaway-2027',
-          privacyAccepted:true
-        }
-      }),
-      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Appwrite antwortet nicht. Bitte erneut versuchen.')),15000))
-    ]);
-
-    localStorage.setItem('cr_giveaway_entered','1');
-    if(row?.$id)localStorage.setItem('cr_giveaway_entry_id',row.$id);
-
-    if(msg)msg.textContent='Erfolgreich in Appwrite gespeichert. Du bist dabei – viel Glück!';
-    document.getElementById('giveawayFirstName').disabled=true;
-    document.getElementById('giveawayLastName').disabled=true;
-    document.getElementById('giveawayEmail').disabled=true;
-    document.getElementById('giveawayConsent').disabled=true;
-    document.getElementById('giveawayTikTokFollow').disabled=true;
-    document.getElementById('giveawayInstagramFollow').disabled=true;
-    setTimeout(()=>closeGiveawayEntry(),1800);
-  }catch(e){
-    console.error('[Giveaway/Appwrite]',e);
-    const code=e?.code??e?.status;
-    let message=e?.message||'Die Teilnahme konnte nicht gespeichert werden.';
-    if(code===404) message='Appwrite findet die Tabelle cr_giveaway nicht.';
-    else if(code===401 || code===403) message='Appwrite blockiert das Speichern. In cr_giveaway muss Any die Berechtigung CREATE haben.';
-    else if(code===400 && /column|attribute|schema/i.test(String(message))) message='Die Tabelle cr_giveaway hat nicht alle benötigten Spalten.';
-    if(msg)msg.textContent=message;
-  }finally{
-    btn.disabled=false;
+  btn.disabled = true;
+  msg.textContent = 'Teilnahme wird gespeichert…';
+  try {
+    const prize = CRStore.products().find(p => p.id === _giveawayPrizeId);
+    await CRCommerce.createGiveawayEntry({
+      firstName: document.getElementById('giveawayFirstName').value.trim(),
+      lastName: document.getElementById('giveawayLastName').value.trim(),
+      email: document.getElementById('giveawayEmail').value.trim(),
+      prizeId: prize.id,
+      prizeName: prize.name,
+      privacyAccepted: document.getElementById('giveawayConsent').checked
+    });
+    msg.textContent = '✓ Vielen Dank! Ihre Teilnahme wurde erfolgreich registriert.';
+    msg.style.color = '#3b7a42';
+    setTimeout(closeGiveawayEntry, 1600);
+  } catch (err) {
+    msg.textContent = err.message || 'Teilnahme fehlgeschlagen.';
+    msg.style.color = '#9a3c3c';
+  } finally {
+    btn.disabled = false;
   }
 }
+
+async function refreshAuthChrome() {
+  if (!window.CRAppwrite) return;
+  const user = await CRAppwrite.currentUser();
+  const a = document.getElementById('accountLink');
+  const d = document.getElementById('drawerAccountLink');
+  const label = user ? (user.name || user.email || 'Account') : 'Account';
+  if (a) a.textContent = label;
+  if (d) d.textContent = user ? `Account (${label})` : 'Account';
+}
+
+// ==========================================
+// 8. LIFECYCLE INITIALIZATION
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  initCRIntroAnimation();
+  header();
+  footer();
+  ensureWaitlistModal();
+  ensureSetUI();
+  ensureGiveawayUI();
+  startLaunchCountdown();
+  updateCartCount();
+  refreshAuthChrome();
+  initScrollAnimations();
+  setTimeout(() => openGiveawayIntro(false), 800);
+});
+
+window.addEventListener('cartchange', updateCartCount);
