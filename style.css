@@ -69,3 +69,4 @@ background:radial-gradient(120% 90% at 50% 0%,#34302a 0%,#1b1a18 55%,#0d0d0d 100
 @keyframes lx-rise{from{opacity:0;transform:translate3d(0,48px,0) scale(.97)}}
 @media(max-width:860px){.lx-world{grid-template-columns:1fr;text-align:center;min-height:0}.lx-world-copy{order:2!important}.lx-world .lx-actions{justify-content:center}.lx-stage img{max-height:68svh}.lx-hero{min-height:calc(100svh - 120px)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.lx-mark img{clip-path:none;opacity:1;transform:none}}
+
