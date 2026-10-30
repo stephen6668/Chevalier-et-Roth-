@@ -170,3 +170,26 @@ body:before{content:"";position:fixed;z-index:10000;left:0;top:0;width:100%;heig
 @keyframes cr-float{0%,100%{transform:translateY(0) rotateY(-3deg)}50%{transform:translateY(-10px) rotateY(3deg)}}
 @media(hover:none){.card:hover{transform:none;box-shadow:none}.card:hover .card-media img{transform:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.cr-reveal{opacity:1;transform:none;transition:none}.lx-mark{animation:none}.lx-hero:after,.lx-hero .lx-eyebrow,.lx-hero h1,.lx-hero p,.lx-hero .lx-actions{animation:none}}
+
+/* Pure CSS / typography brand animation — no logo image assets. */
+.cr-intro{gap:0;overflow:hidden}
+.cr-intro-monogram{position:relative;display:flex;align-items:center;justify-content:center;width:min(72vw,440px);height:clamp(150px,28vw,270px);font-family:Georgia,'Times New Roman',serif;font-weight:400;line-height:.8;letter-spacing:-.16em;perspective:900px}
+.cr-letter{display:block;font-size:clamp(112px,22vw,220px);color:#e9dfcd;text-shadow:0 2px 0 #9d875f,0 18px 42px #000b;opacity:0;transform-style:preserve-3d}
+.cr-letter-c{animation:cr-c-emerge 1.05s .18s cubic-bezier(.2,.8,.2,1) forwards}
+.cr-letter-r{margin-left:-.12em;color:#c7ae7e;animation:cr-r-emerge 1.05s .58s cubic-bezier(.2,.8,.2,1) forwards}
+.cr-intro-name{display:flex;align-items:center;gap:clamp(7px,1.4vw,18px);margin-top:16px;letter-spacing:.26em;font-size:clamp(10px,1.3vw,14px);opacity:1;animation:none}
+.cr-name-word,.cr-name-amp{opacity:0;transform:translateY(12px);animation:cr-word-reveal .65s .95s ease forwards}
+.cr-name-amp{color:var(--cr-gold);animation-delay:1.2s}
+.cr-name-word:last-child{animation-delay:1.42s}
+.cr-intro-line{margin-top:22px}
+.cr-intro-caption{margin-top:16px;font:10px/1 Arial,sans-serif;letter-spacing:.34em;color:#bba77f;opacity:0;animation:cr-word-reveal .8s 1.8s ease forwards}
+@keyframes cr-c-emerge{0%{opacity:0;transform:translate3d(-70px,24px,-120px) rotateY(-42deg) scale(.72);filter:blur(9px)}70%{opacity:1;transform:translate3d(4px,-3px,18px) rotateY(7deg) scale(1.04);filter:blur(0)}100%{opacity:1;transform:none;filter:drop-shadow(0 0 22px #c9ad7540)}}
+@keyframes cr-r-emerge{0%{opacity:0;transform:translate3d(70px,-18px,-150px) rotateY(48deg) scale(.72);filter:blur(10px)}70%{opacity:1;transform:translate3d(-3px,2px,20px) rotateY(-7deg) scale(1.04);filter:blur(0)}100%{opacity:1;transform:none;filter:drop-shadow(0 0 22px #c9ad7540)}}
+@keyframes cr-word-reveal{to{opacity:1;transform:translateY(0)}}
+.lx-type-monogram{display:flex;align-items:center;justify-content:center;gap:0;font-family:Georgia,'Times New Roman',serif;font-size:clamp(112px,20vw,250px);font-weight:400;letter-spacing:-.17em;line-height:.9;color:#d4c19a;text-shadow:1px 1px 0 #8d754c,3px 4px 0 #4b3d29,0 24px 30px #0009;user-select:none}
+.lx-type-monogram span:first-child{transform:translateX(.04em)}
+.lx-type-monogram span:last-child{color:#f1e7d5;transform:translateX(-.03em)}
+.lx-hero-emblem.lx-type-monogram{width:clamp(110px,18vw,210px);height:auto;margin:0 auto 22px;font-size:clamp(92px,15vw,180px)}
+.lx-mark.lx-type-monogram{min-height:260px;animation:cr-float 7s ease-in-out infinite}
+@media(max-width:600px){.cr-intro-name{gap:7px;letter-spacing:.18em}.cr-intro-monogram{height:155px}.lx-type-monogram{font-size:clamp(100px,32vw,180px)}}
+@media(prefers-reduced-motion:reduce){.cr-letter,.cr-name-word,.cr-name-amp,.cr-intro-caption{animation:none;opacity:1;transform:none;filter:none}}
