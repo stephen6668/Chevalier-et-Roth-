@@ -1,9 +1,111 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Chevalier & Roth – refined European fashion designed in Luxembourg and produced in Italy."><title>Maison de Mode · Chevalier & Roth</title><link rel="stylesheet" href="style.css"><script src="site-config.js"></script><script src="store.js"></script><script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script><script src="appwrite-auth.js?v=20261012-giveaway-direct5"></script><script src="commerce.js?v=20261012-giveaway-direct5"></script><script src="app.js?v=20261012-giveaway-cleanform7" defer></script><script src="giveaway-direct-v6.js?v=1" defer></script></head><body>
-<main>
-<section class="hero"><div class="hero-copy"><div class="eyebrow">LUXEMBOURG · ITALY</div><h1>CHEVALIER<br>& ROTH</h1><p><em>Timeless Elegance. Modern Heritage.</em></p><p>Refined menswear and womenswear designed in Luxembourg and produced in Italy, with clean proportions, understated colours and a focus on comfort without compromising elegance.</p><div><a class="btn" href="shop.html">DISCOVER THE COLLECTION</a></div></div><div class="hero-media"></div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">NEW ARRIVALS</div><h2>New pieces.</h2></div><a href="shop.html">VIEW ALL →</a></div><div class="grid" id="featured"></div></section>
-<section class="section"><div class="story"><div class="story-art">C&R</div><div><div class="eyebrow">OUR STORY</div><h2>Luxembourg roots.<br>Italian production.</h2><p>Founded in Luxembourg in 2026, Chevalier & Roth brings together European tailoring influences, restrained design and everyday comfort. The collection is developed in Luxembourg and produced in Italy with a focus on timeless pieces rather than short-lived trends.</p><a class="btn light" href="about.html">READ OUR STORY</a></div></div></section>
-</main>
-<section class="newsletter"><div class="eyebrow" style="color:#aaa">PRIVATE LIST</div><h2>Join the Maison.</h2><p>Receive early access to collection launches, private previews and selected Chevalier & Roth updates.</p><form onsubmit="event.preventDefault();alert('Newsletter backend can be connected later.')"><input type="email" required placeholder="Email address"><button class="btn">SUBSCRIBE</button></form></section>
-<script>document.addEventListener('DOMContentLoaded',()=>renderProducts('#featured',null,4))</script>
-</body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Chevalier & Roth – Zeitlose europäische Haute Couture. Entwickelt in Luxemburg, gefertigt in italienischen Ateliers.">
+  <title>Maison Chevalier & Roth · Haute Couture Européenne</title>
+  
+  <link rel="stylesheet" href="style.css">
+  <script src="site-config.js"></script>
+  <script src="store.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
+  <script src="appwrite-auth.js"></script>
+  <script src="commerce.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+  <!-- 1. HERO SECTION -->
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">PREMIÈRE COLLECTION · 2027</span>
+      <h1>Form Follows<br>Refinement.</h1>
+      <div class="hero-subtitle">Luxemburger Vision. Italienische Perfektion.</div>
+      <p>
+        Gegründet in Luxemburg mit dem Anspruch absoluter Schlichtheit. Chevalier & Roth vereint reduzierte architektonische Schnitte mit meisterhafter italienischer Textilverarbeitung.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="shop.html">DIE KOLLEKTION ENTDECKEN</a>
+        <button type="button" class="btn light" onclick="openGiveawayIntro(true)">GIVEAWAY ÖFFNEN</button>
+      </div>
+    </div>
+    <div class="hero-media">
+      <div class="hero-badge-overlay">
+        <small>HANDCRAFTED IN LOMBARDY</small>
+        <strong>100% Feinste Merinowolle & Mailänder Kaschmir-Haptik.</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. MAISON PHILOSOPHY -->
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">DIE PHILOSOPHIE</span>
+        <h2>Ikonische Essentials.</h2>
+      </div>
+      <a href="shop.html" class="btn light" style="border:0">ALLE ANSEHEN →</a>
+    </div>
+    
+    <!-- Dynamic Product Showcase Grid -->
+    <div class="grid" id="featured"></div>
+  </section>
+
+  <!-- 3. BRAND PILLARS STORY -->
+  <section class="story-wrapper">
+    <div class="story-inner">
+      <div class="story-copy">
+        <span class="eyebrow" style="color:var(--cr-gold)">HERKUNFT & HANDWERK</span>
+        <h2>Keine Trends.<br>Nur Haltung.</h2>
+        <p>
+          Während schnelllebige Modezyklen die Textilindustrie dominieren, besinnt sich Chevalier & Roth auf die Tradition europäischer Luxusmanufakturen. Jede Silhouette entsteht am Reißbrett in Luxemburg und wird in Norditalien mit höchster Stichdichte maßgeschneidert.
+        </p>
+        <div class="story-pillars">
+          <div class="pillar-box">
+            <b>Luxembourg Design</b>
+            <span>Reduzierte Konturen, kompromissloser Tragekomfort und präzise Proportionen für Damen und Herren.</span>
+          </div>
+          <div class="pillar-box">
+            <b>Italian Atelier</b>
+            <span>Strenge Selektion natürlicher Garne und traditionelle italienische Konfektionierung.</span>
+          </div>
+        </div>
+      </div>
+      <div class="story-art">
+        <div class="story-art-frame"></div>
+        <div class="story-art-monogram">CR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. ENSEMBLE SHOWCASE (COMPLETE THE LOOK) -->
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">HARMONISCHE KOMPOSITION</span>
+        <h2>The Iconic Sets.</h2>
+      </div>
+    </div>
+    <div class="set-shop-grid" id="setShopGrid"></div>
+  </section>
+
+  <!-- 5. PRIVATE SALON NEWSLETTER -->
+  <section class="newsletter">
+    <span class="eyebrow" style="color:var(--cr-gold-light)">EXKLUSIVE VORZÜGE</span>
+    <h2>Treten Sie der Maison bei.</h2>
+    <p>Erhalten Sie vorab privaten Zugang zur Kollektionsfreigabe am 02.01.2027 sowie persönliche Einladungen zu Concierge-Präsentationen.</p>
+    <form onsubmit="event.preventDefault();alert('Vielen Dank für Ihr Interesse. Die Registrierung wurde vorgemerkt.');this.reset();">
+      <input type="email" placeholder="Ihre E-Mail-Adresse" required>
+      <button class="btn" style="background:var(--cr-gold);color:var(--cr-obsidian)">BEITRETEN</button>
+    </form>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProducts('#featured', null, 3);
+      renderSetCards('#setShopGrid');
+    });
+  </script>
+</body>
+</html>
