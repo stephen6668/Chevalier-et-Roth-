@@ -16,7 +16,7 @@ function lxWorlds(){
     const c=CRStore.productImageCandidatesForColor(p,'Beige/Braun'),href='product.html?id='+encodeURIComponent(p.id);
     return `<section class="lx-world ${LX_THEMES[i%3]} ${i%2?'flip':''}"><div class="lx-world-copy"><div class="lx-eyebrow">${e(p.category)} · ${String(i+1).padStart(2,'0')}</div><h2>${e(p.name)}</h2><p class="lx-price">${CRStore.money(CRStore.price(p))} <small>+ ${CRStore.vatPercent()}% VAT</small></p><div class="lx-actions"><a class="btn" href="${href}">View piece</a><button class="btn ghost" onclick="openWaitlist('${e(p.id)}')">Join waitlist</button></div></div><a class="lx-stage" href="${href}" aria-label="${e(p.name)}">${c[0]?`<img src="${e(c[0])}" data-cr-fallbacks="${e(encodeURIComponent(JSON.stringify(c.slice(1))))}" alt="${e(p.name)}" loading="${i?'lazy':'eager'}" decoding="async" onerror="CRStore.tryNextImage(this)||(this.style.display='none')">`:''}</a></section>`}).join('');
 }
-document.addEventListener('DOMContentLoaded',()=>{lxWorlds();renderSetCards('#setHome');addEventListener('crcatalogsync',lxWorlds);if(window.CRCommerce)CRCommerce.syncProducts()});
+document.addEventListener('DOMContentLoaded',()=>{lxWorlds();renderSetCards('#setHome');const setGrid=document.querySelector('#setHome');if(setGrid&&!setGrid.children.length)setGrid.closest('.section')?.remove();addEventListener('crcatalogsync',()=>{lxWorlds();renderSetCards('#setHome');if(setGrid&&!setGrid.children.length)setGrid.closest('.section')?.remove()});if(window.CRCommerce)CRCommerce.syncProducts()});
 </script>
 </body>
 </html>
