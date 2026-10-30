@@ -8,7 +8,9 @@
 <section class="section"><div class="story"><div class="story-art">C&amp;R</div><div><div class="eyebrow">OUR STORY</div><h2>Luxembourg roots.<br>Italian production.</h2><p>Founded in Luxembourg in 2026, Chevalier & Roth brings together European tailoring influences, restrained design and everyday comfort. The collection is developed in Luxembourg and produced in Italy with a focus on timeless pieces rather than short-lived trends.</p><a class="btn light" href="about.html">READ OUR STORY</a></div></div></section>
 </main>
 <section class="newsletter"><div class="eyebrow" style="color:#aaa">PRIVATE LIST</div><h2>Join the Maison.</h2><p>Receive early access to collection launches, private previews and selected Chevalier & Roth updates.</p><form onsubmit="event.preventDefault();alert('Newsletter backend can be connected later.')"><input type="email" required placeholder="Email address" aria-label="Email address"><button class="btn">SUBSCRIBE</button></form></section>
+<footer class="cr-legal-footer"><div class="cr-footer-top"><div><div class="cr-footer-brand">CHEVALIER <span>&amp;</span> ROTH</div><p>Designed in Luxembourg. Produced in Italy.</p></div><div class="cr-footer-links" aria-label="Rechtliche Informationen"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="agb.html">AGB</a><a href="contact.html">Kontakt</a></div></div><div class="cr-footer-bottom"><span>© <span id="crFooterYear">2026</span> Chevalier &amp; Roth</span><span>Luxembourg · Italy</span></div></footer>
 <script>
+document.getElementById('crFooterYear').textContent=new Date().getFullYear();
 const LX_THEMES=['dark','ivory','champ'];
 function lxWorlds(){
   const ps=CRStore.products().filter(p=>p.active),e=CRStore.esc;
