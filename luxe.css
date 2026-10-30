@@ -193,3 +193,32 @@ body:before{content:"";position:fixed;z-index:10000;left:0;top:0;width:100%;heig
 .lx-mark.lx-type-monogram{min-height:260px;animation:cr-float 7s ease-in-out infinite}
 @media(max-width:600px){.cr-intro-name{gap:7px;letter-spacing:.18em}.cr-intro-monogram{height:155px}.lx-type-monogram{font-size:clamp(100px,32vw,180px)}}
 @media(prefers-reduced-motion:reduce){.cr-letter,.cr-name-word,.cr-name-amp,.cr-intro-caption{animation:none;opacity:1;transform:none;filter:none}}
+
+/* Editorial story panel + tighter mobile rhythm */
+.story{display:grid;grid-template-columns:minmax(240px,.9fr) minmax(0,1.1fr);align-items:stretch;gap:0;overflow:hidden;border:1px solid #d9cfbf;border-radius:24px;background:#fffdf8;box-shadow:0 24px 70px #241d110d}
+.story-art{position:relative;display:grid;place-items:center;align-self:stretch;min-height:440px;width:100%;overflow:hidden;border-radius:0;background:radial-gradient(ellipse at 50% 40%,#514633 0%,#28241e 44%,#100f0d 100%);color:#e2d2b2;font-family:Georgia,'Times New Roman',serif;font-size:clamp(100px,15vw,190px);letter-spacing:-.12em;line-height:1;text-shadow:0 12px 38px #0009}
+.story-art:before,.story-art:after{content:"";position:absolute;pointer-events:none}
+.story-art:before{inset:22px;border:1px solid #c7ad754d}
+.story-art:after{width:65%;height:1px;bottom:22%;background:linear-gradient(90deg,transparent,#c7ad75,transparent)}
+.story>div:last-child{padding:clamp(28px,5vw,70px);align-self:center}
+.story>div:last-child>.eyebrow{letter-spacing:.28em;color:#92784d}
+.story h2{font-family:var(--serif,Georgia,serif);font-size:clamp(34px,4.5vw,58px);font-weight:400;line-height:1.08;letter-spacing:-.035em;margin:18px 0}
+.story p{max-width:58ch;color:#625b50;line-height:1.75;font-size:clamp(15px,1.3vw,17px)}
+.story .btn{margin-top:14px;text-decoration:none}
+.set-shop-grid:empty{display:none}
+.section:has(>.section-head>#setHome),.section:has(>.section-head + #setHome){padding-bottom:clamp(24px,4vw,50px)}
+@media(max-width:680px){
+ .story{grid-template-columns:minmax(0,1fr);border-radius:18px}
+ .story-art{min-height:clamp(230px,65vw,330px);font-size:clamp(116px,32vw,190px)}
+ .story>div:last-child{padding:28px 22px 30px}
+ .story h2{font-size:clamp(34px,9vw,46px);margin:14px 0}
+ .story p{font-size:15px;line-height:1.7}
+ .story .btn{width:100%;justify-content:center;min-height:52px}
+ .section{padding-block:clamp(42px,11vw,66px)}
+ .section-head{gap:18px;align-items:flex-end}
+ .section-head h2{font-size:clamp(34px,9vw,46px);line-height:1.04}
+ .section-head>a{white-space:nowrap;font-size:12px}
+ .newsletter{margin-top:10px;padding:72px 20px 80px}
+ .newsletter h2{font-size:clamp(40px,11vw,56px);line-height:1.02}
+ .newsletter p{max-width:34ch;margin:16px auto 24px;line-height:1.65}
+}
