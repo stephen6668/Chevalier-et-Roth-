@@ -255,3 +255,24 @@ body.cr-menu-open{overflow:hidden}
 .cr-legal-footer{padding-bottom:max(28px,env(safe-area-inset-bottom))}
 body:has(>.cr-legal-footer){background:#100f0d}
 @media(prefers-reduced-motion:reduce){.cr-menu-panel,.cr-menu-toggle span{transition:none}}
+
+/* Fallback menu is real HTML: visible even if JS fails or is cached. */
+html{background-color:#100f0d!important}
+body{margin:0}
+body:has(.cr-legal-footer){background:linear-gradient(to bottom,#f5f1e9 0%,#f5f1e9 55%,#100f0d 55%,#100f0d 100%)}
+.cr-static-nav{position:fixed;z-index:9700;top:0;left:0;right:0;color:#f5f0e8;background:#100f0df5;border-bottom:1px solid #bda47780;box-shadow:0 6px 24px #0002}
+.cr-static-nav summary{height:64px;padding:0 20px;display:flex;justify-content:space-between;align-items:center;list-style:none;cursor:pointer}
+.cr-static-nav summary::-webkit-details-marker{display:none}
+.cr-static-logo{font:26px Georgia,serif;letter-spacing:.08em}.cr-static-logo span{color:#bda477}
+.cr-static-hamburger{width:45px;height:42px;border:1px solid #bda4778a;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.cr-static-hamburger i{display:block;width:21px;height:2px;background:#f5f0e8;transition:transform .25s,opacity .25s}
+.cr-static-nav[open] .cr-static-hamburger i:first-child{transform:translateY(7px) rotate(45deg)}
+.cr-static-nav[open] .cr-static-hamburger i:nth-child(2){opacity:0}
+.cr-static-nav[open] .cr-static-hamburger i:last-child{transform:translateY(-7px) rotate(-45deg)}
+.cr-static-nav nav{max-height:calc(100dvh - 64px);overflow:auto;display:flex;flex-direction:column;padding:20px 26px 32px;background:#14120f}
+.cr-static-nav nav>a{color:#f4eee3;text-decoration:none;font:clamp(23px,5vw,32px) Georgia,serif;padding:14px 0;border-bottom:1px solid #ffffff24}
+.cr-static-legal{display:flex;flex-wrap:wrap;gap:20px;margin-top:28px}.cr-static-legal a{color:#c9b99d;font-size:13px;text-decoration:none}
+body:has(.cr-static-nav)>.cr-site-nav{display:none!important}
+body:has(.cr-static-nav){padding-top:64px}
+.cr-legal-footer{background:#100f0d!important}
+@media(prefers-reduced-motion:reduce){.cr-static-hamburger i{transition:none}}
