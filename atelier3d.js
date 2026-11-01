@@ -1,3 +1,5 @@
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
+import { STLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/STLLoader.js';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
 const box=document.getElementById('viewer'),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.1,100);camera.position.set(0,.2,9.4);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;box.prepend(renderer.domElement);
@@ -47,3 +49,10 @@ function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;ca
 new ResizeObserver(resize).observe(box);
 function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);if(!reduced)theta+=dt*.30;garment.rotation.y=theta;garment.rotation.x=.035;camera.position.z=9.4;renderer.render(scene,camera)}
 resize();frame();
+
+const originalFabric=new THREE.MeshStandardMaterial({color:0xc7ad8b,roughness:.94,metalness:0,side:THREE.DoubleSide});
+function showOriginal(object){garment.clear();const pivot=new THREE.Group();garment.add(pivot);pivot.add(object);object.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(object);const size=bounds.getSize(new THREE.Vector3());const max=Math.max(size.x,size.y,size.z)||1;object.scale.multiplyScalar(3.25/max);object.updateMatrixWorld(true);const center=new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());object.position.sub(center);const badge=document.querySelector('.badge');if(badge)badge.textContent='ORIGINAL-3D-MESH · AUTO-ROTATION';}
+function parseModel(file,buffer){const name=file.name.toLowerCase();if(name.endsWith('.stl')){const geometry=new STLLoader().parse(buffer);geometry.computeVertexNormals();const obj=new THREE.Mesh(geometry,originalFabric);obj.rotation.x=-Math.PI/2;showOriginal(obj);}else{new GLTFLoader().parse(buffer,'',g=>{g.scene.traverse(o=>{if(o.isMesh){o.material=originalFabric}});showOriginal(g.scene)},e=>{console.error(e);alert('Das Modell konnte nicht geladen werden.')})}}
+const upload=document.getElementById('crModelUpload');upload?.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{parseModel(file,await file.arrayBuffer())}catch(error){console.error(error);alert('Datei konnte nicht geöffnet werden.')}}); 
+// Once the converted model is uploaded to /models/halfzip.glb on GitHub, it loads for all visitors.
+fetch('models/halfzip.glb',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Not published yet');return r.arrayBuffer()}).then(buffer=>parseModel({name:'halfzip.glb'},buffer)).catch(()=>{const badge=document.querySelector('.badge');if(badge)badge.textContent='MODELL HOCHLADEN, UM ORIGINAL ANZUZEIGEN';});
