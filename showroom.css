@@ -1,23 +1,34 @@
-#crExperience .cr-3d-showcase{height:100svh;min-height:620px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#53627c 0%,#273246 32%,#101725 67%,#090e18 100%);color:#fff}
-#crExperience .cr-3d-showcase:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-radial-gradient(ellipse at 50% 115%,transparent 0 28px,#b4c2d20b 29px 30px),linear-gradient(90deg,#05080d85,transparent 35%,transparent 65%,#05080d85);opacity:.7}
-#crExperience .cr-3d-showcase:after{content:"";position:absolute;left:15%;right:15%;bottom:5%;height:18%;background:radial-gradient(ellipse,#080c16aa,transparent 65%);filter:blur(24px);pointer-events:none}
-#crExperience .cr-3d-top{position:absolute;top:30px;left:5%;right:5%;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:15px}
-#crExperience .cr-3d-brand{font:600 clamp(16px,2vw,25px) Georgia,serif;letter-spacing:.22em;text-align:center;color:#fff}
-#crExperience .cr-3d-top a{font:10px Arial,sans-serif;letter-spacing:.22em;text-decoration:none;color:#e2e8f2}
-#crExperience .cr-3d-eyebrow{position:absolute;left:6%;top:22%;z-index:6;font:10px Arial,sans-serif;letter-spacing:.3em;color:#c8d1df}
-#crExperience .cr-3d-copy{position:absolute;left:6%;bottom:16%;width:min(350px,32%);z-index:6}
-#crExperience .cr-3d-copy h1{font:700 clamp(34px,4.7vw,74px)/.96 Arial,sans-serif;letter-spacing:-.065em;margin:0 0 22px;text-transform:uppercase;color:#fff}
-#crExperience .cr-3d-copy p{font:13px/1.8 Arial,sans-serif;color:#d1d7e2;max-width:280px}
-#crExperience .cr-3d-copy a{display:inline-block;margin-top:18px;border:1px solid #b7c2d1;padding:14px 20px;color:#fff;text-decoration:none;font:10px Arial,sans-serif;letter-spacing:.2em}
-#crExperience #cr3dCanvas{position:absolute;inset:0;z-index:3;width:100%;height:100%;display:block;touch-action:pan-y}
-#crExperience .cr-3d-ghost{position:absolute;top:29%;height:38%;width:21%;z-index:2;opacity:.28;filter:blur(2px) grayscale(.3);object-fit:contain;mix-blend-mode:screen}
-#crExperience .cr-3d-ghost.left{left:3%}#crExperience .cr-3d-ghost.right{right:3%;transform:scaleX(-1)}
-#crExperience .cr-3d-bottom{position:absolute;bottom:5%;left:42%;right:5%;z-index:7;display:flex;align-items:center;justify-content:space-between;gap:20px;font:10px Arial,sans-serif;letter-spacing:.2em;color:#bfc9d8}
-#crExperience .cr-3d-dots{display:flex;gap:14px;align-items:center}
-#crExperience .cr-3d-dots i{width:7px;height:7px;border:1px solid #cad2de;transform:rotate(45deg)}
-#crExperience .cr-3d-dots i:first-child{background:#fff}
-#crExperience .cr-3d-status{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);z-index:5;color:#e9edf3;font:10px Arial,sans-serif;letter-spacing:.22em;text-align:center;pointer-events:none}
-#crExperience .cr-3d-upload{position:absolute;right:5%;top:22%;z-index:7;color:#d6e0ee;font:10px Arial,sans-serif;letter-spacing:.14em;cursor:pointer;border-bottom:1px solid #b4c0d0;padding-bottom:8px}
-#crExperience .cr-3d-upload input{position:absolute;opacity:0;width:1px;height:1px}
-@media(max-width:700px){#crExperience .cr-3d-showcase{min-height:660px}#crExperience .cr-3d-top{top:24px}#crExperience .cr-3d-brand{font-size:16px}#crExperience .cr-3d-eyebrow{top:16%;left:6%}#crExperience .cr-3d-copy{width:88%;left:6%;bottom:13%}#crExperience .cr-3d-copy h1{font-size:38px;max-width:310px}#crExperience .cr-3d-copy p{font-size:11px;max-width:250px}#crExperience .cr-3d-copy a{margin-top:7px}#crExperience .cr-3d-ghost{top:26%;height:27%;width:27%}#crExperience .cr-3d-bottom{left:6%;right:6%;bottom:4%}#crExperience .cr-3d-upload{top:18%}}
-@media(prefers-reduced-motion:reduce){#crExperience .cr-3d-showcase *{animation:none!important}}
+/* Maison Chevalier & Roth — cinematic 3D product selector */
+#crExperience .cr-3d-showcase{--wine:#752638;--champagne:#d6b78b;position:relative;height:100svh;min-height:680px;background:radial-gradient(ellipse at 51% 37%,#663c3a 0%,#352022 31%,#1b1316 66%,#0f0d10 100%);overflow:hidden;color:#f8f0e6;isolation:isolate}
+#crExperience .cr-3d-showcase:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#110b0db8,transparent 34%,transparent 67%,#130b0e8c),radial-gradient(ellipse at 50% 102%,#b5845833,transparent 45%);z-index:1}
+#crExperience .cr-3d-showcase:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;z-index:2;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
+#crExperience .cr-3d-top{position:absolute;top:0;left:0;right:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:32px clamp(22px,5vw,78px)}
+#crExperience .cr-3d-overline,#crExperience .cr-3d-top a{font:10px Arial,sans-serif;letter-spacing:.2em;color:#e2cdb2;text-decoration:none;white-space:nowrap}
+#crExperience .cr-3d-brand{position:absolute;left:50%;transform:translateX(-50%);font:500 clamp(16px,1.7vw,24px) Georgia,serif;letter-spacing:.14em;white-space:nowrap;color:#f8e9d9}
+#crExperience .cr-3d-brand span{color:#d2ae79}
+#crExperience .cr-3d-light{position:absolute;z-index:0;left:50%;top:43%;width:min(58vw,800px);aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(circle,#e5af8150,transparent 66%);filter:blur(35px)}
+#crExperience .cr-3d-eyebrow{position:absolute;left:clamp(24px,6vw,90px);top:22%;z-index:7;font:10px Arial,sans-serif;letter-spacing:.3em;color:#e4c4a0}
+#crExperience .cr-3d-separator{color:#a77d60;margin:0 9px}
+#crExperience #cr3dCanvas{position:absolute;inset:0;z-index:3;width:100%;height:100%;display:block;touch-action:pan-y;transition:opacity .5s ease;pointer-events:none}
+#crExperience .cr-3d-fallback{position:absolute;inset:10% 20% 12%;z-index:3;display:flex;align-items:center;justify-content:center;animation:crFallbackFloat 8s ease-in-out infinite}
+#crExperience .cr-3d-fallback[hidden]{display:none}
+#crExperience .cr-3d-fallback img{height:100%;width:100%;object-fit:contain;filter:drop-shadow(0 32px 35px #0007);mask-image:radial-gradient(ellipse 66% 69% at center,#000 40%,transparent 100%)}
+@keyframes crFallbackFloat{50%{transform:translateY(-12px)}}
+#crExperience .cr-3d-copy{position:absolute;z-index:7;left:clamp(24px,6vw,90px);bottom:16%;width:min(340px,28%);pointer-events:none}
+#crExperience .cr-3d-product-no{font:10px Arial,sans-serif;letter-spacing:.28em;color:#d8b78e;margin-bottom:18px}
+#crExperience .cr-3d-copy h1{font:500 clamp(37px,4.6vw,72px)/.98 Georgia,serif;letter-spacing:-.05em;margin:0 0 18px;color:#fff2e4}
+#crExperience .cr-3d-copy p{font:13px/1.75 Arial,sans-serif;color:#dacbc2;max-width:285px;margin:0}
+#crExperience .cr-3d-copy a{display:inline-flex;align-items:center;gap:24px;pointer-events:auto;margin-top:22px;padding:14px 0;border-bottom:1px solid #d6b78b;font:10px Arial,sans-serif;letter-spacing:.18em;text-decoration:none;color:#f5ddc0}
+#crExperience .cr-3d-switcher{position:absolute;z-index:9;right:clamp(24px,6vw,90px);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:17px}
+#crExperience .cr-3d-switcher button{width:47px;height:47px;border:1px solid #d1b48a99;background:#27191ba8;color:#f3ddc4;font:22px Georgia,serif;cursor:pointer;transition:background .2s,border-color .2s}
+#crExperience .cr-3d-switcher button:hover{background:#753044;border-color:#f2d3a8}
+#crExperience .cr-3d-switcher-label{display:flex;align-items:center;gap:12px;font:10px Arial,sans-serif;letter-spacing:.12em;color:#dfc6a9}
+#crExperience .cr-3d-track{display:block;width:50px;height:1px;background:#b5967666}
+#crExperience .cr-3d-track span{display:block;width:33.333%;height:1px;background:#f6dfbd;transition:width .35s}
+#crExperience .cr-3d-status{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);z-index:6;font:10px Arial,sans-serif;letter-spacing:.22em;color:#e6c6a2;text-align:center}
+#crExperience .cr-3d-status[hidden]{display:none}
+#crExperience .cr-3d-bottom{position:absolute;z-index:8;left:clamp(24px,6vw,90px);right:clamp(24px,6vw,90px);bottom:30px;display:flex;align-items:center;justify-content:space-between;gap:20px;font:9px Arial,sans-serif;letter-spacing:.17em;color:#c3a98d}
+#crExperience .cr-3d-bottom a{color:inherit;text-decoration:none;border-bottom:1px solid #b59470;padding-bottom:6px}
+@media(max-width:950px){#crExperience .cr-3d-overline{display:none}#crExperience .cr-3d-brand{position:static;transform:none}#crExperience .cr-3d-eyebrow{top:15%}#crExperience .cr-3d-copy{width:42%;bottom:17%}#crExperience .cr-3d-switcher{top:auto;bottom:16%;transform:none}#crExperience .cr-3d-bottom span:nth-child(2){display:none}}
+@media(max-width:650px){#crExperience .cr-3d-showcase{min-height:680px}#crExperience .cr-3d-top{padding:24px 20px}#crExperience .cr-3d-brand{font-size:16px}#crExperience .cr-3d-top a{font-size:9px}#crExperience .cr-3d-eyebrow{left:22px;top:14%;font-size:9px}#crExperience #cr3dCanvas{top:5%;height:72%}#crExperience .cr-3d-fallback{inset:13% 7% 27%}#crExperience .cr-3d-copy{left:22px;bottom:13%;width:62%}#crExperience .cr-3d-copy h1{font-size:clamp(33px,8vw,48px);margin-bottom:9px}#crExperience .cr-3d-copy p{font-size:11px;line-height:1.55;max-width:220px}#crExperience .cr-3d-product-no{font-size:9px;margin-bottom:10px}#crExperience .cr-3d-copy a{margin-top:8px;font-size:9px;padding:10px 0}#crExperience .cr-3d-switcher{right:15px;bottom:15%;gap:8px;flex-direction:column}#crExperience .cr-3d-switcher button{width:40px;height:40px}#crExperience .cr-3d-switcher-label{gap:5px;font-size:9px}#crExperience .cr-3d-track{width:22px}#crExperience .cr-3d-bottom{left:22px;right:22px;bottom:24px;font-size:8px}#crExperience .cr-3d-bottom span:first-child{max-width:160px;line-height:1.6}}
+@media(prefers-reduced-motion:reduce){#crExperience .cr-3d-fallback{animation:none}}
