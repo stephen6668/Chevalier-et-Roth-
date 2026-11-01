@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Produkt · Chevalier & Roth</title>
-  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="luxe.css">
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="luxe.css"><link rel="stylesheet" href="maison.css?v=20261101-1">
   <script src="site-config.js"></script>
   <script src="store.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/appwrite@27.0.0"></script>
@@ -32,7 +32,7 @@
 
         <p id="detailDesc" style="margin-bottom:32px"></p>
 
-        <a href="atelier3d.html" style="display:inline-flex;align-items:center;gap:12px;margin:0 0 24px;padding:14px 18px;background:#181511;color:#e5c89a;border-radius:8px;text-decoration:none;font-size:13px;letter-spacing:.08em">✦ HALF-ZIP IN 3D ANSEHEN ↗</a>\n        <!-- Color Swatches -->
+        <a id="crHalfZipAtelierLink" href="atelier3d.html" style="display:none;align-items:center;align-items:center;gap:12px;margin:0 0 24px;padding:14px 18px;background:#181511;color:#e5c89a;border-radius:8px;text-decoration:none;font-size:13px;letter-spacing:.08em">✦ HALF-ZIP IN 3D ANSEHEN ↗</a>\n        <!-- Color Swatches -->
         <div style="border-top:1px solid var(--apple-hairline);padding:24px 0">
           <span class="stage-eyebrow">FARBE WÄHLEN — <span id="selectedColorLabel" style="color:var(--apple-ink)"></span></span>
           <div id="detailColors" style="display:flex;gap:14px;margin-top:12px"></div>
@@ -119,5 +119,5 @@
       }
     }
   </script>
-</body>
+<script>if(new URLSearchParams(location.search).get("id")==="p1")document.getElementById("crHalfZipAtelierLink").style.display="inline-flex";</script></body>
 </html>
