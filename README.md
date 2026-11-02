@@ -1,26 +1,32 @@
-# Chevalier et Roth
+# Chevalier & Roth — L’Édition Bordeaux
 
-Neue responsive Designvorschau in Elfenbein, Gold und Bordeaux. Die Website enthält einen animierten Produktbanner, Scroll- und Textanimationen, drei Farbkonzepte, eine Produktsuche und eine lokale Produktauswahl.
+Responsive Designvorschau in Elfenbein, Gold und Bordeaux. Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — alle in Bordeaux mit goldenen Details, nach den bereitgestellten Produktfotos.
 
-## Vorschau und Entwicklung
-
-Die Website besteht aus statischem HTML, CSS und JavaScript und benötigt keinen Build und keine Abhängigkeiten. Lokal die Website über einen HTTP-Server starten:
+## Lokal starten
 
 ```sh
 python3 -m http.server 8080
 ```
 
-Dann `http://localhost:8080` öffnen. Für GitHub Pages den Branch `main` und das Stammverzeichnis `/ (root)` auswählen, sofern Pages noch nicht eingerichtet ist.
+`http://localhost:8080` öffnen. Kein Build und keine Installation nötig. Für GitHub Pages den Branch `main` und das Stammverzeichnis auswählen.
+
+## Produktansichten
+
+Die drei echten GLB-Modelle unter `assets/models/` lassen sich im Banner und in den Produktkarten drehen. Der lokal gebündelte, unter Apache-2.0 lizenzierte `@google/model-viewer` übernimmt die Darstellung. Der Banner bietet automatische Drehung mit Pause, manuelle Drehung und Rücksetzen. `prefers-reduced-motion` wird berücksichtigt. Freigestellte Produktbilder dienen als Poster und als Rückfallansicht, falls 3D auf dem Gerät nicht verfügbar ist.
+
+Die Modelle sind räumliche **Designstudien nach den Fotos**, keine vermessenen Produktionsmodelle. Insbesondere die Rückseiten und Materialdetails sind gestalterische Annäherungen. Für eine exakte Produktionsdarstellung können die GLBs durch finale Originaldateien ersetzt werden.
 
 ## Dateien
 
-- `index.html`: Startseite, Kollektion und Dialoge
-- `styles.css`: Responsive Gestaltung und Animationen; `prefers-reduced-motion` wird berücksichtigt
-- `app.js`: Farb- und Größenauswahl, Suche, Kollektionfilter und lokale Produktauswahl
-- `assets/`: Optimierte Bilder der neuen Designvorschau
+- `index.html`, `styles.css`: responsive Gestaltung, Logo und Animationen
+- `catalog.js`: Produktnamen, Beschreibungen, Bild- und Modellpfade
+- `app.js`: Produktauswahl, 3D-Steuerung, Filter, Suche und lokale Auswahl
+- `assets/products/`: Bordeaux-Produktbilder
+- `assets/models/`: drei volumetrische 3D-Modelle
+- `vendor/`: lokal gebündelter 3D-Viewer und Lizenz
 
-Die vorhandenen Produktbilder und `Chevalier_Roth_Halfzip_Bordeaux_Gold_Details.glb` wurden beibehalten. Die alten Website- und Commerce-Skripte wurden entfernt. Frühere Versionen bleiben über die Git-Historie abrufbar.
+Die bisherigen Produktbilder sowie `Chevalier_Roth_Halfzip_Bordeaux_Gold_Details.glb` bleiben im Repository erhalten. Der neue Katalog verwendet die drei neuen Bordeaux-Produkte.
 
 ## Status
 
-Designvorschau, kein aktiver Shop. Produkte, Abbildungen und Preise sind vorläufig. Es werden keine Bestellungen oder Zahlungen verarbeitet. Die Auswahl wird lokal im Browser gespeichert. Die Produktdarstellung verwendet aktuell freigestellte Konzeptbilder. Die interaktive 3D-Integration folgt mit der finalen Modellauswahl. Vor einem öffentlichen Shopstart müssen Produktdaten, Rechtstexte und Commerce-Funktionen vervollständigt werden.
+Designvorschau, kein aktiver Shop. Preise sind offen und als „Preis folgt“ gekennzeichnet. Es werden keine Bestellungen oder Zahlungen verarbeitet. Die Auswahl wird lokal im Browser gespeichert. Vor einem öffentlichen Shopstart müssen verbindliche Produktdaten, Preise und Rechtstexte ergänzt werden. Frühere Website-Stände bleiben in der Git-Historie erhalten.

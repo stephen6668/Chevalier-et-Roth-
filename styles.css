@@ -35,3 +35,35 @@
 @media(max-width:800px){.header{height:106px;grid-template-columns:1fr auto 1fr;column-gap:12px}.brand-lockup .brand-cr{width:42px;height:42px;margin:-2px 0 2px}.brand-lockup>.brand-name{font-size:19px;letter-spacing:1.7px}.brand-lockup>.brand-detail{width:110px;height:10px;margin:4px 0 3px;gap:8px}.brand-detail svg{height:10px;width:8px}.brand-lockup>.brand-est{font-size:6px;letter-spacing:2.3px;padding-left:2.3px}.hero{height:750px}.footer-brand.brand-lockup>.brand-name{font-size:20px}.footer-brand.brand-lockup .brand-cr{width:47px;height:47px}.intro-bottom .mini-monogram{width:45px;height:61px}.closing .closing-monogram{width:280px;height:360px;bottom:-90px}}
 @media(max-width:480px){.header{padding:0 4%;column-gap:8px}.brand-lockup>.brand-name{font-size:17px;letter-spacing:1.4px}.brand-lockup .brand-cr{width:40px;height:40px}.brand-lockup>.brand-detail{width:98px}.brand-lockup>.brand-est{font-size:6px}.hero{height:970px}.intro-bottom .mini-monogram{width:36px;height:49px}.editorial-visual .editorial-monogram{width:57px;height:74px}.footer-brand.brand-lockup>.brand-name{font-size:17px;letter-spacing:1.4px}}
 @media(max-width:350px){.header{padding:0 12px;column-gap:5px}.brand-lockup>.brand-name{font-size:15px;letter-spacing:1px}.nav-right{gap:0}.nav-right .icon-btn{min-width:24px}.nav-right .cart-trigger{margin-left:2px}.brand-lockup .brand-cr{width:38px;height:38px}}
+/* Bordeaux collection and interactive garment studies. */
+.product-float.product-float-3d{animation:none;top:25px;left:-9%;width:118%;height:83%;pointer-events:auto;z-index:3}
+model-viewer{display:block;--poster-color:transparent;--progress-bar-color:var(--gold);--progress-mask:transparent;touch-action:pan-y;background:transparent}
+.hero-product-model{width:100%;height:100%;--poster-color:transparent;outline-offset:-12px}
+.model-poster{height:100%;width:100%;object-fit:contain;pointer-events:none;background:transparent}
+.model-progress{position:absolute;bottom:6%;left:35%;right:35%;height:1px;background:#a3824f33;pointer-events:none}
+.model-progress span{display:block;width:var(--progress,0%);height:100%;background:var(--gold);transition:width .2s}
+.is-loaded .model-progress{display:none}.model-state{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:6px;letter-spacing:1px;color:#806a53;z-index:5;pointer-events:none}
+.viewer-controls{position:absolute;bottom:4.3%;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:10px;z-index:6;white-space:nowrap;pointer-events:auto;color:#6f553f}
+.viewer-controls>span{font-family:var(--serif);font-size:20px;text-align:center;line-height:1}
+.viewer-controls small{display:block;font-family:var(--sans);font-size:5px;letter-spacing:1px;margin-top:5px}
+.viewer-controls button{width:28px;height:28px;border:1px solid #a3824f66;border-radius:50%;font-size:18px;display:grid;place-items:center;background:#fff8;transition:background .2s}
+.viewer-controls button:hover{background:#fff}.viewer-controls #rotation-toggle{font-size:10px;margin-left:5px}.viewer-controls #reset-view{font-size:18px}
+.color-fixed{display:inline-block;vertical-align:middle}.color-fixed-label{font-size:8px;letter-spacing:.4px;color:#765b47;margin-left:0}
+.product-switcher{display:flex;align-items:center;gap:13px;margin-top:20px;border-top:1px solid #a3824f44;padding-top:13px}
+.product-switcher button{font-size:7px;padding:0;color:#9b8772;display:flex;flex-direction:column;align-items:flex-start;gap:4px;letter-spacing:.7px}
+.product-switcher button span{font-size:8px;letter-spacing:0}.product-switcher button.active{color:var(--burgundy)}
+.hero-price{font-family:var(--sans);font-size:10px;color:#786550}.hero-price span{display:block;margin:5px 0 0}
+.product-card-3d{display:block;position:relative}.product-card-3d .card-model{width:100%;height:100%;position:absolute;inset:0}
+.card-3d-label{position:absolute;top:19px;right:18px;font-size:13px;font-family:var(--serif);color:#856e50;z-index:4;pointer-events:none}
+.product-card-3d .product-tag{pointer-events:none}.product-card-3d .quick-add{opacity:1;transform:none;left:16px;right:16px;bottom:16px;background:#faf7f0da;border:1px solid #fff6;backdrop-filter:blur(5px)}
+.product-card-3d .quick-add:hover{background:#fff9ef}
+.product-card-info>span{font-size:9px;color:#8a7864}
+.card-color-note{display:flex;align-items:center;gap:7px;color:#8a7762;font-size:8px}
+.card-color-note>i{height:7px;width:7px;background:#651c30;border-radius:50%}.card-color-note>span{margin-left:auto;font-size:6px;letter-spacing:.5px;color:#9e8d7a}
+.collection-footnote span{max-width:550px;margin:6px auto 0;line-height:1.8}
+@media(max-width:1150px){.hero-product-area .product-float.product-float-3d{top:40px;height:78%;left:-12%;width:126%}.viewer-controls{gap:7px}.viewer-controls button{width:25px;height:25px}}
+@media(max-width:800px){.hero-product-area .product-float.product-float-3d{top:70px!important;left:-12%!important;width:115%!important;height:62%!important}.viewer-controls{bottom:24%;left:57%;gap:8px}.model-state{bottom:21%;font-size:5px}.hero-shop .product-switcher{grid-column:1/3;grid-row:5;margin-top:8px;padding-top:10px;justify-content:center;gap:24px}.product-switcher button{flex-direction:row;gap:5px;align-items:center}.hero-shop{padding-top:26px}.hero-shop .hero-price{font-size:9px}.card-3d-label{top:12px;right:12px;font-size:11px}.product-card-3d .quick-add{left:9px;right:9px;bottom:9px}.card-color-note{font-size:7px}.card-color-note>span{font-size:5px}}
+@media(max-width:480px){.hero{height:1060px;min-height:1060px}.hero-product-area{left:5%;width:90%;pointer-events:none}.hero-product-area .product-float.product-float-3d{top:370px!important;left:-1%!important;width:102%!important;height:34%!important;pointer-events:auto}.hero-shop{bottom:64px;padding-top:17px;margin-top:0}.viewer-controls{top:735px;bottom:auto;left:50%;gap:11px}.viewer-controls button{height:26px;width:26px}.model-state{top:775px;bottom:auto;font-size:5px}.hero-shop .preview-note{margin-top:8px}.hero-shop .product-switcher{margin-top:7px;padding-top:8px}.hero-shop .product-switcher button span{font-size:8px}.hero-shop .hero-price{font-size:9px}.color-fixed-label{font-size:7px}.hero-bottom{bottom:20px}.product-card-3d .quick-add{font-size:5.5px;min-height:30px;gap:9px}.card-color-note>span{display:none}.card-3d-label{top:10px;right:8px}.product-tag{max-width:75%;font-size:5px}}
+@media(min-width:801px){.viewer-controls{bottom:9%}.model-state{bottom:5.8%}}
+.viewer-controls button{font-family:Arial,sans-serif}
+.viewer-controls #image-view{font-family:var(--sans);font-size:7px;letter-spacing:.3px;width:31px;border-radius:3px}

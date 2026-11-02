@@ -1,78 +1,70 @@
 'use strict';
 document.documentElement.classList.add('js');
-const $ = (s, parent = document) => parent.querySelector(s);
-const $$ = (s, parent = document) => [...parent.querySelectorAll(s)];
-const colors = {ivory: {name:'Elfenbein', image:'assets/halfzip.webp'}, burgundy: {name:'Bordeaux', image:'assets/halfzip-burgundy.webp'}, noir: {name:'Noir', image:'assets/halfzip-noir.webp'}};
-const validSizes = ['S','M','L','XL'];
-const currency = new Intl.NumberFormat('de-DE', {style:'currency',currency:'EUR'});
-let currentColor = 'ivory', currentSize = 'M', activePanel = null, panelTrigger = null, toastTimer;
-let cart = [];
-try { const stored = JSON.parse(localStorage.getItem('cr-selection-v1') || '[]'); if (Array.isArray(stored)) cart = stored.filter(x => colors[x.color] && validSizes.includes(x.size) && Number.isInteger(x.qty) && x.qty > 0 && x.qty <= 20).slice(0,30); } catch {}
-function scrollBehavior() { return matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'; }
-function restoreCartFocus(index, delta) { const nextIndex = Math.min(index, cart.length-1); const control = nextIndex >= 0 ? $(`[data-index="${nextIndex}"][data-quantity="${delta}"]`) : $('#browse-collection'); control?.focus({preventScroll:true}); }
-function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 3200); }
-function saveCart() { try {localStorage.setItem('cr-selection-v1', JSON.stringify(cart));} catch {} renderCart(); }
-function openPanel(name, trigger) {
-  closePanel(false); const panel = $(`#${name}-panel`); if (!panel) return;
-  activePanel = panel; panelTrigger = trigger || document.activeElement;
-  panel.showModal(); document.body.classList.add('modal-open');
-  if (name === 'search') { renderSearch(''); setTimeout(() => $('#search-input').focus(),80); }
+const $=(s,p=document)=>p.querySelector(s), $$=(s,p=document)=>[...p.querySelectorAll(s)];
+const products=window.CR_PRODUCTS, byId=Object.fromEntries(products.map(p=>[p.id,p]));
+const validSizes=['S','M','L','XL'], reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+let currentProduct='halfzip',currentSize='M',activePanel=null,panelTrigger=null,toastTimer,cart=[];
+try{const saved=JSON.parse(localStorage.getItem('cr-selection-v2')||'[]');if(Array.isArray(saved))cart=saved.filter(x=>byId[x.product]&&validSizes.includes(x.size)&&Number.isInteger(x.qty)&&x.qty>0&&x.qty<=20).slice(0,30);}catch{}
+const scrollBehavior=()=>reducedMotion.matches?'instant':'smooth';
+function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
+function saveCart(){try{localStorage.setItem('cr-selection-v2',JSON.stringify(cart));}catch{}renderCart();}
+function openPanel(name,trigger){closePanel(false);const panel=$(`#${name}-panel`);if(!panel)return;activePanel=panel;panelTrigger=trigger||document.activeElement;panel.showModal();document.body.classList.add('modal-open');if(name==='search'){renderSearch('');setTimeout(()=>$('#search-input').focus(),80);}}
+function closePanel(restore=true){if(!activePanel)return;const panel=activePanel;activePanel=null;panel.close();document.body.classList.remove('modal-open');if(restore&&panelTrigger)panelTrigger.focus({preventScroll:true});}
+$$('[data-panel]').forEach(b=>b.addEventListener('click',()=>openPanel(b.dataset.panel,b)));
+$$('.close-panel').forEach(b=>b.addEventListener('click',()=>closePanel()));
+$$('.side-panel').forEach(panel=>{panel.addEventListener('cancel',e=>{e.preventDefault();closePanel();});panel.addEventListener('click',e=>{if(e.target===panel){const b=panel.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closePanel();}});});
+$$('.menu-links a').forEach(a=>a.addEventListener('click',()=>closePanel(false)));
+function selectProduct(id){
+ const p=byId[id];if(!p)return;currentProduct=id;
+ $('#hero-product-title').innerHTML=`${p.name}<br><em>${p.id==='halfzip'?'Signature':p.id==='body'?'Col V':'Jambe large'}</em>`;
+ $('#image-view').textContent='Bild';$('#image-view').setAttribute('aria-pressed','false');$('#image-view').setAttribute('aria-label','Zum Produktbild wechseln');
+ const model=$('#hero-model'),changed=model.getAttribute('src')!==p.model;model.setAttribute('src',p.model);model.setAttribute('poster',p.image);model.setAttribute('alt',`Drehbarer 3D-Entwurf: ${p.name} in Bordeaux`);$('.model-poster',model).src=p.image;model.setAttribute('camera-orbit','0deg 80deg 105%');model.resetTurntableRotation?.(0);
+ $('#hero-product').dataset.product=id;$('#model-state').textContent='3D-Ansicht wird geladen';$('#hero-product').classList.remove('is-loaded');
+ $$('[data-product],[data-slide]').forEach(b=>{const active=(b.dataset.product||b.dataset.slide)===id;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+ $('.hero-caption>span:first-child').textContent=`${String(products.findIndex(x=>x.id===id)+1).padStart(2,'0')} — 03`;
+ if(!changed&&model.loaded)modelReady();
 }
-function closePanel(restore = true) { if (!activePanel) return; const panel = activePanel; activePanel = null; panel.close(); document.body.classList.remove('modal-open'); if (restore && panelTrigger) panelTrigger.focus({preventScroll:true}); }
-$$('[data-panel]').forEach(btn => btn.addEventListener('click', () => openPanel(btn.dataset.panel, btn)));
-$$('.close-panel').forEach(btn => btn.addEventListener('click', () => closePanel()));
-$$('.side-panel').forEach(panel => {
-  panel.addEventListener('cancel', e => {e.preventDefault(); closePanel();});
-  panel.addEventListener('click', e => { if (e.target === panel) { const b = panel.getBoundingClientRect(); if (e.clientX < b.left || e.clientX > b.right || e.clientY < b.top || e.clientY > b.bottom) closePanel(); }});
-});
-$$('.menu-links a').forEach(a => a.addEventListener('click', () => closePanel(false)));
-function selectColor(color) {
-  if (!colors[color]) return; currentColor = color;
-  $('#color-name').textContent = colors[color].name;
-  const heroImg = $('.hero-product-image'); heroImg.src = colors[color].image; heroImg.alt = `Entwurf Le Signature Half-Zip in ${colors[color].name}`;
-  $$('[data-color]').forEach(btn => {const active = btn.dataset.color === color; btn.classList.toggle('active', active); btn.setAttribute('aria-pressed',String(active));});
-  $$('[data-slide]').forEach(btn => {const active = btn.dataset.slide === color; btn.classList.toggle('active', active); btn.setAttribute('aria-pressed',String(active));});
-  $('.hero-caption>span:first-child').textContent = `${String(Object.keys(colors).indexOf(color)+1).padStart(2,'0')} — 03`;
+function modelReady(){$('#hero-product').classList.add('is-loaded');$('#model-state').textContent='3D-Designstudie · frei drehbar';$('#hero-model').dismissPoster?.();}
+$$('[data-product]').forEach(b=>b.addEventListener('click',()=>selectProduct(b.dataset.product)));
+$$('[data-slide]').forEach(b=>b.addEventListener('click',()=>selectProduct(b.dataset.slide)));
+$$('[data-size]').forEach(b=>b.addEventListener('click',()=>{currentSize=b.dataset.size;$$('[data-size]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});}));
+function addToSelection(id,trigger){const item=cart.find(x=>x.product===id&&x.size===currentSize);if(item){if(item.qty>=20)return toast('Maximal 20 Stück pro Variante.');item.qty++;}else cart.push({product:id,size:currentSize,qty:1});saveCart();openPanel('cart',trigger);}
+$('#hero-add').addEventListener('click',()=>addToSelection(currentProduct,$('#hero-add')));
+function showProduct(id){closePanel(false);selectProduct(id);$('.hero').scrollIntoView({behavior:scrollBehavior(),block:'start'});setTimeout(()=>$('#hero-model').focus({preventScroll:true}),450);}
+function viewerMarkup(p){return `<model-viewer class="card-model" src="${p.model}" poster="${p.image}" alt="Drehbarer 3D-Entwurf ${p.name} in Bordeaux" camera-controls disable-zoom disable-pan interaction-prompt="none" camera-orbit="0deg 80deg 105%" min-camera-orbit="auto 60deg 80%" max-camera-orbit="auto 110deg 150%" field-of-view="30deg" environment-image="neutral" exposure="0.85" shadow-intensity="0.4" loading="lazy"><img slot="poster" class="model-poster" src="${p.image}" alt="${p.name} in Bordeaux"></model-viewer>`;}
+$('#product-grid').innerHTML=products.map((p,i)=>`<article class="product-card reveal" data-product-id="${p.id}" style="--reveal-delay:${i*.1}s"><div class="product-card-image product-card-3d"><span class="product-tag">L’ÉDITION BORDEAUX</span><span class="card-3d-label">360°</span>${viewerMarkup(p)}<button class="quick-add" data-quickview="${p.id}" aria-label="${p.name} im großen 3D-Viewer ansehen">In 3D entdecken <svg><use href="#i-arrow"/></svg></button></div><div class="product-card-info"><div><h3>${p.name}</h3><p>${p.category} · Bordeaux / Gold</p></div><span>Preis folgt</span></div><span class="card-color-note"><i></i> Bordeaux <span>3D-Designstudie</span></span></article>`).join('');
+$$('[data-quickview]').forEach(b=>b.addEventListener('click',()=>showProduct(b.dataset.quickview)));
+$$('[data-filter]').forEach(b=>b.addEventListener('click',()=>{const f=b.dataset.filter;$$('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});$('.product-grid').classList.toggle('filtered',f!=='all');$$('.product-card').forEach(card=>{card.hidden=f!=='all'&&card.dataset.productId!==f;if(!card.hidden)card.classList.add('visible');});}));
+function restoreCartFocus(i,delta){const index=Math.min(i,cart.length-1);const control=index>=0?$(`[data-index="${index}"][data-quantity="${delta}"]`):$('#browse-collection');control?.focus({preventScroll:true});}
+function renderCart(){
+ const count=cart.reduce((sum,x)=>sum+x.qty,0);$('#cart-count').textContent=count;$('#panel-count').textContent=`(${count})`;$('.cart-trigger').setAttribute('aria-label',`Warenkorb öffnen, ${count} Stück`);
+ if(!count){$('#cart-items').innerHTML='<div class="empty-cart"><svg><use href="#i-bag"/></svg><h3>Raum für Ihre Favoriten.</h3><p>Body, Half-Zip und weite Hose. Entdecken Sie die Bordeaux-Edition.</p><button class="button" id="browse-collection">Kollektion entdecken <svg><use href="#i-arrow"/></svg></button></div>';$('#cart-summary').innerHTML='';$('#browse-collection').addEventListener('click',()=>{closePanel(false);$('#collection').scrollIntoView({behavior:scrollBehavior()});});return;}
+ $('#cart-items').innerHTML=cart.map((item,index)=>{const p=byId[item.product];return `<article class="cart-item"><div class="cart-item-image"><img src="${p.image}" alt="${p.name} in Bordeaux"></div><div><h3>${p.name}</h3><p class="variant">Bordeaux / ${item.size}</p><p class="cart-item-price">Preis folgt</p><div class="quantity-controls"><button data-quantity="-1" data-index="${index}" aria-label="Anzahl ${p.name} ${item.size} verringern">−</button><span>${item.qty}</span><button data-quantity="1" data-index="${index}" aria-label="Anzahl ${p.name} ${item.size} erhöhen">+</button><button class="remove-item" data-remove="${index}" aria-label="${p.name} ${item.size} entfernen">Entfernen</button></div></div></article>`;}).join('');
+ $('#cart-summary').innerHTML='<div class="cart-preview-message"><strong>Ihre persönliche Kollektionsvorschau.</strong>Die Preise werden mit der finalen Kollektion ergänzt. Ihre Auswahl wird nur auf diesem Gerät gespeichert. Eine Bestellung oder Zahlung ist noch nicht möglich.</div>';
+ $$('[data-quantity]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.index),d=Number(b.dataset.quantity);if(cart[i].qty+d>20)return toast('Maximal 20 Stück pro Variante.');cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);saveCart();restoreCartFocus(i,d);}));
+ $$('[data-remove]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.remove);cart.splice(i,1);saveCart();restoreCartFocus(i,1);}));
 }
-$$('[data-color]').forEach(btn => btn.addEventListener('click', () => selectColor(btn.dataset.color)));
-$$('[data-slide]').forEach(btn => btn.addEventListener('click', () => selectColor(btn.dataset.slide)));
-$$('[data-size]').forEach(btn => btn.addEventListener('click', () => {currentSize = btn.dataset.size; $$('[data-size]').forEach(b => {const active=b===btn; b.classList.toggle('active',active); b.setAttribute('aria-pressed',String(active));});}));
-$('#hero-add').addEventListener('click', () => {const item = cart.find(x=>x.color===currentColor && x.size===currentSize); if (item) {if(item.qty>=20) return toast('Maximal 20 Stück pro Variante.'); item.qty++;} else cart.push({color:currentColor,size:currentSize,qty:1}); saveCart(); openPanel('cart',$('#hero-add'));});
-function showProduct(color) { closePanel(false); selectColor(color); $('.hero').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'}); setTimeout(() => $('.sizes button.active').focus({preventScroll:true}),450); }
-$$('[data-quickview]').forEach(btn => btn.addEventListener('click', () => showProduct(btn.dataset.quickview)));
-$$('[data-filter]').forEach(btn => btn.addEventListener('click', () => {
-  const filter=btn.dataset.filter;
-  $$('[data-filter]').forEach(b => {b.classList.toggle('active',b===btn); b.setAttribute('aria-pressed',String(b===btn));});
-  $('.product-grid').classList.toggle('filtered',filter!=='all');
-  $$('.product-card').forEach(card => {card.hidden=filter!=='all' && card.dataset.productColor!==filter; if(!card.hidden) card.classList.add('visible');});
-}));
-function renderCart() {
- const count=cart.reduce((sum,x)=>sum+x.qty,0); $('#cart-count').textContent=count; $('#panel-count').textContent=`(${count})`;
- $('.cart-trigger').setAttribute('aria-label',`Warenkorb öffnen, ${count} Stück`);
- if(!count) {$('#cart-items').innerHTML='<div class="empty-cart"><svg><use href="#i-bag"/></svg><h3>Raum für Ihre Favoriten.</h3><p>Entdecken Sie Le Signature in drei Farbwelten.</p><button class="button" id="browse-collection">Kollektion entdecken <svg><use href="#i-arrow"/></svg></button></div>'; $('#cart-summary').innerHTML=''; $('#browse-collection').addEventListener('click',()=>{closePanel(false); $('#collection').scrollIntoView({behavior:scrollBehavior()});}); return;}
- $('#cart-items').innerHTML=cart.map((item,index)=>`<article class="cart-item"><div class="cart-item-image"><img src="${colors[item.color].image}" alt="Half-Zip in ${colors[item.color].name}"></div><div><h3>Le Signature</h3><p class="variant">${colors[item.color].name} / ${item.size}</p><p class="cart-item-price">${currency.format(189)}</p><div class="quantity-controls"><button data-quantity="-1" data-index="${index}" aria-label="Anzahl ${colors[item.color].name} ${item.size} verringern">−</button><span>${item.qty}</span><button data-quantity="1" data-index="${index}" aria-label="Anzahl ${colors[item.color].name} ${item.size} erhöhen">+</button><button class="remove-item" data-remove="${index}" aria-label="${colors[item.color].name} ${item.size} entfernen">Entfernen</button></div></div></article>`).join('');
- $('#cart-summary').innerHTML=`<div class="cart-total"><span>Zwischensumme</span><strong>${currency.format(count*189)}</strong></div><div class="cart-preview-message"><strong>Ihre Auswahl ist eine Designvorschau.</strong>Produkte und Preise sind vorläufig. Ihre Auswahl wird nur auf diesem Gerät gespeichert. Eine Bestellung oder Zahlung ist noch nicht möglich.</div>`;
- $$('[data-quantity]').forEach(btn=>btn.addEventListener('click',()=>{const i=Number(btn.dataset.index),delta=Number(btn.dataset.quantity); if(cart[i].qty+delta>20)return toast('Maximal 20 Stück pro Variante.'); cart[i].qty+=delta; if(cart[i].qty<=0)cart.splice(i,1); saveCart();restoreCartFocus(i,delta);}));
- $$('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>{const i=Number(btn.dataset.remove);cart.splice(i,1);saveCart();restoreCartFocus(i,1);}));
-}
-function renderSearch(query) {
- const term=query.trim().toLocaleLowerCase('de');
- const results=Object.entries(colors).filter(([key,color])=>!term || `le signature half-zip halfzip pullover strick ${color.name} ${key}`.toLocaleLowerCase('de').includes(term));
- $('#search-results').innerHTML=results.length ? `<p class="search-hint">${term?`${results.length} Ergebnis${results.length!==1?'se':''}`:'Die Signature-Kollektion'}</p>`+results.map(([key,color])=>`<button class="search-result" data-result="${key}"><img src="${color.image}" alt="Half-Zip ${color.name}"><div><h3>Le Signature</h3><p>Half-Zip · ${color.name} · 189,00 €</p></div><svg><use href="#i-arrow"/></svg></button>`).join('') : '<p class="search-hint">Keine Stücke gefunden. Versuchen Sie „Signature“, „Elfenbein“, „Bordeaux“ oder „Noir“.</p>';
- $$('[data-result]').forEach(btn=>btn.addEventListener('click',()=>showProduct(btn.dataset.result)));
-}
-$('#search-form').addEventListener('submit',e=>{e.preventDefault();renderSearch($('#search-input').value);});
-$('#search-input').addEventListener('input',e=>renderSearch(e.target.value));
-function showInfo(content) {$('#info-content').innerHTML=content.replace('<h2>', '<h2 id="info-title">'); $('#info-dialog').showModal(); document.body.classList.add('modal-open');}
-function closeInfo() {$('#info-dialog').close(); if(!activePanel)document.body.classList.remove('modal-open');}
-$('.close-info').addEventListener('click',closeInfo); $('#info-dialog').addEventListener('cancel',e=>{e.preventDefault();closeInfo();});
-$('#info-dialog').addEventListener('click',e=>{if(e.target===$('#info-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeInfo();}});
-$('.size-guide').addEventListener('click',()=>showInfo('<p class="eyebrow">LE SIGNATURE</p><h2>Ihre Größe.</h2><p>Für diese Designvorschau sind die Größen S, M, L und XL vorgesehen. Die verbindlichen Maße und Passformhinweise ergänzen wir mit der finalen Kollektion.</p><p>Wählen Sie zunächst Ihre übliche Größe, um die Produktauswahl auszuprobieren.</p>'));
-$('#detail-trigger').addEventListener('click',()=>$('#details').scrollIntoView({behavior:scrollBehavior()}));
-$('#privacy-trigger').addEventListener('click',()=>showInfo('<p class="eyebrow">DESIGNVORSCHAU</p><h2>Datenschutz.</h2><p>Diese Vorschau verwendet keinen Analyse- oder Marketingcode. Die Produktauswahl wird im lokalen Speicher Ihres Browsers gespeichert und kann durch Entfernen der Stücke oder Löschen der Websitedaten zurückgesetzt werden.</p><p>Zur Darstellung der Schriften werden Google Fonts geladen. Dabei wird eine Verbindung zu Google hergestellt. Das Hosting kann technisch erforderliche Zugriffsdaten verarbeiten.</p><p>Die rechtlichen Pflichtangaben der Marke werden vor dem öffentlichen Shopstart ergänzt.</p>'));
-const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}});},{threshold:.12});
-$$('.reveal').forEach(el=>observer.observe(el));
-const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)'); let ticking=false;
-function updateScroll(){const y=window.scrollY; if(!reducedMotion.matches && innerWidth>800 && y<1000){$('.hero-scene').style.transform=`translateY(${y*.16}px) scale(1.035)`; $('.hero-product-area').style.transform=`translateY(${y*.065}px)`;}ticking=false;}
+function renderSearch(query){const term=query.trim().toLocaleLowerCase('de');const found=products.filter(p=>!term||`${p.name} ${p.type} ${p.category} bordeaux bordo rot gold ${p.id}`.toLocaleLowerCase('de').includes(term));$('#search-results').innerHTML=found.length?`<p class="search-hint">${term?`${found.length} Ergebnis${found.length===1?'':'se'}`:'L’Édition Bordeaux'}</p>`+found.map(p=>`<button class="search-result" data-result="${p.id}"><img src="${p.image}" alt="${p.name}"><div><h3>${p.name}</h3><p>${p.category} · Bordeaux · Preis folgt</p></div><svg><use href="#i-arrow"/></svg></button>`).join(''):'<p class="search-hint">Keine Stücke gefunden. Suchen Sie nach „Body“, „Half-Zip“ oder „Hose“.</p>';$$('[data-result]').forEach(b=>b.addEventListener('click',()=>showProduct(b.dataset.result)));}
+$('#search-form').addEventListener('submit',e=>{e.preventDefault();renderSearch($('#search-input').value);});$('#search-input').addEventListener('input',e=>renderSearch(e.target.value));
+function showInfo(content){$('#info-content').innerHTML=content.replace('<h2>','<h2 id="info-title">');$('#info-dialog').showModal();document.body.classList.add('modal-open');}
+function closeInfo(){$('#info-dialog').close();if(!activePanel)document.body.classList.remove('modal-open');}
+$('.close-info').addEventListener('click',closeInfo);$('#info-dialog').addEventListener('cancel',e=>{e.preventDefault();closeInfo();});$('#info-dialog').addEventListener('click',e=>{if(e.target===$('#info-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeInfo();}});
+$('.size-guide').addEventListener('click',()=>showInfo(`<p class="eyebrow">L’ÉDITION BORDEAUX</p><h2>Ihre Größe.</h2><p>Für ${byId[currentProduct].name} sind in dieser Vorschau S, M, L und XL auswählbar. Verbindliche Maße und Passformhinweise folgen mit der finalen Kollektion.</p>`));
+$('#privacy-trigger').addEventListener('click',()=>showInfo('<p class="eyebrow">DESIGNVORSCHAU</p><h2>Datenschutz.</h2><p>Diese Vorschau verwendet keinen Analyse- oder Marketingcode. Die Produktauswahl wird im lokalen Speicher Ihres Browsers gespeichert. Sie können sie durch Entfernen der Stücke oder Löschen der Websitedaten zurücksetzen.</p><p>Die 3D-Dateien und der Viewer werden direkt mit der Website geladen. Für die Schriften wird eine Verbindung zu Google Fonts hergestellt. Das Hosting kann technisch erforderliche Zugriffsdaten verarbeiten.</p><p>Rechtliche Pflichtangaben folgen vor dem öffentlichen Shopstart.</p>'));
+const model=$('#hero-model');
+model.addEventListener('load',modelReady);
+customElements.whenDefined('model-viewer').then(()=>{customElements.get('model-viewer').minimumRenderScale=.75;if(model.loaded)modelReady();});
+model.addEventListener('error',()=>{$('#model-state').textContent='Produktbild · 3D auf diesem Gerät nicht verfügbar';model.showPoster?.();});
+model.addEventListener('progress',e=>{$('.model-progress',model).style.setProperty('--progress',`${(e.detail.totalProgress||0)*100}%`);});
+function pauseRotation(){model.removeAttribute('auto-rotate');$('#rotation-toggle').setAttribute('aria-pressed','false');$('#rotation-toggle').setAttribute('aria-label','Automatische Drehung starten');$('#rotation-toggle').textContent='▷';}
+function rotate(delta){if(!model.loaded)return;model.dismissPoster?.();$('#image-view').textContent='Bild';$('#image-view').setAttribute('aria-pressed','false');$('#image-view').setAttribute('aria-label','Zum Produktbild wechseln');pauseRotation();const orbit=model.getCameraOrbit();model.cameraOrbit=`${orbit.theta*180/Math.PI+delta}deg ${orbit.phi*180/Math.PI}deg ${orbit.radius}m`;}
+$('#image-view').addEventListener('click',()=>{const image=$('#image-view').getAttribute('aria-pressed')!=='true';$('#image-view').setAttribute('aria-pressed',String(image));$('#image-view').textContent=image?'3D':'Bild';$('#image-view').setAttribute('aria-label',image?'Zur 3D-Ansicht wechseln':'Zum Produktbild wechseln');if(image){pauseRotation();model.showPoster?.();$('#model-state').textContent='Produktbild · Bordeaux / Gold';}else if(model.loaded){modelReady();}});
+$('#rotate-left').addEventListener('click',()=>rotate(-35));$('#rotate-right').addEventListener('click',()=>rotate(35));
+$('#reset-view').addEventListener('click',()=>{pauseRotation();model.resetTurntableRotation?.(0);model.setAttribute('camera-orbit','0deg 80deg 105%');});
+$('#rotation-toggle').addEventListener('click',()=>{if(model.hasAttribute('auto-rotate'))pauseRotation();else{model.setAttribute('auto-rotate','');$('#rotation-toggle').setAttribute('aria-pressed','true');$('#rotation-toggle').setAttribute('aria-label','Automatische Drehung pausieren');$('#rotation-toggle').textContent='II';}});
+model.addEventListener('camera-change',e=>{if(e.detail.source==='user-interaction')pauseRotation();});
+if(reducedMotion.matches)pauseRotation();reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)pauseRotation();});
+const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}}),{threshold:.1});$$('.reveal').forEach(el=>observer.observe(el));
+let ticking=false;function updateScroll(){const y=scrollY;if(!reducedMotion.matches&&innerWidth>800&&y<1000){$('.hero-scene').style.transform=`translateY(${y*.16}px) scale(1.035)`;}ticking=false;}
 addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateScroll);ticking=true;}},{passive:true});
 renderCart();
