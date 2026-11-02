@@ -25,7 +25,7 @@ Die Modelle sind räumliche **Designstudien nach den Fotos**, keine vermessenen 
 - `assets/models/`: drei volumetrische 3D-Modelle
 - `vendor/`: lokal gebündelter 3D-Viewer und Lizenz
 
-Die bisherigen Produktbilder sowie `Chevalier_Roth_Halfzip_Bordeaux_Gold_Details.glb` bleiben im Repository erhalten. Der neue Katalog verwendet die drei neuen Bordeaux-Produkte.
+Das Repository enthält die aktuelle Website mit dem neuen Logo, der Salonkulisse und den drei Bordeaux-Produkten. Alte Produktbilder, frühere Logo-Dateien, das ursprüngliche Half-Zip-Modell und unbenutzte Medien wurden aus dem aktuellen Stand entfernt.
 
 ## Status
 
