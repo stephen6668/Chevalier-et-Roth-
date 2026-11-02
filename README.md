@@ -1,58 +1,26 @@
-# Chevalier & Roth — Stripe + Appwrite Function
+# Chevalier et Roth
 
-This folder contains the server-side checkout function. Never put the Stripe secret key in GitHub Pages or in `site-config.js`.
+Neue responsive Designvorschau in Elfenbein, Gold und Bordeaux. Die Website enthält einen animierten Produktbanner, Scroll- und Textanimationen, drei Farbkonzepte, eine Produktsuche und eine lokale Produktauswahl.
 
-## Appwrite Function
-Create a Node.js 22 function in the same Appwrite project.
+## Vorschau und Entwicklung
 
-Suggested settings:
-- Runtime: Node.js 22
-- Entrypoint: `main.js`
-- Execute access: Any
-- Build command: `npm install`
+Die Website besteht aus statischem HTML, CSS und JavaScript und benötigt keinen Build und keine Abhängigkeiten. Lokal die Website über einen HTTP-Server starten:
 
-Upload/deploy `main.js` and `package.json`.
+```sh
+python3 -m http.server 8080
+```
 
-## Function environment variables
-Set these directly in Appwrite:
-- `STRIPE_SECRET_KEY` = your Stripe secret key
-- `SITE_URL` = `https://stephen6668.github.io/Chevalier-Roth`
-- `SHIPPING_LU_CENTS` = your Luxembourg shipping fee in cents
-- `SHIPPING_BE_CENTS` = your Belgium shipping fee in cents
-- `SHIPPING_FR_CENTS` = your France shipping fee in cents
-- `SHIPPING_DE_CENTS` = your Germany shipping fee in cents
-- `STRIPE_AUTOMATIC_TAX` = `false` until your Stripe Tax / VAT setup has been reviewed; set to `true` only when configured correctly.
+Dann `http://localhost:8080` öffnen. Für GitHub Pages den Branch `main` und das Stammverzeichnis `/ (root)` auswählen, sofern Pages noch nicht eingerichtet ist.
 
-Example: a €6.90 shipping fee is entered as `690`.
+## Dateien
 
-## Connect the website
-After deployment, Appwrite gives the function a generated HTTPS domain ending in `.appwrite.run`.
+- `index.html`: Startseite, Kollektion und Dialoge
+- `styles.css`: Responsive Gestaltung und Animationen; `prefers-reduced-motion` wird berücksichtigt
+- `app.js`: Farb- und Größenauswahl, Suche, Kollektionfilter und lokale Produktauswahl
+- `assets/`: Optimierte Bilder der neuen Designvorschau
 
-Put that URL in:
-`site-config.js`
+Die vorhandenen Produktbilder und `Chevalier_Roth_Halfzip_Bordeaux_Gold_Details.glb` wurden beibehalten. Die alten Website- und Commerce-Skripte wurden entfernt. Frühere Versionen bleiben über die Git-Historie abrufbar.
 
-Example:
-`stripeCheckoutEndpoint: 'https://xxxxxxxx.fra.appwrite.run'`
+## Status
 
-## Stripe
-Create the Stripe account directly at Stripe and complete the legitimate business / identity verification requested by Stripe. Do not bypass age or identity checks.
-
-## Important
-- The function validates product prices server-side, so a visitor cannot change the price in their browser.
-- Current server-side promotion support: `WELCOME10` = 10%.
-- For a full production backend, add an Appwrite Orders table and a Stripe webhook before treating the website admin as the accounting source of truth.
-
-
-## Central catalogue / stock update
-
-This function now reads product price and stock from Appwrite table `cr_products` instead of a hard-coded product list.
-It also validates discount codes from `cr_codes`.
-
-Appwrite Function scopes required:
-- rows.read
-
-The browser checkout payload includes `action: "checkout:create"`.
-
-
-## Temporary order lock
-Ordering is disabled by default in this version. Add the Appwrite Function environment variable `ORDERS_ENABLED=true` only when you are ready to accept payments. Keep it missing or set it to `false` while the store is in preview mode.
+Designvorschau, kein aktiver Shop. Produkte, Abbildungen und Preise sind vorläufig. Es werden keine Bestellungen oder Zahlungen verarbeitet. Die Auswahl wird lokal im Browser gespeichert. Die Produktdarstellung verwendet aktuell freigestellte Konzeptbilder. Die interaktive 3D-Integration folgt mit der finalen Modellauswahl. Vor einem öffentlichen Shopstart müssen Produktdaten, Rechtstexte und Commerce-Funktionen vervollständigt werden.
