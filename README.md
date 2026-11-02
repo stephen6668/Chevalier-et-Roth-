@@ -12,7 +12,7 @@ python3 -m http.server 8080
 
 ## Produktansichten
 
-Die drei echten GLB-Modelle unter `assets/models/` lassen sich im Banner und in den Produktkarten drehen. Der lokal gebündelte, unter Apache-2.0 lizenzierte `@google/model-viewer` übernimmt die Darstellung. Der Banner bietet automatische Drehung mit Pause, manuelle Drehung und Rücksetzen. `prefers-reduced-motion` wird berücksichtigt. Freigestellte Produktbilder dienen als Poster und als Rückfallansicht, falls 3D auf dem Gerät nicht verfügbar ist.
+Die drei echten GLB-Modelle unter `assets/models/` lassen sich im Banner und in den Produktkarten drehen. Der lokal gebündelte, unter Apache-2.0 lizenzierte `@google/model-viewer` übernimmt die Darstellung. Im Banner bleiben alle drei Produkte als feste 3D-Ansichten sichtbar. Links-/Rechtspfeile sowie die seitlichen Produktvorschauen wechseln das aktive Stück mit einem Übergang in den Vordergrund; Produktdaten und Produktauswahl folgen der Auswahl. Nur das aktive Modell lässt sich drehen oder automatisch rotieren. Pause, Bildansicht und Rücksetzen bleiben verfügbar. `prefers-reduced-motion` wird berücksichtigt. Freigestellte Produktbilder dienen als Poster und als Rückfallansicht, falls 3D auf dem Gerät nicht verfügbar ist.
 
 Die 3D-Ansichten verwenden die vom Nutzer hochgeladenen GLB-Modelle:
 

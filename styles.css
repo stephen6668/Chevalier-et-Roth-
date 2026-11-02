@@ -69,3 +69,56 @@ model-viewer{display:block;--poster-color:transparent;--progress-bar-color:var(-
 .viewer-controls #image-view{font-family:var(--sans);font-size:7px;letter-spacing:.3px;width:31px;border-radius:3px}
 /* Textured garments provide their own light and depth. */
 .product-card-3d:after{display:none}
+/* Three-piece product carousel. The active garment stays closest to the visitor. */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.hero-product-area{isolation:isolate}
+.hero-product-area .product-float.product-float-3d.hero-carousel{top:28px;left:-20%;width:140%;height:81%;animation:none;perspective:1400px;z-index:3;pointer-events:none}
+.carousel-slides{position:absolute;inset:0;perspective:1400px;pointer-events:none}
+.hero-slide{position:absolute;inset:0;transform-origin:50% 52%;transition:transform .7s cubic-bezier(.2,.7,.2,1),opacity .7s,filter .7s;will-change:transform;pointer-events:none}
+.hero-slide.is-active{transform:translate3d(0,0,80px) scale(.95);z-index:3;opacity:1;filter:none}
+.hero-slide.is-previous{transform:translate3d(-31%,1%,-100px) scale(.64);z-index:1;opacity:.76;filter:saturate(.9) brightness(.96)}
+.hero-slide.is-next{transform:translate3d(31%,1%,-100px) scale(.64);z-index:1;opacity:.76;filter:saturate(.9) brightness(.96)}
+.hero-slide .hero-product-model{width:100%;height:100%;pointer-events:none}
+.hero-slide.is-active .hero-product-model{pointer-events:auto}
+.hero-slide:not(.is-active) .model-progress{display:none}
+.hero-slide.has-model .model-progress{display:none}
+.carousel-side-select{position:absolute;top:6%;bottom:8%;width:26%;z-index:5;pointer-events:auto;background:transparent;border:0;color:#785a3c;padding:0;cursor:pointer}
+.carousel-side-previous{left:0}.carousel-side-next{right:0}
+.carousel-side-select>span{position:absolute;bottom:4%;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:1px;border-bottom:1px solid #a3824f55;padding:0 0 4px;white-space:nowrap;transition:color .25s,border-color .25s}
+.carousel-side-select:hover>span{color:var(--burgundy);border-color:var(--burgundy)}
+.carousel-side-select:focus-visible{outline-offset:-8px;border-radius:4px}
+.carousel-arrow{position:absolute;top:49%;transform:translateY(-50%);z-index:8;width:44px;height:44px;padding:0;display:grid;place-items:center;border:1px solid #a3824f88;border-radius:50%;background:#fcf8f0e8;color:var(--burgundy);box-shadow:0 3px 18px #6a432517;backdrop-filter:blur(8px);pointer-events:auto;transition:background .25s,box-shadow .25s}
+.carousel-arrow:hover{background:#fffaf2;box-shadow:0 4px 22px #6a43252b}
+.carousel-arrow:active{background:#e8dcc9}.carousel-arrow svg{width:19px;height:19px;stroke-width:1.3}
+.carousel-arrow-previous{left:-7%}.carousel-arrow-next{right:0}
+.hero-product-area .product-note{left:0;top:15%;z-index:1;opacity:.7}
+.hero-product-area .product-aura{left:-8%;width:116%;opacity:.8}
+@media(min-width:1600px){.hero-product-area .product-float.product-float-3d.hero-carousel{top:35px;height:81%}}
+@media(max-width:1150px) and (min-width:801px){.hero-product-area .product-float.product-float-3d.hero-carousel{top:40px;height:78%;left:-20%;width:140%}.carousel-arrow-previous{left:-8%}.carousel-arrow-next{right:-1%}.carousel-side-select>span{font-size:7px}}
+@media(max-width:800px){
+ .hero{height:1150px;min-height:1150px;max-height:none;display:block}
+ .hero-copy{width:90%;padding:38px 0 0 6%;position:relative;z-index:5}.hero-copy h1{font-size:65px}.hero-description{max-width:310px}
+ .hero-product-area{position:absolute;inset:0;left:5%;width:90%;height:100%;pointer-events:none}
+ .hero-product-area .product-float.product-float-3d.hero-carousel{top:375px!important;left:0!important;width:100%!important;height:410px!important}
+ .hero-slide.is-active{transform:translate3d(0,0,55px) scale(.94)}
+ .hero-slide.is-previous{transform:translate3d(-29%,2%,-70px) scale(.62)}.hero-slide.is-next{transform:translate3d(29%,2%,-70px) scale(.62)}
+ .carousel-arrow{top:576px;width:44px;height:44px}.carousel-arrow-previous{left:0}.carousel-arrow-next{right:0}
+ .carousel-side-select{width:25%;top:8%;bottom:5%}.carousel-side-select>span{font-size:8px;bottom:3%}
+ .hero-product-area .viewer-controls{top:802px;bottom:auto;left:50%;gap:12px}.hero-product-area .model-state{top:841px;bottom:auto;font-size:6px}
+ .hero-product-area .product-note{display:none}
+ .hero-shop{position:absolute;left:6%;right:6%;bottom:62px;margin:0;padding:20px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:0 35px;background:linear-gradient(0deg,#f8f1e7fa 75%,#f8f1e700)}
+ .hero-shop h2{grid-column:1;grid-row:1}.hero-shop .hero-price{grid-column:1;grid-row:2}.hero-shop .color-picker{grid-column:1;grid-row:3}.hero-shop .size-picker{grid-column:2;grid-row:1/3}.hero-shop .add-cart{grid-column:2;grid-row:3}.hero-shop .preview-note{grid-column:1/3;grid-row:4}.hero-shop .product-switcher{grid-column:1/3;grid-row:5}
+}
+@media(max-width:480px){
+ .hero{height:1160px;min-height:1160px}.hero-copy{padding-top:36px;padding-left:8%;width:90%}.hero-copy h1{font-size:clamp(49px,14.6vw,61px)}.hero-description{max-width:250px}
+ .hero-product-area .product-float.product-float-3d.hero-carousel{top:380px!important;height:340px!important}
+ .hero-slide.is-active{transform:translate3d(0,0,35px) scale(.92)}
+ .hero-slide.is-previous{transform:translate3d(-33%,2%,-60px) scale(.61)}.hero-slide.is-next{transform:translate3d(33%,2%,-60px) scale(.61)}
+ .carousel-arrow{top:552px;width:44px;height:44px}.carousel-arrow-previous{left:-2%}.carousel-arrow-next{right:-2%}
+ .carousel-side-select{width:20%;top:5%;bottom:0}.carousel-side-select>span{font-size:7px;letter-spacing:.6px;bottom:5%}
+ .hero-product-area .viewer-controls{top:752px;bottom:auto;gap:10px}.hero-product-area .model-state{top:790px;bottom:auto;font-size:5px}
+ .hero-shop{left:6%;right:6%;bottom:64px;gap:0 20px;padding-top:20px}
+}
+@media(prefers-reduced-motion:reduce){.hero-slide,.carousel-arrow,.carousel-side-select>span{transition:none!important}}
+@media(min-width:801px){.carousel-arrow-previous{left:0}.carousel-side-previous>span{left:75%}.carousel-side-next>span{left:25%}}
+.hero-slide.is-previous,.hero-slide.is-next{opacity:1;filter:saturate(.9) brightness(.9)}

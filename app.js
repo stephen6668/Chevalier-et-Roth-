@@ -3,6 +3,8 @@ document.documentElement.classList.add('js');
 const $=(s,p=document)=>p.querySelector(s), $$=(s,p=document)=>[...p.querySelectorAll(s)];
 const products=window.CR_PRODUCTS, byId=Object.fromEntries(products.map(p=>[p.id,p]));
 const validSizes=['S','M','L','XL'], reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const heroModels=$$('[data-hero-model]');
+let model=$('#hero-model'),autoRotationEnabled=!reducedMotion.matches;
 let currentProduct='halfzip',currentSize='M',activePanel=null,panelTrigger=null,toastTimer,cart=[];
 try{const saved=JSON.parse(localStorage.getItem('cr-selection-v2')||'[]');if(Array.isArray(saved))cart=saved.filter(x=>byId[x.product]&&validSizes.includes(x.size)&&Number.isInteger(x.qty)&&x.qty>0&&x.qty<=20).slice(0,30);}catch{}
 const scrollBehavior=()=>reducedMotion.matches?'instant':'smooth';
@@ -14,17 +16,38 @@ $$('[data-panel]').forEach(b=>b.addEventListener('click',()=>openPanel(b.dataset
 $$('.close-panel').forEach(b=>b.addEventListener('click',()=>closePanel()));
 $$('.side-panel').forEach(panel=>{panel.addEventListener('cancel',e=>{e.preventDefault();closePanel();});panel.addEventListener('click',e=>{if(e.target===panel){const b=panel.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closePanel();}});});
 $$('.menu-links a').forEach(a=>a.addEventListener('click',()=>closePanel(false)));
+function updateHeroSlots(){
+ const index=products.findIndex(p=>p.id===currentProduct),previous=products[(index+products.length-1)%products.length],next=products[(index+1)%products.length];
+ heroModels.forEach(viewer=>{
+  const id=viewer.dataset.heroModel,active=id===currentProduct,slide=viewer.closest('.hero-slide');
+  viewer.id=active?'hero-model':`hero-model-${id}`;viewer.inert=!active;viewer.toggleAttribute('camera-controls',active);viewer.setAttribute('aria-hidden',String(!active));viewer.removeAttribute('auto-rotate');
+  slide.classList.toggle('is-active',active);slide.classList.toggle('is-previous',id===previous.id);slide.classList.toggle('is-next',id===next.id);slide.setAttribute('aria-hidden',String(!active));
+  viewer.setAttribute('camera-orbit',active?'0deg 80deg 105%':id===previous.id?'22deg 82deg 105%':'-22deg 82deg 105%');viewer.resetTurntableRotation?.(0);viewer.jumpCameraToGoal?.();if(viewer.loaded)viewer.dismissPoster?.();
+ });
+ model=heroModels.find(viewer=>viewer.dataset.heroModel===currentProduct);$('.product-note>span:last-child').textContent=String(index+1).padStart(2,'0');
+ for(const [selector,p] of [['#preview-previous',previous],['#preview-next',next]]){const b=$(selector);b.dataset.carouselSelect=p.id;b.setAttribute('aria-label',`${p.category} in den Vordergrund holen`);$('span',b).textContent=p.category;}
+}
+function updateRotation(){
+ heroModels.forEach(viewer=>viewer.toggleAttribute('auto-rotate',viewer===model&&autoRotationEnabled&&Boolean(viewer.loaded)));
+ $('#rotation-toggle').setAttribute('aria-pressed',String(autoRotationEnabled));$('#rotation-toggle').setAttribute('aria-label',autoRotationEnabled?'Automatische Drehung pausieren':'Automatische Drehung starten');$('#rotation-toggle').textContent=autoRotationEnabled?'II':'▷';
+}
 function selectProduct(id){
- const p=byId[id];if(!p)return;currentProduct=id;
+ const p=byId[id];if(!p)return;currentProduct=id;updateHeroSlots();
  $('#hero-product-title').innerHTML=`${p.name}<br><em>${p.id==='halfzip'?'Signature':p.id==='body'?'Col V':'Jambe large'}</em>`;
  $('#image-view').textContent='Bild';$('#image-view').setAttribute('aria-pressed','false');$('#image-view').setAttribute('aria-label','Zum Produktbild wechseln');
- const model=$('#hero-model'),changed=model.getAttribute('src')!==p.model;model.setAttribute('src',p.model);model.setAttribute('poster',p.image);model.setAttribute('alt',`Drehbare 3D-Ansicht: ${p.name} in Bordeaux`);$('.model-poster',model).src=p.image;model.setAttribute('camera-orbit','0deg 80deg 105%');model.resetTurntableRotation?.(0);
  $('#hero-product').dataset.product=id;$('#model-state').textContent='3D-Ansicht wird geladen';$('#hero-product').classList.remove('is-loaded');
  $$('[data-product],[data-slide]').forEach(b=>{const active=(b.dataset.product||b.dataset.slide)===id;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
- $('.hero-caption>span:first-child').textContent=`${String(products.findIndex(x=>x.id===id)+1).padStart(2,'0')} — 03`;
- if(!changed&&model.loaded)modelReady();
+ const index=products.findIndex(x=>x.id===id);$('.hero-caption>span:first-child').textContent=`${String(index+1).padStart(2,'0')} — 03`;$('.product-note>span:last-child').textContent=String(index+1).padStart(2,'0');
+ $('#carousel-announcement').textContent=`${p.category}, Produkt ${index+1} von ${products.length} ausgewählt`;
+ updateRotation();if(model.loaded)modelReady(model);else if(model.dataset.failed==='true')$('#model-state').textContent='Produktbild · 3D auf diesem Gerät nicht verfügbar';
 }
-function modelReady(){$('#hero-model').resetTurntableRotation?.(0);$('#hero-model').jumpCameraToGoal?.();$('#hero-product').classList.add('is-loaded');$('#model-state').textContent='3D-Produktansicht · frei drehbar';$('#hero-model').dismissPoster?.();}
+function modelReady(viewer=model){
+ delete viewer.dataset.failed;viewer.closest('.hero-slide').classList.add('has-model');if(viewer!==model)return;
+ viewer.resetTurntableRotation?.(0);viewer.jumpCameraToGoal?.();$('#hero-product').classList.add('is-loaded');$('#model-state').textContent='3D-Produktansicht · frei drehbar';viewer.dismissPoster?.();updateRotation();
+}
+function stepProduct(direction){const index=products.findIndex(p=>p.id===currentProduct);selectProduct(products[(index+direction+products.length)%products.length].id);}
+$('#previous-product').addEventListener('click',()=>stepProduct(-1));$('#next-product').addEventListener('click',()=>stepProduct(1));
+$$('[data-carousel-select]').forEach(b=>b.addEventListener('click',()=>selectProduct(b.dataset.carouselSelect)));
 $$('[data-product]').forEach(b=>b.addEventListener('click',()=>selectProduct(b.dataset.product)));
 $$('[data-slide]').forEach(b=>b.addEventListener('click',()=>selectProduct(b.dataset.slide)));
 $$('[data-size]').forEach(b=>b.addEventListener('click',()=>{currentSize=b.dataset.size;$$('[data-size]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});}));
@@ -51,18 +74,20 @@ function closeInfo(){$('#info-dialog').close();if(!activePanel)document.body.cla
 $('.close-info').addEventListener('click',closeInfo);$('#info-dialog').addEventListener('cancel',e=>{e.preventDefault();closeInfo();});$('#info-dialog').addEventListener('click',e=>{if(e.target===$('#info-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeInfo();}});
 $('.size-guide').addEventListener('click',()=>showInfo(`<p class="eyebrow">L’ÉDITION BORDEAUX</p><h2>Ihre Größe.</h2><p>Für ${byId[currentProduct].name} sind in dieser Vorschau S, M, L und XL auswählbar. Verbindliche Maße und Passformhinweise folgen mit der finalen Kollektion.</p>`));
 $('#privacy-trigger').addEventListener('click',()=>showInfo('<p class="eyebrow">DESIGNVORSCHAU</p><h2>Datenschutz.</h2><p>Diese Vorschau verwendet keinen Analyse- oder Marketingcode. Die Produktauswahl wird im lokalen Speicher Ihres Browsers gespeichert. Sie können sie durch Entfernen der Stücke oder Löschen der Websitedaten zurücksetzen.</p><p>Die 3D-Dateien und der Viewer werden direkt mit der Website geladen. Für die Schriften wird eine Verbindung zu Google Fonts hergestellt. Das Hosting kann technisch erforderliche Zugriffsdaten verarbeiten.</p><p>Rechtliche Pflichtangaben folgen vor dem öffentlichen Shopstart.</p>'));
-const model=$('#hero-model');
-model.addEventListener('load',modelReady);
-customElements.whenDefined('model-viewer').then(()=>{customElements.get('model-viewer').minimumRenderScale=.75;if(model.loaded)modelReady();});
-model.addEventListener('error',()=>{$('#model-state').textContent='Produktbild · 3D auf diesem Gerät nicht verfügbar';model.showPoster?.();});
-model.addEventListener('progress',e=>{$('.model-progress',model).style.setProperty('--progress',`${(e.detail.totalProgress||0)*100}%`);});
-function pauseRotation(){model.removeAttribute('auto-rotate');$('#rotation-toggle').setAttribute('aria-pressed','false');$('#rotation-toggle').setAttribute('aria-label','Automatische Drehung starten');$('#rotation-toggle').textContent='▷';}
+heroModels.forEach(viewer=>{
+ viewer.addEventListener('load',()=>modelReady(viewer));
+ viewer.addEventListener('error',()=>{viewer.dataset.failed='true';viewer.showPoster?.();if(viewer===model)$('#model-state').textContent='Produktbild · 3D auf diesem Gerät nicht verfügbar';});
+ viewer.addEventListener('progress',e=>{$('.model-progress',viewer).style.setProperty('--progress',`${(e.detail.totalProgress||0)*100}%`);});
+ viewer.addEventListener('camera-change',e=>{if(viewer===model&&e.detail.source==='user-interaction')pauseRotation();});
+});
+updateHeroSlots();updateRotation();
+customElements.whenDefined('model-viewer').then(()=>{customElements.get('model-viewer').minimumRenderScale=.75;heroModels.forEach(viewer=>{if(viewer.loaded)modelReady(viewer);});});
+function pauseRotation(){autoRotationEnabled=false;updateRotation();}
 function rotate(delta){if(!model.loaded)return;model.dismissPoster?.();$('#image-view').textContent='Bild';$('#image-view').setAttribute('aria-pressed','false');$('#image-view').setAttribute('aria-label','Zum Produktbild wechseln');pauseRotation();const orbit=model.getCameraOrbit();model.cameraOrbit=`${orbit.theta*180/Math.PI+delta}deg ${orbit.phi*180/Math.PI}deg ${orbit.radius}m`;}
 $('#image-view').addEventListener('click',()=>{const image=$('#image-view').getAttribute('aria-pressed')!=='true';$('#image-view').setAttribute('aria-pressed',String(image));$('#image-view').textContent=image?'3D':'Bild';$('#image-view').setAttribute('aria-label',image?'Zur 3D-Ansicht wechseln':'Zum Produktbild wechseln');if(image){pauseRotation();model.showPoster?.();$('#model-state').textContent='Produktbild · Bordeaux / Gold';}else if(model.loaded){modelReady();}});
 $('#rotate-left').addEventListener('click',()=>rotate(-35));$('#rotate-right').addEventListener('click',()=>rotate(35));
 $('#reset-view').addEventListener('click',()=>{pauseRotation();model.resetTurntableRotation?.(0);model.setAttribute('camera-orbit','0deg 80deg 105%');model.jumpCameraToGoal?.();});
-$('#rotation-toggle').addEventListener('click',()=>{if(model.hasAttribute('auto-rotate'))pauseRotation();else{model.setAttribute('auto-rotate','');$('#rotation-toggle').setAttribute('aria-pressed','true');$('#rotation-toggle').setAttribute('aria-label','Automatische Drehung pausieren');$('#rotation-toggle').textContent='II';}});
-model.addEventListener('camera-change',e=>{if(e.detail.source==='user-interaction')pauseRotation();});
+$('#rotation-toggle').addEventListener('click',()=>{autoRotationEnabled=!autoRotationEnabled;updateRotation();});
 if(reducedMotion.matches)pauseRotation();reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)pauseRotation();});
 const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}}),{threshold:.1});$$('.reveal').forEach(el=>observer.observe(el));
 let ticking=false;function updateScroll(){const y=scrollY;if(!reducedMotion.matches&&innerWidth>800&&y<1000){$('.hero-scene').style.transform=`translateY(${y*.16}px) scale(1.035)`;}ticking=false;}
