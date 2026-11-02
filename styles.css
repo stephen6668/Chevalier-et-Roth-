@@ -67,3 +67,5 @@ model-viewer{display:block;--poster-color:transparent;--progress-bar-color:var(-
 @media(min-width:801px){.viewer-controls{bottom:9%}.model-state{bottom:5.8%}}
 .viewer-controls button{font-family:Arial,sans-serif}
 .viewer-controls #image-view{font-family:var(--sans);font-size:7px;letter-spacing:.3px;width:31px;border-radius:3px}
+/* Textured garments provide their own light and depth. */
+.product-card-3d:after{display:none}

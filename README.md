@@ -14,7 +14,13 @@ python3 -m http.server 8080
 
 Die drei echten GLB-Modelle unter `assets/models/` lassen sich im Banner und in den Produktkarten drehen. Der lokal gebündelte, unter Apache-2.0 lizenzierte `@google/model-viewer` übernimmt die Darstellung. Der Banner bietet automatische Drehung mit Pause, manuelle Drehung und Rücksetzen. `prefers-reduced-motion` wird berücksichtigt. Freigestellte Produktbilder dienen als Poster und als Rückfallansicht, falls 3D auf dem Gerät nicht verfügbar ist.
 
-Die Modelle sind räumliche **Designstudien nach den Fotos**, keine vermessenen Produktionsmodelle. Insbesondere die Rückseiten und Materialdetails sind gestalterische Annäherungen. Für eine exakte Produktionsdarstellung können die GLBs durch finale Originaldateien ersetzt werden.
+Die 3D-Ansichten verwenden die vom Nutzer hochgeladenen GLB-Modelle:
+
+- `body_bordeaux_CR.glb` → `assets/models/body-bordeaux-studio.glb`
+- `halfzip_mit_CR_optimiert.glb` → `assets/models/halfzip-bordeaux-studio.glb`
+- `hose_mit_CR_optimiert.glb` → `assets/models/trousers-bordeaux-studio.glb`
+
+Die gelieferten Silhouetten, UVs, Stofftexturen und CR-Decals bleiben erhalten. Für das Web wurden die Netze mit begrenzter geometrischer Abweichung vereinfacht, Texturen optimiert, die Vorderansicht ausgerichtet und die Größe normalisiert. Stoffmaterialien erhalten weichere Normalen, dezenten Faserglanz und eine ruhigere Schattierung; bei der Hose wurde der metallische Glanz reduziert. Der lokal gebündelte Meshopt-Decoder lädt die komprimierten Geometrien ohne externe Dienste. Die drei Modelle sind zusammen etwa 10 MB statt der ursprünglichen 59 MB groß. Es sind Kollektionsvisualisierungen, keine Zusicherung verbindlicher Produktionsmaße.
 
 ## Dateien
 
@@ -23,9 +29,10 @@ Die Modelle sind räumliche **Designstudien nach den Fotos**, keine vermessenen 
 - `app.js`: Produktauswahl, 3D-Steuerung, Filter, Suche und lokale Auswahl
 - `assets/products/`: Bordeaux-Produktbilder
 - `assets/models/`: drei volumetrische 3D-Modelle
-- `vendor/`: lokal gebündelter 3D-Viewer und Lizenz
+- `viewer-setup.js`: lokale Decoder-Konfiguration
+- `vendor/`: 3D-Viewer, Meshopt-Decoder und Lizenzen
 
-Das Repository enthält die aktuelle Website mit dem neuen Logo, der Salonkulisse und den drei Bordeaux-Produkten. Alte Produktbilder, frühere Logo-Dateien, das ursprüngliche Half-Zip-Modell und unbenutzte Medien wurden aus dem aktuellen Stand entfernt.
+Das Repository enthält die aktuelle Website mit dem neuen Logo, der Salonkulisse und den drei Bordeaux-Produkten. Die früheren Entwurfsmodelle und unbenutzte Medien wurden ersetzt. Die drei Originaluploads bleiben unverändert als Quelldateien im Repository. Die Website lädt ausschließlich die optimierten Varianten.
 
 ## Status
 
