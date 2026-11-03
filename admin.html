@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#5b1325">
+  <title>Administration — Chevalier &amp; Roth</title>
+  <link rel="icon" type="image/webp" href="assets/brand-monogram.webp">
+  <link rel="stylesheet" href="admin.css?v=appwrite-1">
+  <script src="vendor/appwrite.js" defer></script>
+  <script src="site-config.js?v=appwrite-1" defer></script>
+  <script src="appwrite-client.js?v=appwrite-1" defer></script>
+  <script src="admin.js?v=appwrite-1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#admin-main">Zum Inhalt</a>
+  <header class="admin-header">
+    <a class="brand" href="./"><img src="assets/brand-monogram.webp" width="48" height="48" alt=""><span>CHEVALIER &amp; ROTH<small>LA MAISON · ADMINISTRATION</small></span></a>
+    <a class="home-link" href="./">Zur Kollektion <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="admin-main">
+    <section id="login-view" class="login-card" aria-labelledby="login-title">
+      <p class="eyebrow">ESPACE PRIVÉ</p>
+      <h1 id="login-title">Willkommen in<br><em>der Maison.</em></h1>
+      <p class="muted">Melden Sie sich mit Ihrem bestehenden Appwrite-Administratorkonto an.</p>
+      <form id="admin-login">
+        <label>E-Mail-Adresse<input type="email" name="email" autocomplete="username" required maxlength="320"></label>
+        <label>Passwort<input type="password" name="password" autocomplete="current-password" required></label>
+        <button class="button" type="submit" id="login-button">Anmelden <span aria-hidden="true">→</span></button>
+      </form>
+      <p id="login-status" class="status" role="status" aria-live="polite">Sitzung wird geprüft…</p>
+      <button class="text-button" id="session-logout" type="button" hidden>Bestehende Sitzung abmelden</button>
+    </section>
+    <section id="admin-view" class="workspace" hidden aria-labelledby="workspace-title">
+      <div class="workspace-intro"><div><p class="eyebrow">LA COLLECTION SIGNATURE</p><h1 id="workspace-title">Ihre <em>Maison.</em></h1><p class="muted" id="admin-identity"></p></div><button class="outline-button" id="admin-logout" type="button">Abmelden</button></div>
+      <nav class="admin-tabs" aria-label="Verwaltungsbereiche">
+        <button type="button" data-tab="waitlist" aria-current="page">Warteliste</button>
+        <button type="button" data-tab="products">Produkte</button>
+        <button type="button" data-tab="codes">Codes</button>
+        <button type="button" data-tab="orders">Bestellungen</button>
+        <button type="button" data-tab="giveaway">First Collection Giveaway</button>
+      </nav>
+      <section class="data-panel" aria-labelledby="section-title" aria-busy="false" id="data-panel">
+        <div class="section-head"><div><p class="eyebrow" id="section-caption">WARTELISTE</p><h2 id="section-title">Vorfreude auf <em>die Kollektion.</em></h2></div><div class="section-actions"><button class="outline-button" id="new-record" hidden type="button">Neu anlegen</button><button class="outline-button" id="refresh-records" type="button">Aktualisieren <span aria-hidden="true">↻</span></button></div></div>
+        <p class="section-description" id="section-description"></p>
+        <p class="status" id="records-status" role="status" aria-live="polite"></p>
+        <div id="records"></div>
+      </section>
+    </section>
+  </main>
+  <footer>CHEVALIER &amp; ROTH <span>Administration · Appwrite</span></footer>
+  <dialog id="edit-dialog" aria-labelledby="edit-title">
+    <div class="dialog-head"><div><p class="eyebrow">LA MAISON</p><h2 id="edit-title"></h2></div><button class="close-button" id="close-editor" type="button" aria-label="Bearbeitung schließen">×</button></div>
+    <form id="edit-form"><div id="edit-fields" class="form-grid"></div><p id="edit-status" class="status" role="status" aria-live="polite"></p><div class="dialog-actions"><button class="outline-button" id="cancel-editor" type="button">Abbrechen</button><button class="button" id="save-record" type="submit">Änderungen speichern <span aria-hidden="true">→</span></button></div></form>
+  </dialog>
+</body>
+</html>

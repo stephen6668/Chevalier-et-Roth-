@@ -6,6 +6,18 @@ const validSizes=['S','M','L','XL'], reducedMotion=matchMedia('(prefers-reduced-
 const heroModels=$$('[data-hero-model]'),selectedColors=Object.fromEntries(products.map(p=>[p.id,'bordeaux']));
 let model=$('#hero-model'),autoRotationEnabled=!reducedMotion.matches;
 let currentProduct='halfzip',currentSize='M',activePanel=null,panelTrigger=null,toastTimer,cart=[];
+let centralProducts={};
+function productPrice(id){
+ const row=centralProducts[id],raw=Number(row?.salePrice)>0&&Number(row.salePrice)<=Number(row.price)?Number(row.salePrice):Number(row?.price);
+ if(!row||!Number.isFinite(raw)||raw<=0)return null;
+ const config=window.CRSiteConfig,price=raw*(config.pricesIncludeVat?1:1+config.vatRate);
+ return new Intl.NumberFormat('de-DE',{style:'currency',currency:config.currency}).format(price);
+}
+function updatePriceDisplay(){
+ const label=productPrice(currentProduct),price=$('#hero-price');price.textContent=label||'Preis folgt';
+ const note=document.createElement('span');note.textContent=label?'Vorläufig · inkl. 17 % MwSt. · Kein Verkauf':'Kollektion im Entwurf';price.append(note);
+ $$('.product-card').forEach(card=>{$('.product-card-info>span',card).textContent=productPrice(card.dataset.productId)||'Preis folgt';});
+}
 const variantFor=(id,color=selectedColors[id])=>byId[id].variants[color];
 const absoluteModel=url=>new URL(url,document.baseURI).href;
 const requestedModel=viewer=>viewer.dataset.requestedModel||absoluteModel(viewer.getAttribute('src'));
@@ -72,7 +84,7 @@ function selectProduct(id){
  resetImageControl();$('#hero-product').dataset.product=id;
  $$('button[data-product],button[data-slide]').forEach(b=>{const active=(b.dataset.product||b.dataset.slide)===id;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  const index=products.findIndex(x=>x.id===id);$('.hero-caption>span:first-child').textContent=`${String(index+1).padStart(2,'0')} — 03`;
- refreshColorControls();announceSelection();refreshCurrentStatus();updateRotation();if(viewerReady(model))modelReady(model);
+ refreshColorControls();announceSelection();refreshCurrentStatus();updateRotation();updatePriceDisplay();if(viewerReady(model))modelReady(model);
 }
 function modelReady(viewer=model,eventURL=null){
  if(eventURL&&absoluteModel(eventURL)!==requestedModel(viewer))return;
@@ -127,8 +139,8 @@ function restoreCartFocus(i,delta){const index=Math.min(i,cart.length-1);const c
 function renderCart(){
  const count=cart.reduce((sum,x)=>sum+x.qty,0);$('#cart-count').textContent=count;$('#panel-count').textContent=`(${count})`;$('.cart-trigger').setAttribute('aria-label',`Warenkorb öffnen, ${count} Stück`);
  if(!count){$('#cart-items').innerHTML='<div class="empty-cart"><svg><use href="#i-bag"/></svg><h3>Raum für Ihre Favoriten.</h3><p>Body, Half-Zip und weite Hose. Entdecken Sie Ihre Farbwelt.</p><button class="button" id="browse-collection">Kollektion entdecken <svg><use href="#i-arrow"/></svg></button></div>';$('#cart-summary').innerHTML='';$('#browse-collection').addEventListener('click',()=>{closePanel(false);$('#collection').scrollIntoView({behavior:scrollBehavior()});});return;}
- $('#cart-items').innerHTML=cart.map((item,index)=>{const p=byId[item.product],v=variantFor(item.product,item.color);return `<article class="cart-item"><div class="cart-item-image"><img src="${v.image}" alt="${p.name} in ${v.name}"></div><div><h3>${p.name}</h3><p class="variant">${v.name} / ${item.size}</p><p class="cart-item-price">Preis folgt</p><div class="quantity-controls"><button data-quantity="-1" data-index="${index}" aria-label="Anzahl ${p.name} ${v.name} ${item.size} verringern">−</button><span>${item.qty}</span><button data-quantity="1" data-index="${index}" aria-label="Anzahl ${p.name} ${v.name} ${item.size} erhöhen">+</button><button class="remove-item" data-remove="${index}" aria-label="${p.name} ${v.name} ${item.size} entfernen">Entfernen</button></div></div></article>`;}).join('');
- $('#cart-summary').innerHTML='<div class="cart-preview-message"><strong>Ihre persönliche Kollektionsvorschau.</strong>Die Preise werden mit der finalen Kollektion ergänzt. Ihre Auswahl wird nur auf diesem Gerät gespeichert. Eine Bestellung oder Zahlung ist noch nicht möglich.</div>';
+ $('#cart-items').innerHTML=cart.map((item,index)=>{const p=byId[item.product],v=variantFor(item.product,item.color);return `<article class="cart-item"><div class="cart-item-image"><img src="${v.image}" alt="${p.name} in ${v.name}"></div><div><h3>${p.name}</h3><p class="variant">${v.name} / ${item.size}</p><p class="cart-item-price">${productPrice(item.product)||'Preis folgt'}</p><button class="cart-waitlist" type="button" data-waitlist data-waitlist-product="${item.product}" data-waitlist-color="${item.color}" data-waitlist-size="${item.size}">Für diese Variante vormerken ↗</button><div class="quantity-controls"><button data-quantity="-1" data-index="${index}" aria-label="Anzahl ${p.name} ${v.name} ${item.size} verringern">−</button><span>${item.qty}</span><button data-quantity="1" data-index="${index}" aria-label="Anzahl ${p.name} ${v.name} ${item.size} erhöhen">+</button><button class="remove-item" data-remove="${index}" aria-label="${p.name} ${v.name} ${item.size} entfernen">Entfernen</button></div></div></article>`;}).join('');
+ $('#cart-summary').innerHTML='<div class="cart-preview-message"><strong>Ihre persönliche Kollektionsvorschau.</strong>Ihre Auswahl wird auf diesem Gerät gespeichert. Sie können sich für die gewünschten Varianten auf der Warteliste vormerken. Angezeigte Preise sind vorläufig, inklusive 17 % MwSt.; ein Verkauf ist noch nicht möglich.</div>';
  $$('[data-quantity]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.index),d=Number(b.dataset.quantity);if(cart[i].qty+d>20)return toast('Maximal 20 Stück pro Variante.');cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);saveCart();restoreCartFocus(i,d);}));
  $$('[data-remove]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.remove);cart.splice(i,1);saveCart();restoreCartFocus(i,1);}));
 }
@@ -143,7 +155,7 @@ function showInfo(content){$('#info-content').innerHTML=content.replace('<h2>','
 function closeInfo(){$('#info-dialog').close();if(!activePanel)document.body.classList.remove('modal-open');}
 $('.close-info').addEventListener('click',closeInfo);$('#info-dialog').addEventListener('cancel',e=>{e.preventDefault();closeInfo();});$('#info-dialog').addEventListener('click',e=>{if(e.target===$('#info-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeInfo();}});
 $('.size-guide').addEventListener('click',()=>showInfo(`<p class="eyebrow">LA COLLECTION SIGNATURE</p><h2>Ihre Größe.</h2><p>Für ${byId[currentProduct].name} in ${variantFor(currentProduct).name} sind in dieser Vorschau S, M, L und XL auswählbar. Verbindliche Maße und Passformhinweise folgen mit der finalen Kollektion.</p>`));
-$('#privacy-trigger').addEventListener('click',()=>showInfo('<p class="eyebrow">DESIGNVORSCHAU</p><h2>Datenschutz.</h2><p>Diese Vorschau verwendet keinen Analyse- oder Marketingcode. Die Produktauswahl wird im lokalen Speicher Ihres Browsers gespeichert. Sie können sie durch Entfernen der Stücke oder Löschen der Websitedaten zurücksetzen.</p><p>Die 3D-Dateien und der Viewer werden direkt mit der Website geladen. Für die Schriften wird eine Verbindung zu Google Fonts hergestellt. Das Hosting kann technisch erforderliche Zugriffsdaten verarbeiten.</p><p>Rechtliche Pflichtangaben folgen vor dem öffentlichen Shopstart.</p>'));
+$('#privacy-trigger').addEventListener('click',()=>document.dispatchEvent(new Event('cr:privacy')));
 heroModels.forEach(viewer=>{
  viewer.dataset.variantColor=selectedColors[viewer.dataset.heroModel];viewer.dataset.requestedModel=absoluteModel(viewer.getAttribute('src'));
  viewer.addEventListener('load',e=>modelReady(viewer,e.detail.url));
@@ -164,3 +176,12 @@ const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isInte
 let ticking=false;function updateScroll(){const y=scrollY;if(!reducedMotion.matches&&innerWidth>800&&y<1000){$('.hero-scene').style.transform=`translateY(${y*.16}px) scale(1.035)`;}ticking=false;}
 addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateScroll);ticking=true;}},{passive:true});
 renderCart();
+window.CRMaison = Object.freeze({
+ selection:()=>({product:currentProduct,color:selectedColors[currentProduct],size:currentSize}),
+ closePanels:()=>closePanel(false),
+ syncCatalog:rows=>{
+  const ids=window.CRBackend.productIds;
+  centralProducts=Object.fromEntries(products.map(p=>[p.id,rows.find(row=>row.$id===ids[p.id])]));
+  updatePriceDisplay();renderCart();
+ }
+});
