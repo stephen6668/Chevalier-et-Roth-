@@ -122,3 +122,21 @@ model-viewer{display:block;--poster-color:transparent;--progress-bar-color:var(-
 @media(prefers-reduced-motion:reduce){.hero-slide,.carousel-arrow,.carousel-side-select>span{transition:none!important}}
 @media(min-width:801px){.carousel-arrow-previous{left:0}.carousel-side-previous>span{left:75%}.carousel-side-next>span{left:25%}}
 .hero-slide.is-previous,.hero-slide.is-next{opacity:1;filter:saturate(.9) brightness(.9)}
+/* Per-product color choices and accurate posters during model changes. */
+.color-picker-variants .color-swatches{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;margin:0 0 5px}
+.color-picker-variants .swatch{width:28px;height:28px;min-width:28px;min-height:28px;margin:3px;position:relative;flex:none}
+.color-picker-variants .swatch:before{content:'';position:absolute;inset:-4px}
+.color-picker-variants .swatch:after{inset:-3px}
+.color-selected-detail{display:block;font-size:7px;color:#765b47;letter-spacing:.4px;line-height:1.5;margin-top:5px}
+.hero-slide>.variant-loading-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;pointer-events:none}
+.hero-slide.is-variant-loading>.hero-product-model{visibility:hidden}
+.hero-slide.is-variant-loading>.variant-loading-poster{display:block}
+.product-card-3d>.variant-card-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;pointer-events:none;z-index:1}
+.product-card-3d.is-variant-loading>.card-model{visibility:hidden}
+.product-card-3d.is-variant-loading>.variant-card-poster{display:block}
+.card-color-note>.card-color-name{margin-left:0;font-size:8px;color:#8a7762;letter-spacing:0}
+.card-color-note>.card-view-label{margin-left:auto;font-size:6px;letter-spacing:.5px;color:#9e8d7a}
+@media(max-width:1150px) and (min-width:801px){.color-picker-variants .color-swatches{gap:2px}.color-picker-variants .swatch{width:25px;height:25px;min-width:25px;min-height:25px;margin:2px}}
+@media(max-width:800px){.hero-shop .color-picker-variants{margin-bottom:0}.color-picker-variants .color-swatches{gap:3px}.color-picker-variants .swatch{width:29px;height:29px;min-width:29px;min-height:29px;margin:3px}.card-color-note>.card-color-name{font-size:7px}}
+@media(max-width:480px){.hero-shop{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:14px}.color-picker-variants .color-swatches{gap:2px;flex-wrap:wrap;max-width:100%}.color-picker-variants .swatch{width:25px;height:25px;min-width:25px;min-height:25px;margin:2px}.color-selected-detail{font-size:6px;margin-top:3px}.card-color-note>.card-color-name{display:inline}.card-color-note>.card-view-label{display:none}}
+@media(max-width:350px){.color-picker-variants .color-swatches{gap:0}.color-picker-variants .swatch{width:24px;height:24px;min-width:24px;min-height:24px;margin:1px}}
