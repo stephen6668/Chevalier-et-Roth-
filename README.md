@@ -46,9 +46,16 @@ Kollektionsvorschau, kein aktiver Verkauf. Die Auswahl bleibt lokal im Browser; 
 
 ## Appwrite wieder verbinden
 
-Die ursprünglichen öffentlichen Verbindungskennungen wurden aus der Git-Historie wiederhergestellt. `site-config.js` enthält den Endpoint `https://fra.cloud.appwrite.io/v1`, Projekt `6ac779cc001f0d093856`, Datenbank `6ac7d6740035408079f7`, Warteliste `6ac7d6e1002f38269b6a`, Admin-Team `6ac7d7fc0029522fc7bf` und die Tabellen `cr_products`, `cr_codes`, `cr_orders`, `cr_giveaway` (First Collection Giveaway).
+Die öffentlichen Verbindungskennungen wurden aus der Git-Historie und den aktuellen Appwrite-Screenshots wiederhergestellt. `site-config.js` enthält den Endpoint `https://fra.cloud.appwrite.io/v1`, Projekt `6ac779cc001f0d093856`, Datenbank `6ac7d6740035408079f7`, Warteliste `6ac7d6e1002f38269b6a`, Admin-Team `6ac7d7fc0029522fc7bf` sowie die tatsächlichen Tabellen-IDs:
 
-Appwrite muss jeden verwendeten Hostnamen unter **Overview → Platforms → Add platform → Web** zulassen. Für die aktuelle Site ist das `chevalier-et-roth-maison.politeoffer3.chatgpt.site`, ohne Protokoll oder Pfad. Bestehende Plattformen beibehalten; für GitHub Pages `stephen6668.github.io` und für lokale Entwicklung `localhost` beziehungsweise `127.0.0.1` ebenfalls freigeben. Der erste echte Test der neuen Site-Domain wurde von Appwrite mit `403 general_unknown_origin` abgewiesen. Das Freigeben des Hostnamens muss im bestehenden Appwrite-Projekt erfolgen; Code allein kann diese Projekteinstellung nicht ändern.
+- `cr_products`: `6ac7d6740035408079f7`
+- `cr_codes`: `6aca7bdc002c0883da74`
+- `cr_orders`: `6aca7cf00026558bc07f`
+- First Collection Giveaway: `cr_giveaway`
+
+Tabellenname und Tabellen-ID sind getrennte Angaben. Dass die Produkt- und Datenbank-ID identisch sind, wurde durch eine erfolgreiche echte Produktabfrage geprüft; die Produkttabelle enthält aktuell keine Einträge. Codes und Bestellungen beantworten Gastabfragen mit einer Lesesperre. Das ist kein Nachweis einer erfolgreichen Admin-Anmeldung oder eines Schreibzugriffs; diese erfordern eine berechtigte Appwrite-Sitzung.
+
+Appwrite muss jeden verwendeten Hostnamen unter **Overview → Platforms → Add platform → Web** zulassen. Für die aktuelle Site ist das `chevalier-et-roth-maison.politeoffer3.chatgpt.site`, ohne Protokoll oder Pfad. Diese Domain wurde inzwischen freigegeben und im echten Verbindungstest akzeptiert. Bestehende Plattformen beibehalten; für GitHub Pages `stephen6668.github.io` und für lokale Entwicklung `localhost` beziehungsweise `127.0.0.1` ebenfalls freigeben.
 
 `admin.html` verwendet vorhandene E-Mail-/Passwortkonten und prüft eine bestätigte Mitgliedschaft im bestehenden Admin-Team. Der Adminbereich lädt Warteliste, Produkte, Codes, Bestellungen und Giveaway direkt aus Appwrite. Produkt- und Codeänderungen sowie Teilnehmerstatus werden dort gespeichert; es gibt keine Demo-Daten, automatischen Datenimporte oder lokalen Erfolgs-Fallbacks. Codes sind nur für Admins lesbar und verwaltbar. Eine zukünftige Einlösung muss serverseitig geprüft werden; Stripe bleibt deaktiviert.
 
