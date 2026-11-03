@@ -28,18 +28,39 @@ function siteAssetHeaders(asset) {
 }
 
 async function siteModel(request, path, model) {
- const headers = new Headers();
+ const headers = new Headers({'user-agent': 'Chevalier-Roth-3D/1.0'});
  for (const name of ['range', 'if-none-match', 'if-modified-since']) {
   const value = request.headers.get(name);
   if (value) headers.set(name, value);
  }
- let upstream;
- try {
-  upstream = await fetch(MODEL_SOURCE_ORIGIN + path, {method: request.method, headers, redirect: 'error'});
- } catch {return siteError('Die 3D-Datei ist gerade nicht erreichbar.', 502);}
- if (![200, 206, 304, 416].includes(upstream.status)) return siteError('Die 3D-Datei ist gerade nicht erreichbar.', 502);
+ const allowedHosts = new Set(['raw.githubusercontent.com', 'media.githubusercontent.com', 'objects.githubusercontent.com']);
+ // If this hosting edge cannot fetch GitHub, browsers can load the same public,
+ // CORS-enabled immutable file directly. The target never comes from user input.
+ const failure = (reason, upstreamStatus, errorClass) => siteError('Die 3D-Datei wird direkt geladen.', 307, {
+  'location': MODEL_SOURCE_ORIGIN + path,
+  'referrer-policy': 'no-referrer',
+  'x-model-proxy': '1',
+  'x-model-error': reason,
+  ...(Number.isInteger(upstreamStatus) ? {'x-model-upstream-status': String(upstreamStatus)} : {}),
+  ...(typeof errorClass === 'string' && /^[A-Za-z][A-Za-z0-9]{0,39}$/.test(errorClass) ? {'x-model-error-class': errorClass} : {})
+ });
+ let upstream, target = new URL(MODEL_SOURCE_ORIGIN + path);
+ for (let redirects = 0; redirects <= 3; redirects++) {
+  if (target.protocol !== 'https:' || target.username || target.password || (target.port && target.port !== '443') || !allowedHosts.has(target.hostname)) return failure('unsafe-redirect', upstream?.status);
+  try {
+   upstream = await fetch(target.href, {method: request.method, headers, redirect: 'manual'});
+  } catch (error) {return failure('network-error', upstream?.status, error?.name);}
+  if (![301, 302, 303, 307, 308].includes(upstream.status)) break;
+  if (redirects === 3) return failure('redirect-limit', upstream.status);
+  const location = upstream.headers.get('location');
+  if (!location) return failure('redirect-missing-location', upstream.status);
+  try {target = new URL(location, target);} catch {return failure('invalid-redirect', upstream.status);}
+  try {await upstream.body?.cancel();} catch {}
+ }
+ if (![200, 206, 304, 416].includes(upstream.status)) return failure('upstream-status', upstream.status);
  const responseHeaders = new Headers({
   'content-type': 'model/gltf-binary',
+  'x-model-proxy': '1',
   'cache-control': 'public, max-age=3600, must-revalidate',
   'x-content-type-options': 'nosniff'
  });
