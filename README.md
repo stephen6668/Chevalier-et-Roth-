@@ -44,7 +44,15 @@ Das Repository enthält die aktuelle Website mit dem neuen Logo, der Salonkuliss
 
 Kollektionsvorschau, kein aktiver Verkauf. Die Auswahl bleibt lokal im Browser; Warteliste und Giveaway werden ausschließlich nach erfolgreicher Appwrite-Bestätigung als gespeichert angezeigt. Bestehende Produktpreise aus Appwrite werden mit der bisherigen Konfiguration (EUR, 17 % MwSt., Datenbankpreise netto) vorläufig angezeigt. Ohne gepflegten Preis bleibt „Preis folgt“ sichtbar. Es werden keine neuen Bestellungen oder Zahlungen ausgelöst. Bestehende Bestellungen können im Adminbereich gelesen werden. Vor einem öffentlichen Start müssen verbindliche Produktdaten, Veranstalter- und Kontaktdaten, Datenschutzhinweise und Giveaway-Bedingungen ergänzt werden. Frühere Website-Stände bleiben in der Git-Historie erhalten.
 
-## Appwrite wieder verbinden
+## Produktseiten und Bilder
+
+`product.html?product=body|halfzip|trousers&color=bordeaux|black|gray|beige|navy&size=S|M|L|XL` öffnet die passende Produktdetailseite. Banner, Produktkarten, Suchergebnisse und Positionen der lokalen Auswahl verlinken mit ihrer aktuellen Farbe und Größe darauf. Die fünf Farbauswahlen in den Produktkarten aktualisieren die zugehörigen 3D-Ansichten, ohne das vordere Bannerprodukt zu wechseln.
+
+Die Detailseite enthält Bildergalerie, vergrößerbare Ansicht, kurze Beschreibung, Größenwahl und ein echtes Appwrite-Wartelistenformular. Farbe und Größe bleiben im URL-Link erhalten. Die separate 360°-Ansicht lädt das ausgewählte GLB-Modell erst beim Öffnen und bietet Drehen, Pause und Zurücksetzen. Ein passendes Produktbild überbrückt das Laden und bleibt bei fehlender 3D-Unterstützung verfügbar. Die ausgewählte Variante wird an die bestehende Warteliste oder die lokale Auswahl übergeben.
+
+`gallery.js` ordnet sämtliche 15 Farbvarianten den korrekten Bildern zu. Die sechs bestätigten Studio-PNGs aus dem Repository wurden für die Auslieferung in `assets/gallery/` als WebP gespeichert: Body in Bordeaux und Beige, Hose in Bordeaux, Schwarz, Grau und Beige. Die Originaluploads bleiben unverändert. Alle Varianten besitzen zusätzlich ihre farblich passenden, aus den gelieferten 3D-Modellen gerenderten Produktansichten unter `assets/products/`; für andere Farben wird kein andersfarbiges Studiofoto angezeigt.
+
+## Appwrite-Konfiguration
 
 Die öffentlichen Verbindungskennungen wurden aus der Git-Historie und den aktuellen Appwrite-Screenshots wiederhergestellt. `site-config.js` enthält den Endpoint `https://fra.cloud.appwrite.io/v1`, Projekt `6ac779cc001f0d093856`, Datenbank `6ac7d6740035408079f7`, Warteliste `6ac7d6e1002f38269b6a`, Admin-Team `6ac7d7fc0029522fc7bf` sowie die tatsächlichen Tabellen-IDs:
 
