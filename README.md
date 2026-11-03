@@ -77,3 +77,20 @@ Erforderliche Berechtigungen im vorhandenen Projekt:
 - `cr_orders`: Admin-Team darf lesen; Schreiben bleibt beim bisherigen Bestell-/Webhooksystem.
 
 Die Website enthält keine geheimen API-Schlüssel. Sitzungen und Datenrechte werden von Appwrite durchgesetzt. Die Browserprüfungen verwenden isolierte Testantworten; es werden dabei keine echten Teilnehmer, Codes oder Bestellungen angelegt. Die ursprünglichen Tabellen und ihr Datenbestand werden nicht gelöscht oder automatisch überschrieben.
+
+
+## Stripe-Testcheckout
+
+Der gehostete Checkout ist ausschließlich im Testmodus verfügbar. Die bestätigten Endpreise inklusive Mehrwertsteuer betragen Half-Zip 110 €, Body 90 € und Hose 100 €. Für den Test wird kein Versandbetrag ergänzt. `dist/store-prices.js` zeigt diese Preise an; allein der serverseitige Katalog `STRIPE_PRICE_CATALOG` bestimmt die an Stripe übergebenen Beträge. Spätere Preisänderungen müssen in beiden Konfigurationen zusammen angepasst werden. Appwrite-Produktpreise sind keine Autorität für diesen Stripe-Testkatalog.
+
+`checkout.html` übernimmt eine einzelne Variante aus einer Produktseite oder die lokale Auswahl mit mehreren Positionen. Der Server validiert Produkt, Farbe, Größe und Stückzahl, berechnet die Preise selbst und erstellt eine Stripe-Checkout-Session mit einem Warenkorb-bezogenen Idempotenzschlüssel. Der Rückkehrlink zeigt eine bestätigte Testzahlung nur nach einer erneuten serverseitigen Abfrage bei Stripe. Ein URL-Parameter allein bestätigt keine Zahlung. Testzahlungen erzeugen keinen Versand und derzeit keinen automatischen Datensatz in `cr_orders`; ein produktiver Fulfillment-/Webhookpfad benötigt eine separate authentifizierte Appwrite-Serveranbindung.
+
+Runtime-Werte werden in Sites gespeichert: `STRIPE_SECRET_KEY` als Secret und `STRIPE_PRICE_CATALOG` als serverseitiger JSON-Katalog. Im Repository befinden sich keine Schlüssel. Live-Schlüssel werden vom Test-Server abgewiesen.
+
+Die aktuelle vom Hosting zurückgegebene Adresse lautet `https://chevalier-et-roth-maison.backesst17.chatgpt.site`. Für Warteliste und Giveaway muss dieser Hostname in Appwrite als Web-Plattform zugelassen sein. Ist das Plattformlimit erreicht, kann die frühere Preview-Plattform bearbeitet und ihr Hostname ersetzt werden; die GitHub-Plattform bleibt erhalten.
+
+## Server-Build
+
+Die bestehenden HTML-/CSS-/JS-Dateien bleiben als Frontend-Quellen unter `dist/` erhalten; im GitHub-Spiegel liegen sie wie bisher im Stammverzeichnis. Der Build erkennt beide Layouts. `node scripts/build-worker.mjs` erzeugt unter `.worker-output/dist/` genau einen eigenständigen Worker und das Hosting-Manifest. HTML, Skripte, Lizenzen und Rasterbilder werden eingebettet. Die 15 großen GLB-Dateien werden über einen auf einen bestehenden GitHub-Commit festgelegten Dateipfad gestreamt. Der Proxy akzeptiert ausschließlich diese bekannten Modelle und reicht keine Cookies oder Anmeldedaten weiter.
+
+Die Deployment-Datei enthält `.openai/hosting.json`, `dist/.openai/hosting.json` und `dist/server/index.js`. Die Source-Konfiguration besitzt keine `static`-Deklaration mehr. Projekt-ID und privater Zugriff bleiben erhalten. Die ursprünglichen PNG- und GLB-Uploads bleiben unverändert im GitHub-Repository.

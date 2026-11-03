@@ -4,3 +4,7 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+.worker-output/
+site-deployment.tar.gz
+worker-deployment.tar.gz
