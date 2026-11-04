@@ -12,7 +12,7 @@ window.CRSiteConfig = Object.freeze({
  orderTableId: '6aca7cf00026558bc07f',
  giveawayTableId: 'cr_giveaway',
  launchAt: '2027-01-02T00:00:00+01:00',
- tiktokUrl: 'https://www.tiktok.com/@chevalierandroth',
+ tiktokUrl: 'https://www.tiktok.com/@chevalier.roth',
  instagramUrl: 'https://www.instagram.com/chevalierandroth/',
  orderingEnabled: false,
  currency: 'EUR',

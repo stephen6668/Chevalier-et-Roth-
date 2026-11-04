@@ -205,7 +205,6 @@ $('#rotate-left').addEventListener('click',()=>rotate(-35));$('#rotate-right').a
 $('#reset-view').addEventListener('click',()=>{pauseRotation();model.resetTurntableRotation?.(0);model.setAttribute('camera-orbit','0deg 80deg 105%');model.jumpCameraToGoal?.();});
 $('#rotation-toggle').addEventListener('click',()=>{autoRotationEnabled=!autoRotationEnabled;updateRotation();});
 if(reducedMotion.matches)pauseRotation();reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)pauseRotation();});
-const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}}),{threshold:.1});$$('.reveal').forEach(el=>observer.observe(el));
 let ticking=false;function updateScroll(){const y=scrollY;if(!reducedMotion.matches&&innerWidth>800&&y<1000){$('.hero-scene').style.transform=`translateY(${y*.16}px) scale(1.035)`;}ticking=false;}
 addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateScroll);ticking=true;}},{passive:true});
 renderCart();

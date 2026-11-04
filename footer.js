@@ -29,7 +29,7 @@
   if(/^\+?[0-9 ()-]{6,30}$/.test(phone))company.append(link(config.phoneDisplay||phone,'tel:'+phone.replace(/[^+0-9]/g,''),'cr-footer-phone'));
   if(typeof config.email==='string'&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.email))company.append(link(config.email,'mailto:'+config.email,'cr-footer-email'));
   identity.append(company);
-  const social=make('nav',undefined,'cr-footer-social');social.setAttribute('aria-label','Chevalier & Roth auf Social Media');social.append(socialLink('Instagram',site.instagramUrl,'https://www.instagram.com/chevalierandroth/'),socialLink('TikTok',site.tiktokUrl,'https://www.tiktok.com/@chevalierandroth'));identity.append(social);
+  const social=make('nav',undefined,'cr-footer-social');social.setAttribute('aria-label','Chevalier & Roth auf Social Media');social.append(socialLink('Instagram',site.instagramUrl,'https://www.instagram.com/chevalierandroth/'),socialLink('TikTok',site.tiktokUrl,'https://www.tiktok.com/@chevalier.roth'));identity.append(social);
   grid.append(identity,navigation('Die Kollektion',[
    ['Alle Stücke','./#collection'],['Le Body','product.html?product=body'],['Le Half-Zip','product.html?product=halfzip'],['Le Pantalon','product.html?product=trousers']
   ]),navigation('Service',[

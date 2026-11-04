@@ -114,3 +114,12 @@ Geprüfte Grundlagen: CNPD-Cookie-Leitlinien unter https://cnpd.public.lu/fr/dos
 Die Sprachauswahl steht oben auf jeder Seite und unten im gemeinsamen Footer. `i18n.js` überträgt vorhandene Oberflächentexte und dynamische Meldungen über `translations-store.js` und `translations-legal.js`; Produktkennungen, Farbcodes, Formularwerte und Backend-Payloads bleiben unverändert. Die ausdrücklich gewählte Sprache wird unter `cr-language-v1` für 180 Tage gemerkt und als `lang=de|en|fr` in internen Seitenlinks übernommen. Ein gültiger URL-Parameter hat Vorrang vor der gespeicherten Präferenz. Ohne Auswahl ist Deutsch aktiv.
 
 Produktgalerie, Farb- und Größenwahl, Warteliste, Cookie-Dialoge, Rechtsinformationen, Adminoberfläche und Checkout verwenden die gewählte Sprache. Der Stripe-Testcheckout erhält die Sprache serverseitig und behält sie bei der Rückkehr bei. Der Footer ist zusätzlich im HTML hinterlegt, damit seine Links auch vor der Skriptausführung sichtbar sind.
+
+
+## Logo-Intro und Textbewegung
+
+Die Startseite zeigt bei einem frischen Aufruf oder Neuladen eine kurze Logo-Animation in Elfenbein und Gold. `intro.js`/`intro.css` verwenden das vorhandene CR-Monogramm, einen überspringbaren nativen Dialog und einen zeitlich begrenzten Übergang zur Kollektion. Die Animation wartet weder auf 3D-Dateien noch auf API-Antworten und speichert keine zusätzliche Browser-Präferenz. Sprungmarken, die Warenkorbrückkehr, interne Navigation und die Einstellung für reduzierte Bewegung umgehen das Intro.
+
+`motion.js`/`motion.css` lassen ausgewählte Überschriften und Texte versetzt von links und rechts erscheinen. Der Banner startet nach dem Intro; weitere Texte werden beim Scrollen einmalig eingeblendet. Texte bleiben unverändert für die Übersetzung erreichbar. Ohne JavaScript, ohne IntersectionObserver, bei Tastaturfokus und bei reduzierter Bewegung bleiben Inhalte zugänglich.
+
+Die Social-Links führen auf Instagram zu `chevalierandroth` und auf TikTok zu `chevalier.roth`. Es werden ausschließlich Links geöffnet, keine Social-Widgets oder Tracking-Skripte eingebunden.

@@ -23,7 +23,8 @@ const runtimeNames = [
  'checkout.html', 'checkout.js', 'checkout.css', 'store-prices.js',
  'fonts.css','footer.js','footer.css','privacy.js','privacy.css',
  'legal.html','legal.js','legal.css','legal-config.js',
- 'i18n.js','i18n.css','translations-store.js','translations-legal.js'
+ 'i18n.js','i18n.css','translations-store.js','translations-legal.js',
+ 'intro.js','intro.css','motion.js','motion.css'
 ];
 const output = resolve(root, '.worker-output/dist');
 const modelRef = process.argv.find(value => value.startsWith('--model-ref='))?.slice('--model-ref='.length) || '78f52028a6a6b18ca8a7c5fa401bf6a0c62cdc77';
