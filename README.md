@@ -123,3 +123,12 @@ Die Startseite zeigt bei einem frischen Aufruf oder Neuladen eine kurze Logo-Ani
 `motion.js`/`motion.css` lassen ausgewählte Überschriften und Texte versetzt von links und rechts erscheinen. Der Banner startet nach dem Intro; weitere Texte werden beim Scrollen einmalig eingeblendet. Texte bleiben unverändert für die Übersetzung erreichbar. Ohne JavaScript, ohne IntersectionObserver, bei Tastaturfokus und bei reduzierter Bewegung bleiben Inhalte zugänglich.
 
 Die Social-Links führen auf Instagram zu `chevalierandroth` und auf TikTok zu `chevalier.roth`. Es werden ausschließlich Links geöffnet, keine Social-Widgets oder Tracking-Skripte eingebunden.
+
+
+## Originale Studio-PNGs und spätere Uploads
+
+Die Produktseiten laden die originalen Studio-PNGs aus dem Stammverzeichnis von GitHub `main`. Die Dateinamen sind für alle 15 Produkt-/Farbkombinationen vorab hinterlegt: Präfix `body`, `halfzip` oder `hose`, danach `_mannequin_studio.png` für Bordeaux bzw. `_black_studio.png`, `_gray_studio.png`, `_beige_studio.png` oder `_navy_studio.png`. Groß-/Kleinschreibung beachten.
+
+Bereits geprüft sind `body_mannequin_studio.png`, `body_beige_studio.png`, `hose_mannequin_studio.png`, `hose_black_studio.png`, `hose_gray_studio.png` und `hose_beige_studio.png`. Die Fotogalerie zeigt bei verfügbarem PNG diese Originalaufnahme; eine zusätzliche gerenderte Vorschau wird dort nicht als zweites Foto angehängt. Wartelistenübersicht, verwandte Produkte und Checkout folgen der Aufnahme. Fehlt ein PNG noch, bleibt die passende Farbvariante als klar bezeichnete 3D-Vorschau verfügbar.
+
+`studio-photos.json` dokumentiert die 15 erlaubten Dateinamen und die sechs bereits geprüften Originaldateien. Der Worker liefert ausschließlich diese festen Bildpfade über `/assets/gallery/` aus; neue Uploads unter dem vorgesehenen Namen funktionieren ohne erneute Veröffentlichung. Bilder können bis zu fünf Minuten zwischengespeichert werden; fehlende Bilder werden vom Website-Proxy nicht zwischengespeichert. Die großen PNG-Dateien werden nicht in den Worker eingebettet. Die 3D-Modelle behalten ihren bisherigen unveränderlichen Dateistand.

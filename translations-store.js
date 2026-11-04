@@ -1,6 +1,7 @@
 'use strict';
 (() => {
  const rows = [
+ ['3D-Vorschau','3D preview','Aperçu 3D'],
  ['Zum Inhalt springen','Skip to content','Aller au contenu'],
  ['Menü öffnen','Open menu','Ouvrir le menu'],['Menü schließen','Close menu','Fermer le menu'],['Hauptnavigation','Main navigation','Navigation principale'],
  ['Kollektion','Collection','Collection'],['La Maison','The Maison','La Maison'],['Warteliste','Waiting list','Liste d’attente'],['Suche öffnen','Open search','Ouvrir la recherche'],['Suche schließen','Close search','Fermer la recherche'],['Warenkorb öffnen','Open selection','Ouvrir la sélection'],
@@ -96,9 +97,9 @@
  pattern(P+' · '+C+' · Preis folgt',m=>product(m[1],'en')+' · '+color(m[2],'en')+' · Price to follow',m=>product(m[1],'fr')+' · '+color(m[2],'fr')+' · Prix à venir'),
  pattern(P+' in '+C,m=>product(m[1],'en')+' in '+color(m[2],'en'),m=>product(m[1],'fr')+' en '+color(m[2],'fr')),
  pattern(P+' in '+C+' ansehen',m=>'View '+m[1]+' in '+color(m[2],'en'),m=>'Voir '+m[1]+' en '+color(m[2],'fr')),
- pattern(P+' in '+C+' – (Studioansicht|freigestellte Produktansicht)',m=>m[1]+' in '+color(m[2],'en')+' – '+(m[3]==='Studioansicht'?'studio view':'isolated product view'),m=>m[1]+' en '+color(m[2],'fr')+' – '+(m[3]==='Studioansicht'?'vue studio':'vue détourée du produit')),
- pattern('(Studioansicht|Produktansicht) · '+C,m=>(m[1]==='Studioansicht'?'Studio view':'Product view')+' · '+color(m[2],'en'),m=>(m[1]==='Studioansicht'?'Vue studio':'Vue du produit')+' · '+color(m[2],'fr')),
- pattern('(Studioansicht|Produktansicht) – Bild (\\d+)',m=>(m[1]==='Studioansicht'?'Studio view':'Product view')+' – Image '+m[2],m=>(m[1]==='Studioansicht'?'Vue studio':'Vue du produit')+' – Image '+m[2]),
+ pattern(P+' in '+C+' – (Studioansicht|freigestellte Produktansicht|3D-Vorschau)',m=>m[1]+' in '+color(m[2],'en')+' – '+(m[3]==='Studioansicht'?'studio view':m[3]==='3D-Vorschau'?'3D preview':'isolated product view'),m=>m[1]+' en '+color(m[2],'fr')+' – '+(m[3]==='Studioansicht'?'vue studio':m[3]==='3D-Vorschau'?'aperçu 3D':'vue détourée du produit')),
+ pattern('(Studioansicht|Produktansicht|3D-Vorschau) · '+C,m=>(m[1]==='Studioansicht'?'Studio view':m[1]==='3D-Vorschau'?'3D preview':'Product view')+' · '+color(m[2],'en'),m=>(m[1]==='Studioansicht'?'Vue studio':m[1]==='3D-Vorschau'?'Aperçu 3D':'Vue du produit')+' · '+color(m[2],'fr')),
+ pattern('(Studioansicht|Produktansicht|3D-Vorschau) – Bild (\\d+)',m=>(m[1]==='Studioansicht'?'Studio view':m[1]==='3D-Vorschau'?'3D preview':'Product view')+' – Image '+m[2],m=>(m[1]==='Studioansicht'?'Vue studio':m[1]==='3D-Vorschau'?'Aperçu 3D':'Vue du produit')+' – Image '+m[2]),
  pattern(P+' · '+C+' · (\\d+) / (\\d+)',m=>m[1]+' · '+color(m[2],'en')+' · '+m[3]+' / '+m[4],m=>m[1]+' · '+color(m[2],'fr')+' · '+m[3]+' / '+m[4]),
  pattern(P+' – Bilder und Produktdetails ansehen',m=>'View '+m[1]+' images and product details',m=>'Voir les images et détails de '+m[1]),
  pattern('Farbe für '+P+' wählen',m=>'Choose a colour for '+m[1],m=>'Choisir une couleur pour '+m[1]),

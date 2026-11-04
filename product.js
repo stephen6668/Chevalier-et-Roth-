@@ -26,19 +26,35 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
  const variant=()=>product.variants[color],absolute=url=>new URL(url,document.baseURI).href;
  function updateURL(){const url=new URL(location.href);url.searchParams.set('product',product.id);url.searchParams.set('color',color);url.searchParams.set('size',size);history.replaceState(null,'',url);}
  function productURL(id){const query=new URLSearchParams({product:id,color,size});return 'product.html?'+query;}
- function getGallery(){const entries=window.CR_PRODUCT_GALLERIES?.[product.id]?.[color],fallback={src:variant().image,alt:product.name+' in '+variant().name,label:'Produktansicht'};if(!Array.isArray(entries)||!entries.length)return [fallback];return entries.filter(entry=>entry&&typeof entry.src==='string'&&entry.src).map(entry=>({src:entry.src,alt:entry.alt||fallback.alt,label:entry.label||'Produktansicht'}));}
+ function getGallery(){const entries=window.CR_PRODUCT_GALLERIES?.[product.id]?.[color],fallback={src:variant().image,alt:product.name+' in '+variant().name+' – 3D-Vorschau',label:'3D-Vorschau'};if(!Array.isArray(entries)||!entries.length)return [fallback];return entries.filter(entry=>entry&&typeof entry.src==='string'&&entry.src).map(entry=>({...entry,src:entry.src,alt:entry.alt||fallback.alt,label:entry.label||'3D-Vorschau'}));}
+ function photoImage(element,image,onFallback){
+  const requested=image.src;
+  element.onerror=()=>{
+   if(element.getAttribute('src')!==requested||!image.fallbackSrc||requested===image.fallbackSrc)return;
+   element.onerror=null;
+   if(onFallback)onFallback();else{element.src=image.fallbackSrc;element.alt=image.fallbackAlt||image.alt;}
+  };
+  element.src=requested;element.alt=image.alt||'';
+ }
  function setImage(index){
-  imageIndex=(index+gallery.length)%gallery.length;const image=gallery[imageIndex],main=get('pdp-main-image');main.src=image.src;main.alt=image.alt;
+  imageIndex=(index+gallery.length)%gallery.length;const image=gallery[imageIndex],main=get('pdp-main-image');
+  photoImage(main,image,()=>{
+   if(gallery[imageIndex]!==image)return;
+   image.src=image.fallbackSrc;image.alt=image.fallbackAlt;image.label=image.fallbackLabel||'3D-Vorschau';
+   const thumb=get('pdp-thumbnails').children[imageIndex];
+   if(thumb){thumb.querySelector('img').src=image.src;thumb.setAttribute('aria-label',image.label+' – Bild '+(imageIndex+1));}
+   setImage(imageIndex);updateWaitlistSummary();
+  });
   get('pdp-gallery-count').textContent=String(imageIndex+1).padStart(2,'0')+' / '+String(gallery.length).padStart(2,'0');
   get('pdp-image-caption').textContent=image.label+' · '+variant().name;
   [...get('pdp-thumbnails').children].forEach((button,i)=>button.setAttribute('aria-pressed',String(i===imageIndex)));
   for(const id of ['pdp-gallery-previous','pdp-gallery-next','pdp-zoom-previous','pdp-zoom-next'])get(id).disabled=gallery.length<2;
-  get('pdp-zoom-image').src=image.src;get('pdp-zoom-image').alt=image.alt;get('pdp-zoom-caption').textContent=product.name+' · '+variant().name+' · '+(imageIndex+1)+' / '+gallery.length;
+  photoImage(get('pdp-zoom-image'),image);get('pdp-zoom-caption').textContent=product.name+' · '+variant().name+' · '+(imageIndex+1)+' / '+gallery.length;
  }
  function renderGallery(){
-  gallery=getGallery();if(!gallery.length)gallery=[{src:variant().image,alt:product.name+' in '+variant().name,label:'Produktansicht'}];
+  gallery=getGallery();if(!gallery.length)gallery=[{src:variant().image,alt:product.name+' in '+variant().name+' – 3D-Vorschau',label:'3D-Vorschau'}];
   const thumbnails=get('pdp-thumbnails');thumbnails.replaceChildren();
-  gallery.forEach((image,i)=>{const button=node('button');button.type='button';button.dataset.pdpImage=String(i);button.setAttribute('aria-label',image.label+' – Bild '+(i+1));button.setAttribute('aria-pressed',String(i===0));const thumb=node('img');thumb.src=image.src;thumb.alt='';thumb.width=66;thumb.height=83;thumb.loading='lazy';button.append(thumb);button.addEventListener('click',()=>{setView('images');setImage(i);});thumbnails.append(button);});
+  gallery.forEach((image,i)=>{const button=node('button');button.type='button';button.dataset.pdpImage=String(i);button.setAttribute('aria-label',image.label+' – Bild '+(i+1));button.setAttribute('aria-pressed',String(i===0));const thumb=node('img');photoImage(thumb,{...image,alt:'',fallbackAlt:''});thumb.width=66;thumb.height=83;thumb.loading='lazy';button.append(thumb);button.addEventListener('click',()=>{setView('images');setImage(i);});thumbnails.append(button);});
   setImage(0);
  }
  function updateRotation(){viewer.toggleAttribute('auto-rotate',view==='model'&&modelReady&&rotation&&!reduced.matches);const button=get('pdp-model-rotation');button.setAttribute('aria-pressed',String(rotation));button.setAttribute('aria-label',rotation?'Automatische Drehung pausieren':'Automatische Drehung starten');button.textContent=rotation?'Ⅱ':'▷';}
@@ -63,8 +79,8 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
  function setView(next){view=next;get('pdp-image-stage').hidden=view!=='images';modelStage.hidden=view!=='model';get('pdp-view-images').setAttribute('aria-pressed',String(view==='images'));get('pdp-view-model').setAttribute('aria-pressed',String(view==='model'));get('pdp-thumbnails').hidden=view!=='images';get('pdp-image-caption').hidden=view!=='images';if(view==='model')loadModel();updateRotation();}
  function setColor(next){if(!product.variants[next])return;color=next;get('pdp-color-name').textContent=variant().name;document.querySelectorAll('[data-pdp-color]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pdpColor===color)));renderGallery();if(modelStarted)loadModel();updateWaitlistSummary();renderRelated();updateURL();}
  function setSize(next){if(!validSizes.includes(next))return;size=next;document.querySelectorAll('[data-pdp-size]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pdpSize===size)));updateWaitlistSummary();renderRelated();updateURL();}
- function updateWaitlistSummary(){get('pdp-waitlist-image').src=variant().image;get('pdp-waitlist-product').textContent=product.name;get('pdp-waitlist-variant').textContent=variant().name+' / '+size+' · Goldene Details';}
- function renderRelated(){get('pdp-checkout').href='checkout.html?'+new URLSearchParams({product:product.id,color,size});const container=get('pdp-related-grid');container.replaceChildren();products.filter(p=>p.id!==product.id).forEach(p=>{const card=node('a',undefined,'pdp-related-card');card.href=productURL(p.id);card.dataset.pdpRelated=p.id;const frame=node('div',undefined,'pdp-related-image'),image=node('img');const photos=window.CR_PRODUCT_GALLERIES?.[p.id]?.[color];image.src=photos?.[0]?.src||p.variants[color].image;image.alt=p.name+' in '+variant().name;image.loading='lazy';const label=node('span'),type=node('span',p.category),arrow=node('span','↗');arrow.setAttribute('aria-hidden','true');label.append(type,arrow);frame.append(image,label);card.append(frame,node('h3',p.name),node('p',variant().name+' / Gold'));container.append(card);});}
+ function updateWaitlistSummary(){photoImage(get('pdp-waitlist-image'),gallery[0]||getGallery()[0]);get('pdp-waitlist-product').textContent=product.name;get('pdp-waitlist-variant').textContent=variant().name+' / '+size+' · Goldene Details';}
+ function renderRelated(){get('pdp-checkout').href='checkout.html?'+new URLSearchParams({product:product.id,color,size});const container=get('pdp-related-grid');container.replaceChildren();products.filter(p=>p.id!==product.id).forEach(p=>{const card=node('a',undefined,'pdp-related-card');card.href=productURL(p.id);card.dataset.pdpRelated=p.id;const frame=node('div',undefined,'pdp-related-image'),image=node('img');const photos=window.CR_PRODUCT_GALLERIES?.[p.id]?.[color];photoImage(image,photos?.[0]||{src:p.variants[color].image,alt:p.name+' in '+variant().name});image.loading='lazy';const label=node('span'),type=node('span',p.category),arrow=node('span','↗');arrow.setAttribute('aria-hidden','true');label.append(type,arrow);frame.append(image,label);card.append(frame,node('h3',p.name),node('p',variant().name+' / Gold'));container.append(card);});}
  document.title=product.name+' — Chevalier & Roth';get('pdp-breadcrumb-name').textContent=product.name;get('pdp-title').textContent=product.name;get('pdp-subtitle').textContent=descriptions[product.id].subtitle;get('pdp-description').textContent=product.description;get('pdp-silhouette').textContent=descriptions[product.id].silhouette;get('pdp-details-copy').textContent=descriptions[product.id].details;get('pdp-number').textContent='PIÈCE N° '+String(products.findIndex(p=>p.id===product.id)+1).padStart(2,'0');
  colors.forEach(entry=>{const button=node('button');button.type='button';button.dataset.pdpColor=entry.id;button.style.setProperty('--swatch',entry.swatch);button.setAttribute('aria-label',entry.name);button.title=entry.name;button.setAttribute('aria-pressed','false');const swatch=node('span');swatch.setAttribute('aria-hidden','true');button.append(swatch);button.addEventListener('click',()=>setColor(entry.id));get('pdp-colors').append(button);});
  validSizes.forEach(entry=>{const button=node('button',entry);button.type='button';button.dataset.pdpSize=entry;button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>setSize(entry));get('pdp-sizes').append(button);});

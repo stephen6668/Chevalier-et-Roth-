@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "repository": "stephen6668/Chevalier-et-Roth-",
+  "sourceRef": "main",
+  "observed_commit": "58d62e0979359863930a241d12901aeaba30994f",
+  "photos": [
+    {
+      "file": "body_mannequin_studio.png",
+      "bytes": 2068456,
+      "sha256": "9276b4511fecd50df8bb41fea9379b6959a4b6d6949a7e4aa2a11ca0f63340d9",
+      "git_blob_sha": "51b662088e7e551cf0463e790efba3b04183078a"
+    },
+    {
+      "file": "body_black_studio.png"
+    },
+    {
+      "file": "body_gray_studio.png"
+    },
+    {
+      "file": "body_beige_studio.png",
+      "bytes": 2219847,
+      "sha256": "a60ce6f9c43e7b689dd3f2a69a8a9b36e1440c386d420d48a86822731b329556",
+      "git_blob_sha": "a6747d9d1ce06d1c97c8bcb691d97cc17356b874"
+    },
+    {
+      "file": "body_navy_studio.png"
+    },
+    {
+      "file": "halfzip_mannequin_studio.png"
+    },
+    {
+      "file": "halfzip_black_studio.png"
+    },
+    {
+      "file": "halfzip_gray_studio.png"
+    },
+    {
+      "file": "halfzip_beige_studio.png"
+    },
+    {
+      "file": "halfzip_navy_studio.png"
+    },
+    {
+      "file": "hose_mannequin_studio.png",
+      "bytes": 1929575,
+      "sha256": "307f221631b2fc4241272f39466a224b2dd995d9fc158b991cc080314ce4fd6f",
+      "git_blob_sha": "bd208eaff1c3d1dbc69b9ac84bd48d83242d646f"
+    },
+    {
+      "file": "hose_black_studio.png",
+      "bytes": 1769215,
+      "sha256": "183d0f33fac1d01a6239bb2445fc8082300ad16af87b7e8c3703d14fbf6fa0ca",
+      "git_blob_sha": "edd9ae1fe768151c8907d2ff778e284a17d3736a"
+    },
+    {
+      "file": "hose_gray_studio.png",
+      "bytes": 2078985,
+      "sha256": "7a8889a4bc2388dc683bae00edb9f220800d56ebc70de4d1da90a57d159d96ba",
+      "git_blob_sha": "8f12727a7d4833a4e5ff6bf2f02a4259420ef143"
+    },
+    {
+      "file": "hose_beige_studio.png",
+      "bytes": 2044847,
+      "sha256": "4678997103562495b454286abe28885a18163f1c4f01269dcd5d12115f8c1088",
+      "git_blob_sha": "68198292b6f80d0e6ccb3950f17fd863a3fece99"
+    },
+    {
+      "file": "hose_navy_studio.png"
+    }
+  ]
+}

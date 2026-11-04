@@ -30,6 +30,28 @@ const output = resolve(root, '.worker-output/dist');
 const modelRef = process.argv.find(value => value.startsWith('--model-ref='))?.slice('--model-ref='.length) || '78f52028a6a6b18ca8a7c5fa401bf6a0c62cdc77';
 if (!/^[a-f0-9]{40}$/.test(modelRef)) throw new Error('The model source must be an exact Git commit SHA.');
 const modelOrigin = 'https://raw.githubusercontent.com/stephen6668/Chevalier-et-Roth-/' + modelRef;
+// Original studio photographs stay byte-for-byte PNGs outside the compressed
+// Worker. Only this checked source manifest can create photo routes. The fixed
+// main-branch filenames let future user uploads appear without a redeployment.
+const photoManifest = JSON.parse(await readFile(resolve(sourceDirectory, 'studio-photos.json'), 'utf8'));
+const requiredPhotoNames = new Set(['body', 'halfzip', 'hose'].flatMap(product => ['mannequin', 'black', 'gray', 'beige', 'navy'].map(color => product + '_' + color + '_studio.png')));
+if (photoManifest.version !== 1 || photoManifest.repository !== 'stephen6668/Chevalier-et-Roth-' || !/^(?:main|[a-f0-9]{40})$/.test(photoManifest.sourceRef) || !Array.isArray(photoManifest.photos) || photoManifest.photos.length !== requiredPhotoNames.size) throw new Error('Invalid studio-photo source manifest.');
+const photoRef = photoManifest.sourceRef;
+const photoOrigin = 'https://raw.githubusercontent.com/stephen6668/Chevalier-et-Roth-/' + photoRef;
+const photoFiles = {};
+let photoBytes = 0, verifiedPhotos = 0;
+for (const photo of photoManifest.photos) {
+ if (!requiredPhotoNames.has(photo.file)) throw new Error('Unexpected studio-photo filename.');
+ const route = '/assets/gallery/' + photo.file;
+ if (Object.hasOwn(photoFiles, route)) throw new Error('Duplicate studio-photo route.');
+ const observed = photo.bytes !== undefined || photo.sha256 !== undefined || photo.git_blob_sha !== undefined;
+ if (observed && (!Number.isSafeInteger(photo.bytes) || photo.bytes <= 0 || photo.bytes > 32 * 1024 * 1024 || !/^[a-f0-9]{64}$/.test(photo.sha256) || !/^[a-f0-9]{40}$/.test(photo.git_blob_sha))) throw new Error('Invalid observed studio-photo metadata.');
+ // main can change after this build. Its response must use the upstream ETag,
+ // rather than the hashes recorded when the six available PNGs were checked.
+ photoFiles[route] = {sourcePath: '/' + photo.file, ...(photoRef !== 'main' && observed ? {bytes: photo.bytes, etag: '"' + photo.sha256 + '"'} : {})};
+ if (observed) {photoBytes += photo.bytes;verifiedPhotos++;}
+}
+
 const mime = {
  '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
  '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.md': 'text/plain; charset=utf-8',
@@ -60,6 +82,11 @@ for (const path of runtimePaths.sort()) {
  if (name.split('/').some(part => part.startsWith('.'))) throw new Error('Hidden files cannot be embedded: ' + name);
  const bytes = await readFile(path), extension = extname(path).toLowerCase();
  const etag = '"' + createHash('sha256').update(bytes).digest('hex') + '"';
+ if (Object.hasOwn(photoFiles, name)) {
+  if (photoRef !== 'main' && (photoFiles[name].etag !== etag || photoFiles[name].bytes !== bytes.length)) throw new Error('A local studio PNG differs from its pinned original: ' + name);
+  continue;
+ }
+
  if (extension === '.glb') {
   if (!/^\/assets\/models\/(?:body|halfzip|trousers)-(?:bordeaux|black|gray|beige|navy)-studio\.glb$/.test(name)) throw new Error('Unexpected model asset: ' + name);
   modelFiles[name] = {bytes: bytes.length, etag}; modelBytes += bytes.length; continue;
@@ -86,7 +113,7 @@ for (const [name, asset] of Object.entries(staticFiles)) {
   const url = new URL(target, 'https://runtime.invalid' + name);
   if (url.origin !== 'https://runtime.invalid') continue;
   const dependency = url.pathname === '/' ? '/index.html' : url.pathname;
-  if (!Object.hasOwn(staticFiles, dependency) && !Object.hasOwn(modelFiles, dependency)) {
+  if (!Object.hasOwn(staticFiles, dependency) && !Object.hasOwn(modelFiles, dependency) && !Object.hasOwn(photoFiles, dependency)) {
    throw new Error('Missing local dependency in ' + name + ': ' + dependency);
   }
  }
@@ -103,6 +130,8 @@ const routerSource = router.replace(/^import \{handleStripeRequest\} from '\.\/s
 const source = '// Generated from authored dist/ assets and worker modules. No runtime secrets are embedded.\n' +
  'const STATIC_FILES=' + JSON.stringify(staticFiles) + ';\n' +
  'const MODEL_FILES=' + JSON.stringify(modelFiles) + ';\n' +
+ 'const PHOTO_FILES=' + JSON.stringify(photoFiles) + ';\n' +
+ 'const PHOTO_SOURCE_ORIGIN=' + JSON.stringify(photoOrigin) + ';\n' +
  'const MODEL_SOURCE_ORIGIN=' + JSON.stringify(modelOrigin) + ';\n' + stripeSource + '\n' + routerSource;
 const parsed = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 if (typeof parsed.default?.fetch !== 'function') throw new Error('The artifact must export default.fetch.');
@@ -113,4 +142,4 @@ await mkdir(resolve(output, 'server'), {recursive: true});
 await mkdir(resolve(output, '.openai'), {recursive: true});
 await writeFile(resolve(output, 'server/index.js'), source);
 await writeFile(resolve(output, '.openai/hosting.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log(JSON.stringify({sourceDirectory, output, workerBytes: Buffer.byteLength(source), gzipBytes, embeddedFiles: Object.keys(staticFiles).length, embeddedBytes: staticBytes, streamedModels: Object.keys(modelFiles).length, modelBytes, modelRef, project_id: manifest.project_id}));
+console.log(JSON.stringify({sourceDirectory, output, workerBytes: Buffer.byteLength(source), gzipBytes, embeddedFiles: Object.keys(staticFiles).length, embeddedBytes: staticBytes, streamedModels: Object.keys(modelFiles).length, modelBytes, modelRef, streamedPhotos: Object.keys(photoFiles).length, verifiedPhotos, photoBytes, photoRef, project_id: manifest.project_id}));
