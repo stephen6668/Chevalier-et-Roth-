@@ -1,4 +1,5 @@
 'use strict';
+const selectionStorage=window.CRPrivacy.selectionStorage;
 document.documentElement.classList.add('js');
 const $=(s,p=document)=>p.querySelector(s), $$=(s,p=document)=>[...p.querySelectorAll(s)];
 const products=window.CR_PRODUCTS, colors=window.CR_COLORS, byId=Object.fromEntries(products.map(p=>[p.id,p]));
@@ -39,15 +40,17 @@ async function recoverCachedModel(viewer,url,markReady){
  if(url!==requestedModel(viewer)||absoluteModel(viewer.getAttribute('src'))!==url||viewer.dataset.lastReadyModel!==url||!viewer.loaded)return;
  markReady(viewer);
 }
-try{
- const savedV3=localStorage.getItem('cr-selection-v3');
- const saved=JSON.parse(savedV3===null?(localStorage.getItem('cr-selection-v2')||'[]'):savedV3);
+function loadSelection(){cart=[];try{
+ const savedV3=selectionStorage.getItem('cr-selection-v3');
+ const saved=JSON.parse(savedV3===null?(selectionStorage.getItem('cr-selection-v2')||'[]'):savedV3);
  if(Array.isArray(saved))cart=saved.map(x=>savedV3===null?{...x,color:'bordeaux'}:x).filter(x=>x&&byId[x.product]?.variants[x.color]&&validSizes.includes(x.size)&&Number.isInteger(x.qty)&&x.qty>0&&x.qty<=20).slice(0,60);
- if(savedV3===null&&cart.length)localStorage.setItem('cr-selection-v3',JSON.stringify(cart));
+ if(savedV3===null&&cart.length)selectionStorage.setItem('cr-selection-v3',JSON.stringify(cart));
 }catch{}
+}
+loadSelection();
 const scrollBehavior=()=>reducedMotion.matches?'instant':'smooth';
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
-function saveCart(){try{localStorage.setItem('cr-selection-v3',JSON.stringify(cart));}catch{}renderCart();}
+function saveCart(){try{selectionStorage.setItem('cr-selection-v3',JSON.stringify(cart));}catch{}renderCart();}
 function openPanel(name,trigger){closePanel(false);const panel=$(`#${name}-panel`);if(!panel)return;activePanel=panel;panelTrigger=trigger||document.activeElement;panel.showModal();document.body.classList.add('modal-open');if(name==='search'){renderSearch('');setTimeout(()=>$('#search-input').focus(),80);}}
 function closePanel(restore=true){if(!activePanel)return;const panel=activePanel;activePanel=null;panel.close();document.body.classList.remove('modal-open');if(restore&&panelTrigger)panelTrigger.focus({preventScroll:true});}
 $$('[data-panel]').forEach(b=>b.addEventListener('click',()=>openPanel(b.dataset.panel,b)));
@@ -185,7 +188,7 @@ function showInfo(content){$('#info-content').innerHTML=content.replace('<h2>','
 function closeInfo(){$('#info-dialog').close();if(!activePanel)document.body.classList.remove('modal-open');}
 $('.close-info').addEventListener('click',closeInfo);$('#info-dialog').addEventListener('cancel',e=>{e.preventDefault();closeInfo();});$('#info-dialog').addEventListener('click',e=>{if(e.target===$('#info-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeInfo();}});
 $('.size-guide').addEventListener('click',()=>showInfo(`<p class="eyebrow">LA COLLECTION SIGNATURE</p><h2>Ihre Größe.</h2><p>Für ${byId[currentProduct].name} in ${variantFor(currentProduct).name} sind in dieser Vorschau S, M, L und XL auswählbar. Verbindliche Maße und Passformhinweise folgen mit der finalen Kollektion.</p>`));
-$('#privacy-trigger').addEventListener('click',()=>document.dispatchEvent(new Event('cr:privacy')));
+
 heroModels.forEach(viewer=>{
  viewer.dataset.variantColor=selectedColors[viewer.dataset.heroModel];viewer.dataset.requestedModel=absoluteModel(viewer.getAttribute('src'));
  viewer.addEventListener('load',e=>{if(e.detail?.url)modelReady(viewer,e.detail.url);});
@@ -216,3 +219,5 @@ window.CRMaison = Object.freeze({
   updatePriceDisplay();renderCart();
  }
 });
+
+addEventListener('cr:privacychange',()=>{loadSelection();renderCart();});

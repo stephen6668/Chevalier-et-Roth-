@@ -1,4 +1,5 @@
 'use strict';
+const selectionStorage=window.CRPrivacy.selectionStorage;
 (() => {
  const get=id=>document.getElementById(id),products=window.CR_PRODUCTS||[],byId=Object.fromEntries(products.map(p=>[p.id,p]));
  const validSizes=['S','M','L','XL'],query=new URLSearchParams(location.search),returnStatus=query.get('status'),sessionId=query.get('session_id');
@@ -8,11 +9,11 @@
  const money=cents=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(cents/100);
  function valid(item){return item&&byId[item.product]?.variants[item.color]&&validSizes.includes(item.size)&&Number.isInteger(item.qty)&&item.qty>0&&item.qty<=20;}
  function normalize(raw){if(!Array.isArray(raw))return [];const map=new Map();for(const item of raw.slice(0,60)){if(!valid(item))continue;const key=item.product+'/'+item.color+'/'+item.size,prior=map.get(key);map.set(key,{product:item.product,color:item.color,size:item.size,qty:Math.min(20,(prior?.qty||0)+item.qty)});}return [...map.values()];}
- function readCart(){try{const v3=localStorage.getItem('cr-selection-v3'),raw=JSON.parse(v3===null?(localStorage.getItem('cr-selection-v2')||'[]'):v3);return normalize(v3===null&&Array.isArray(raw)?raw.map(item=>({...item,color:'bordeaux'})):raw);}catch{return [];}}
+ function readCart(){try{const v3=selectionStorage.getItem('cr-selection-v3'),raw=JSON.parse(v3===null?(selectionStorage.getItem('cr-selection-v2')||'[]'):v3);return normalize(v3===null&&Array.isArray(raw)?raw.map(item=>({...item,color:'bordeaux'})):raw);}catch{return [];}}
  function readSnapshot(){try{return normalize(JSON.parse(sessionStorage.getItem(snapshotKey)||'[]'));}catch{return [];}}
  if(direct){const item={product:query.get('product'),color:query.get('color')||'bordeaux',size:query.get('size')||'M',qty:1};if(valid(item))items=[item];}
  else items=returning?readSnapshot():readCart();
- function saveSelection(){if(!direct&&!returning){try{localStorage.setItem('cr-selection-v3',JSON.stringify(items));}catch{}}try{sessionStorage.setItem(snapshotKey,JSON.stringify(items));}catch{}}
+ function saveSelection(){if(!direct&&!returning){try{selectionStorage.setItem('cr-selection-v3',JSON.stringify(items));}catch{}}try{sessionStorage.setItem(snapshotKey,JSON.stringify(items));}catch{}}
  function productURL(item){return 'product.html?'+new URLSearchParams({product:item.product,color:item.color,size:item.size});}
  function price(item){const value=catalog?.prices?.[item.product];return value&&Number.isSafeInteger(value.amount)&&value.amount>0?value:null;}
  function pricesReady(){return items.length>0&&catalog?.configured===true&&catalog?.testMode===true&&catalog?.ready===true&&catalog.currency==='eur'&&Number.isSafeInteger(catalog.shippingAmount)&&catalog.shippingAmount>=0&&items.every(item=>price(item)?.available!==false&&price(item));}
@@ -35,7 +36,7 @@
  get('checkout-reload').addEventListener('click',loadCatalog);
  get('checkout-pay').addEventListener('click',async()=>{
   if(!canPay())return;const signature=JSON.stringify(items);if(!attemptId||attemptSignature!==signature){attemptId=crypto.randomUUID();attemptSignature=signature;}busy=true;saveSelection();render();get('checkout-reload').disabled=true;status('Stripe-Test-Checkout wird geöffnet …');
-  try{const data=await api('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({attemptId,items})});const url=new URL(data.url);if(data.mode!=='test'||!/^cs_test_[a-zA-Z0-9_]{8,200}$/.test(data.id||'')||url.protocol!=='https:'||url.hostname!=='checkout.stripe.com')throw new Error('Es wurde kein gültiger Stripe-Test-Checkout bestätigt.');location.assign(url.href);}catch(error){status(error.message,'error');busy=false;get('checkout-reload').disabled=false;render();}
+  try{const data=await api('/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({attemptId,items,locale:window.CRI18N?.getLanguage()||'de'})});const url=new URL(data.url);if(data.mode!=='test'||!/^cs_test_[a-zA-Z0-9_]{8,200}$/.test(data.id||'')||url.protocol!=='https:'||url.hostname!=='checkout.stripe.com')throw new Error('Es wurde kein gültiger Stripe-Test-Checkout bestätigt.');location.assign(url.href);}catch(error){status(error.message,'error');busy=false;get('checkout-reload').disabled=false;render();}
  });
  function result(label,title,message,state=''){const panel=get('checkout-result');panel.hidden=false;panel.dataset.state=state;get('checkout-result-label').textContent=label;get('checkout-result-title').textContent=title;get('checkout-result-message').textContent=message;}
  async function verifySession(){
@@ -45,5 +46,6 @@
  }
  get('checkout-verify-again').addEventListener('click',verifySession);
  if(returnStatus==='cancelled')result('STRIPE · TESTMODUS','Ihre Auswahl bleibt erhalten.','Der Test-Checkout wurde verlassen. Sie können Ihre Auswahl prüfen und die Testzahlung erneut starten.');
+ addEventListener('cr:privacychange',()=>{if(!direct&&!returning&&!busy){items=readCart();render();}});
  render();loadCatalog();if(returnStatus==='success')verifySession();
 })();

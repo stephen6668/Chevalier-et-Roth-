@@ -1,9 +1,10 @@
 'use strict';
+const selectionStorage=window.CRPrivacy.selectionStorage;
 (() => {
  const get=id=>document.getElementById(id),products=window.CR_PRODUCTS||[],colors=window.CR_COLORS||[],api=window.CRBackend;
  const validSizes=['S','M','L','XL'],params=new URLSearchParams(location.search),rawProduct=params.get('product');
  const product=products.find(p=>p.id===(rawProduct||'halfzip'));
- get('pdp-year').textContent=String(new Date().getFullYear());
+
  function node(tag,text,className){const element=document.createElement(tag);if(text!==undefined)element.textContent=String(text);if(className)element.className=className;return element;}
  function closeDialog(dialog){dialog.close();document.body.classList.toggle('modal-open',!!document.querySelector('dialog[open]'));}
  function openDialog(dialog){dialog.showModal();document.body.classList.add('modal-open');}
@@ -88,16 +89,17 @@
   finally{submitting=false;form.setAttribute('aria-busy','false');controls.forEach(control=>control.disabled=false);}
  });
  function readSelection(){
-  try{const v3=localStorage.getItem('cr-selection-v3'),saved=JSON.parse(v3===null?(localStorage.getItem('cr-selection-v2')||'[]'):v3);if(!Array.isArray(saved))return [];return saved.map(entry=>v3===null?{...entry,color:'bordeaux'}:entry).filter(entry=>entry&&products.find(p=>p.id===entry.product)?.variants[entry.color]&&validSizes.includes(entry.size)&&Number.isInteger(entry.qty)&&entry.qty>0&&entry.qty<=20).slice(0,60);}catch{return [];}
+  try{const v3=selectionStorage.getItem('cr-selection-v3'),saved=JSON.parse(v3===null?(selectionStorage.getItem('cr-selection-v2')||'[]'):v3);if(!Array.isArray(saved))return [];return saved.map(entry=>v3===null?{...entry,color:'bordeaux'}:entry).filter(entry=>entry&&products.find(p=>p.id===entry.product)?.variants[entry.color]&&validSizes.includes(entry.size)&&Number.isInteger(entry.qty)&&entry.qty>0&&entry.qty<=20).slice(0,60);}catch{return [];}
  }
  function selectionCount(){get('pdp-selection-count').textContent=String(readSelection().reduce((sum,item)=>sum+item.qty,0));}
  get('pdp-selection-add').addEventListener('click',()=>{
   const selection=readSelection(),existing=selection.find(entry=>entry.product===product.id&&entry.color===color&&entry.size===size),status=get('pdp-selection-message');
   if(existing?.qty>=20){status.textContent='Maximal 20 Stück pro Variante.';return;}if(!existing&&selection.length>=60){status.textContent='Ihre Auswahl enthält bereits 60 Varianten. Bitte entfernen Sie zunächst ein Stück.';return;}
   if(existing)existing.qty++;else selection.push({product:product.id,color,size,qty:1});
-  try{localStorage.setItem('cr-selection-v3',JSON.stringify(selection));selectionCount();status.textContent=product.name+' · '+variant().name+' / '+size+' wurde Ihrer Auswahl hinzugefügt.';}catch{status.textContent='Die Auswahl konnte auf diesem Gerät nicht gespeichert werden. Sie können sich direkt auf der Warteliste vormerken.';}
+  try{selectionStorage.setItem('cr-selection-v3',JSON.stringify(selection));selectionCount();status.textContent=product.name+' · '+variant().name+' / '+size+' wurde Ihrer Auswahl hinzugefügt.';}catch{status.textContent='Die Auswahl konnte auf diesem Gerät nicht gespeichert werden. Sie können sich direkt auf der Warteliste vormerken.';}
  });
  addEventListener('storage',event=>{if(event.key==='cr-selection-v3'||event.key==='cr-selection-v2')selectionCount();});
+ addEventListener('cr:privacychange',selectionCount);
  setColor(color);setSize(size);selectionCount();get('pdp-content').hidden=false;
  const approved=window.CR_STORE_PRICES?.products?.[product.id];
  if(Number.isSafeInteger(approved?.amount)&&approved.amount>0){get('pdp-price').textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(approved.amount/100);get('pdp-price-note').textContent='Endpreis inkl. MwSt. · Stripe im Testmodus';}

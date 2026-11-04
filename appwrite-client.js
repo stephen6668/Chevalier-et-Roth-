@@ -127,6 +127,7 @@ window.CRBackend = (() => {
   return create(config.waitlistTableId, data);
  }
  async function enterGiveaway(entry) {
+  if(window.CRLegalConfig?.giveawayReady !== true) throw new Error('Das Giveaway ist noch nicht zur Teilnahme freigegeben.');
   if (Date.now() >= new Date(config.launchAt).getTime()) throw new Error('Das Gewinnspiel ist bereits beendet.');
   if (entry.socialConfirmed !== true) throw new Error('Bitte bestätige, dass du uns auf TikTok und Instagram folgst.');
   if (entry.privacyAccepted !== true) throw new Error('Bitte den Teilnahme- und Datenschutzhinweisen zustimmen.');

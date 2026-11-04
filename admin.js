@@ -19,9 +19,16 @@
   const date = value => {const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? String(value || '—') : parsed.toLocaleString('de-DE');};
   const text = value => String(value ?? '');
   const el = (tag, value, className) => {const node = document.createElement(tag); if (value !== undefined) node.textContent = text(value); if(className) node.className = className; return node;};
+  const raw = (tag, value, className) => {const node = el(tag, value, className); node.dataset.userContent = ''; return node;};
+  // Translate UI labels while leaving the values received from Appwrite untouched.
+  window.CR_TRANSLATIONS ||= {};
+  for(const [source,en,fr] of [['Gewinn:','Prize:','Prix :'],['Produkte:','Products:','Produits :'],['Kategorien:','Categories:','Catégories :']]) {
+    for(const [language,label] of [['en',en],['fr',fr]]) {(window.CR_TRANSLATIONS[language] ||= {})[source] = label;}
+  }
   const message = (selector, value, kind = '') => {const node = $(selector); node.textContent = value; node.className = `status ${kind}`.trim();};
   const errorMessage = error => api?.errorMessage ? api.errorMessage(error) : 'Die Appwrite-Verbindung konnte nicht geladen werden. Bitte laden Sie die Seite erneut.';
   function addLine(container, value, className) {const line = el('p', value, className); container.append(line); return line;}
+  function addRawLine(container, value, className) {const line = raw('p', value, className); container.append(line); return line;}
   function setLoginView(note = '', kind = '') {
     authenticated = false; loadVersion++;
     $('#login-view').hidden = false; $('#admin-view').hidden = true; $('#records').replaceChildren(); rows = [];
@@ -93,13 +100,13 @@
   }
   function recordBase(title, row) {
     const card = el('article', undefined, 'record-card'), body = el('div'), actions = el('div', undefined, 'record-actions');
-    body.append(el('h3', title)); addLine(body, `ID ${text(row.$id)} · ${date(row.$createdAt)}`, 'record-meta'); card.append(body, actions); return {card, body, actions};
+    body.append(raw('h3', title)); addRawLine(body, `ID ${text(row.$id)} · ${date(row.$createdAt)}`, 'record-meta'); card.append(body, actions); return {card, body, actions};
   }
   function editButton(actions, row) {const button = el('button','Bearbeiten','outline-button'); button.type = 'button'; button.addEventListener('click',()=>openEditor(row)); actions.append(button);}
   function statusControl(actions, row, statuses) {
     const label = el('label','Status'), select = document.createElement('select'); select.setAttribute('aria-label',`Status für ${text(row.name || row.email || row.$id)}`);
     const values = statuses.includes(row.status) ? statuses : [row.status,...statuses].filter(Boolean);
-    values.forEach(value => {const option = el('option',statusNames[value] || value); option.value = value; select.append(option);}); select.value = row.status || statuses[0];
+    values.forEach(value => {const option = statusNames[value] ? el('option',statusNames[value]) : raw('option',value); option.value = value; select.append(option);}); select.value = row.status || statuses[0];
     label.append(select); actions.append(label);
     select.addEventListener('change', async () => {
       const before = row.status || statuses[0], version = loadVersion, table = views[activeTab].table; select.disabled = true;
@@ -117,30 +124,31 @@
       let parts;
       if(activeTab === 'waitlist') {
         parts = recordBase(row.name || 'Wartelistenanmeldung',row);
-        addLine(parts.body,row.email); addLine(parts.body,[row.productName || row.productId,row.color,row.size].filter(Boolean).join(' · '));
+        addRawLine(parts.body,row.email); addRawLine(parts.body,[row.productName || row.productId,row.color,row.size].filter(Boolean).join(' · '));
         statusControl(parts.actions,row,waitlistStatuses);
       } else if(activeTab === 'giveaway') {
         parts = recordBase([row.firstName,row.lastName].filter(Boolean).join(' ') || 'Giveaway-Teilnahme',row);
-        addLine(parts.body,row.email); addLine(parts.body,`Gewinn: ${text(row.prizeName || row.prizeId)}`);
+        addRawLine(parts.body,row.email); const prize = el('p'); prize.append(el('span','Gewinn:'),document.createTextNode(' '),raw('span',row.prizeName || row.prizeId)); parts.body.append(prize);
         addLine(parts.body,`Datenschutz bestätigt: ${row.privacyAccepted === true ? 'Ja' : 'Nein'}`,'record-meta');
         statusControl(parts.actions,row,giveawayStatuses);
       } else if(activeTab === 'products') {
         parts = recordBase(row.name || row.$id,row);
         parts.body.append(el('span',row.active === false ? 'INAKTIV' : 'AKTIV','badge'));
-        addLine(parts.body,[row.category,row.sku].filter(Boolean).join(' · '));
+        addRawLine(parts.body,[row.category,row.sku].filter(Boolean).join(' · '));
         const fields = el('div',undefined,'record-fields'); fields.append(el('span',`Preis ${money(row.price)}`),el('span',`Aktionspreis ${Number(row.salePrice) > 0 ? money(row.salePrice) : '—'}`),el('span',`Bestand ${text(row.stock ?? 0)}`)); parts.body.append(fields);
-        if(row.description) addLine(parts.body,row.description); editButton(parts.actions,row);
+        if(row.description) addRawLine(parts.body,row.description); editButton(parts.actions,row);
       } else if(activeTab === 'codes') {
         parts = recordBase(row.code || 'Code',row); parts.body.append(el('span',row.active === false ? 'INAKTIV' : 'AKTIV','badge'));
         addLine(parts.body,`${text(row.percent || 0)} % · ${text(row.uses || 0)} / ${Number(row.maxUses) > 0 ? text(row.maxUses) : '∞'} Nutzungen · Mindestwert ${money(row.minOrder)}`);
         addLine(parts.body,`Gültigkeit: ${row.start ? date(row.start) : 'ab sofort'} bis ${row.end ? date(row.end) : 'unbegrenzt'}`,'record-meta');
-        addLine(parts.body,`Produkte: ${scopeDisplay(row.products)} · Kategorien: ${scopeDisplay(row.categories)}`,'record-meta'); editButton(parts.actions,row);
+        const scope = el('p',undefined,'record-meta');
+        scope.append(el('span','Produkte:'),document.createTextNode(' '),scopeNode(row.products),document.createTextNode(' · '),el('span','Kategorien:'),document.createTextNode(' '),scopeNode(row.categories)); parts.body.append(scope); editButton(parts.actions,row);
       } else {
-        parts = recordBase(row.number || row.$id,row); parts.actions.append(el('span',row.status || '—','badge'),el('strong',money(row.total)));
-        addLine(parts.body,[row.customer,row.email].filter(Boolean).join(' · ')); addLine(parts.body,`Bestelldatum: ${date(row.date || row.$createdAt)}`);
+        parts = recordBase(row.number || row.$id,row); parts.actions.append(raw('span',row.status || '—','badge'),el('strong',money(row.total)));
+        addRawLine(parts.body,[row.customer,row.email].filter(Boolean).join(' · ')); addLine(parts.body,`Bestelldatum: ${date(row.date || row.$createdAt)}`);
         const details = el('details',undefined,'order-items'); details.append(el('summary','Bestellte Artikel ansehen'));
         const items = parseArray(row.items);
-        if(items) {const list = el('ul'); items.forEach(item => {const description = item && typeof item === 'object' ? [item.name || item.productName || item.productId || item.id, item.color, item.size, `${text(item.quantity ?? item.qty ?? 1)} Stück`].filter(Boolean).join(' · ') : text(item); list.append(el('li',description || JSON.stringify(item)));}); details.append(list);}
+        if(items) {const list = el('ul'); items.forEach(item => {const line = el('li'); if(item && typeof item === 'object') {const description = [item.name || item.productName || item.productId || item.id,item.color,item.size].filter(Boolean).join(' · '); if(description) line.append(raw('span',description),document.createTextNode(' · ')); line.append(el('span',`${text(item.quantity ?? item.qty ?? 1)} Stück`));} else line.append(raw('span',text(item) || JSON.stringify(item))); list.append(line);}); details.append(list);}
         else details.append(el('pre',row.items || 'Keine Artikeldetails hinterlegt.'));
         parts.card.append(details);
       }
@@ -149,6 +157,7 @@
   }
   function parseArray(value) {if(Array.isArray(value)) return value; try {const result = JSON.parse(value || '[]'); return Array.isArray(result) ? result : null;} catch {return null;}}
   function scopeDisplay(value) {const values = parseArray(value); return values?.length ? values.map(value=>typeof value==='string'?value:JSON.stringify(value)).join(', ') : 'Alle';}
+  function scopeNode(value) {return parseArray(value)?.length ? raw('span',scopeDisplay(value)) : el('span','Alle');}
   function field(name, labelText, value, options = {}) {
     const label = el('label', labelText, options.wide ? 'wide' : ''), input = document.createElement(options.textarea ? 'textarea' : options.select ? 'select' : 'input');
     input.name = name;

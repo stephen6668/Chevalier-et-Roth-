@@ -148,15 +148,18 @@ async function stripeFetch(key, path, options = {}) {
 async function createCheckout(request, env, url) {
  if (request.headers.get('origin') !== url.origin) throw new CheckoutError(403, 'invalid_origin', 'Bitte starte den Checkout direkt auf dieser Website.');
  const body = await readJson(request), items = normalizedItems(body), key = requireTestKey(env), catalog = getCatalog(env);
+ const locale = ['de', 'en', 'fr'].includes(body.locale) ? body.locale : 'auto';
  if (!catalog.configured || items.some(item => !catalog.prices[item.product])) throw new CheckoutError(409, 'prices_unconfigured', 'Preise noch nicht hinterlegt.');
  if (items.some(item => !catalog.prices[item.product].available)) throw new CheckoutError(409, 'product_unavailable', 'Ein ausgewähltes Produkt ist derzeit nicht für den Test-Checkout verfügbar.');
  const total = items.reduce((sum, item) => sum + catalog.prices[item.product].amount * item.qty, catalog.shippingAmount);
  if (!Number.isSafeInteger(total) || total < 50 || total > MAX_TOTAL_AMOUNT) throw new CheckoutError(400, 'invalid_total', 'Der Gesamtbetrag liegt außerhalb des erlaubten Testbereichs.');
- const cartHash = await digest(JSON.stringify({origin: url.origin, currency: catalog.currency, items: items.map(item => ({...item, amount: catalog.prices[item.product].amount})), shippingAmount: catalog.shippingAmount, shippingCountries: catalog.shippingCountries}));
+ const cartHash = await digest(JSON.stringify({origin: url.origin, locale, currency: catalog.currency, items: items.map(item => ({...item, amount: catalog.prices[item.product].amount})), shippingAmount: catalog.shippingAmount, shippingCountries: catalog.shippingCountries}));
  const form = new URLSearchParams();
  form.set('mode', 'payment'); form.set('payment_method_types[0]', 'card');
- form.set('success_url', url.origin + '/checkout.html?status=success&session_id={CHECKOUT_SESSION_ID}');
- form.set('cancel_url', url.origin + '/checkout.html?status=cancelled');
+ form.set('locale', locale);
+ const returnLanguage = locale === 'auto' ? '' : '&lang=' + locale;
+ form.set('success_url', url.origin + '/checkout.html?status=success&session_id={CHECKOUT_SESSION_ID}' + returnLanguage);
+ form.set('cancel_url', url.origin + '/checkout.html?status=cancelled' + returnLanguage);
  form.set('client_reference_id', body.attemptId.toLowerCase());
  form.set('metadata[source]', SOURCE); form.set('metadata[site_origin]', url.origin); form.set('metadata[mode]', 'test');
  form.set('metadata[cart_hash]', cartHash); form.set('metadata[variant_count]', String(items.length));
@@ -166,7 +169,8 @@ async function createCheckout(request, env, url) {
   form.set(prefix + '[quantity]', String(item.qty));
   form.set(prefix + '[price_data][currency]', 'eur');
   form.set(prefix + '[price_data][unit_amount]', String(catalog.prices[item.product].amount));
-  form.set(prefix + '[price_data][product_data][name]', PRODUCTS[item.product].name + ' · ' + COLORS[item.color] + ' / ' + item.size);
+  const localizedColors = {en:{bordeaux:'Bordeaux',black:'Black',gray:'Grey',beige:'Beige',navy:'Navy blue'},fr:{bordeaux:'Bordeaux',black:'Noir',gray:'Gris',beige:'Beige',navy:'Bleu marine'}};
+  form.set(prefix + '[price_data][product_data][name]', PRODUCTS[item.product].name + ' · ' + (localizedColors[locale]?.[item.color] || COLORS[item.color]) + ' / ' + item.size);
   form.set(prefix + '[price_data][product_data][metadata][product]', item.product);
   form.set(prefix + '[price_data][product_data][metadata][backend_id]', PRODUCTS[item.product].backendId);
   form.set(prefix + '[price_data][product_data][metadata][color]', item.color);
@@ -174,7 +178,7 @@ async function createCheckout(request, env, url) {
  });
  catalog.shippingCountries.forEach((country, index) => form.set('shipping_address_collection[allowed_countries][' + index + ']', country));
  form.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
- form.set('shipping_options[0][shipping_rate_data][display_name]', 'Versand');
+ form.set('shipping_options[0][shipping_rate_data][display_name]', {en:'Shipping',fr:'Livraison'}[locale] || 'Versand');
  form.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', String(catalog.shippingAmount));
  form.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'eur');
  const session = await stripeFetch(key, '/checkout/sessions', {method: 'POST', body: form, headers: {

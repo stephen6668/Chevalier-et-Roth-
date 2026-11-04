@@ -41,7 +41,7 @@
  get('giveaway-close').addEventListener('click',closeGiveaway);
  dialog.addEventListener('cancel',event=>{event.preventDefault();closeGiveaway();});
  giveaway.addEventListener('submit',event=>{
-  event.preventDefault();if(!giveaway.reportValidity())return;
+  event.preventDefault();if(window.CRLegalConfig?.giveawayReady!==true)return;if(!giveaway.reportValidity())return;
   const prize=products.find(p=>p.id===get('giveaway-prize').value);
   const entry={firstName:get('giveaway-first').value,lastName:get('giveaway-last').value,email:get('giveaway-email').value,prizeId:prize.id,prizeName:prize.name,socialConfirmed:get('giveaway-tiktok').checked&&get('giveaway-instagram').checked,privacyAccepted:get('giveaway-consent').checked};
   send(giveaway,get('giveaway-message'),()=>backend.enterGiveaway(entry),'Deine Teilnahme wurde gespeichert. Viel Glück!');
@@ -59,6 +59,12 @@
  if(Date.now()>=new Date(config.launchAt).getTime()){
   get('giveaway-message').textContent='Das Gewinnspiel ist beendet.';
   [...giveaway.elements].forEach(el=>el.disabled=true);
+ }
+
+ if(window.CRLegalConfig?.giveawayReady!==true){
+  giveaway.hidden=true;giveaway.style.display='none';
+  const intro=dialog.querySelector(':scope > p:not(.eyebrow)');if(intro)intro.textContent='Das Giveaway wird vorbereitet. Eine Teilnahme ist erst nach Veröffentlichung der vollständigen Teilnahmebedingungen möglich.';
+  const notes=dialog.querySelector('.launch-notes');if(notes){notes.replaceChildren();const summary=document.createElement('summary');summary.textContent='Stand der Teilnahmebedingungen';const p=document.createElement('p');p.textContent='Veranstalterdaten, Teilnahmegebiete, Altersvoraussetzungen und die genauen Gewinne werden noch festgelegt. ';const a=document.createElement('a');a.href='legal.html?page=giveaway';a.textContent='Teilnahmeinformationen öffnen';p.append(a);notes.append(summary,p);}
  }
  // Catalogue reads do not read waitlist, giveaway, coupon or customer data.
  backend.publicProducts().then(rows=>window.CRMaison.syncCatalog(rows)).catch(error=>{
