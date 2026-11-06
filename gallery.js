@@ -1,16 +1,17 @@
 'use strict';
-// Fixed names for the original studio PNGs in the connected GitHub repository.
-// New uploads appear at these same URLs; a missing photograph uses its own
-// colour-matched model preview until that PNG has been uploaded.
+// Original uploads are root files so these URLs work on both GitHub Pages
+// and the hosted Worker. A photograph never falls back to a rendered garment.
 const crStudioPrefixes=Object.freeze({body:'body',halfzip:'halfzip',trousers:'hose'});
-window.CR_PRODUCT_GALLERIES = Object.freeze(Object.fromEntries(window.CR_PRODUCTS.map(product=>[
+const crStudioAvailable=new Set(['body:bordeaux','body:beige','halfzip:bordeaux','halfzip:black','halfzip:gray','halfzip:beige','trousers:bordeaux','trousers:black','trousers:gray','trousers:beige']);
+const crStudioPlaceholder='assets/studio-photo-pending.svg';
+window.CR_PRODUCT_GALLERIES=Object.freeze(Object.fromEntries(window.CR_PRODUCTS.map(product=>[
  product.id,Object.freeze(Object.fromEntries(window.CR_COLORS.map(color=>{
-  const sourceFile=`${crStudioPrefixes[product.id]}_${color.id==='bordeaux'?'mannequin':color.id}_studio.png`;
-  return [color.id,Object.freeze([Object.freeze({
-   src:`assets/gallery/${sourceFile}`,sourceFile,
-   alt:`${product.name} in ${color.name} – Studioansicht`,label:'Studioansicht',
-   fallbackSrc:product.variants[color.id].image,
-   fallbackAlt:`${product.name} in ${color.name} – 3D-Vorschau`,fallbackLabel:'3D-Vorschau'
+  const sourceFile=product.id==='halfzip'&&color.id==='bordeaux'?'halfzip_weisser_studiohintergrund.png':`${crStudioPrefixes[product.id]}_${color.id==='bordeaux'?'mannequin':color.id}_studio.png`;
+  const known=crStudioAvailable.has(product.id+':'+color.id),alt=`${product.name} in ${color.name} – Studioansicht`,pendingAlt=`${product.name} in ${color.name} – Studiofoto folgt`;
+  return [color.id,Object.freeze([Object.freeze({src:sourceFile,sourceFile,alt,label:'Studioansicht',
+   fallbackSrc:known?`assets/gallery/${product.id}-${color.id}-studio.webp`:crStudioPlaceholder,
+   fallbackAlt:known?alt:pendingAlt,fallbackLabel:known?'Studioansicht':'Studiofoto folgt',
+   placeholderSrc:crStudioPlaceholder,placeholderAlt:pendingAlt,placeholderLabel:'Studiofoto folgt'
   })])];
  })))
 ])));

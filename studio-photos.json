@@ -2,7 +2,7 @@
   "version": 1,
   "repository": "stephen6668/Chevalier-et-Roth-",
   "sourceRef": "main",
-  "observed_commit": "58d62e0979359863930a241d12901aeaba30994f",
+  "observed_commit": "d3cff4c1ea159b172548b780f29d3fdaaace5242",
   "photos": [
     {
       "file": "body_mannequin_studio.png",
@@ -26,16 +26,29 @@
       "file": "body_navy_studio.png"
     },
     {
-      "file": "halfzip_mannequin_studio.png"
+      "file": "halfzip_mannequin_studio.png",
+      "sourceFile": "halfzip_weisser_studiohintergrund.png",
+      "bytes": 4579518,
+      "sha256": "8069035d981238c2d7c41c2d325f8b90d61fe1cb96c24869df4eee726ad26ce4",
+      "git_blob_sha": "a5da7f23aa5057d9fc0e156700460806485be535"
     },
     {
-      "file": "halfzip_black_studio.png"
+      "file": "halfzip_black_studio.png",
+      "bytes": 1970294,
+      "sha256": "9ec1fbd2345079abdef5e19eeea6c55210130436b15c08121c2fedbdf777bbba",
+      "git_blob_sha": "89f750060d99d5b1ffaaed15c3c9953f05c55684"
     },
     {
-      "file": "halfzip_gray_studio.png"
+      "file": "halfzip_gray_studio.png",
+      "bytes": 2478403,
+      "sha256": "a50e01896b54e75e6d0cf3efac7b4a93279abe857660a0ef617ab4adb065df4a",
+      "git_blob_sha": "1f6f7174b261125b516fbe3288a7a4ee188c21ab"
     },
     {
-      "file": "halfzip_beige_studio.png"
+      "file": "halfzip_beige_studio.png",
+      "bytes": 2418847,
+      "sha256": "b6fd7b77dd42e94638787a3b40927dae957bfa5653c34f0a8a8beb4bcf6df227",
+      "git_blob_sha": "536473ef41a788fde5da6464774eca6bae45fb65"
     },
     {
       "file": "halfzip_navy_studio.png"
