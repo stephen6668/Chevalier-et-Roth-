@@ -38,7 +38,7 @@
    ['Impressum','legal.html?page=impressum'],['Datenschutz','legal.html?page=datenschutz'],['Cookies & Speicher','legal.html?page=cookies'],['AGB / Nutzung','legal.html?page=agb'],['Widerruf','legal.html?page=widerruf']
   ]));
   const bottom=make('div',undefined,'cr-footer-bottom'),copyright=make('p','© '+new Date().getFullYear()+' Chevalier & Roth','cr-footer-copyright');
-  const status=make('p','Kollektionsvorschau · Stripe-Testmodus','cr-footer-status');
+  const status=make('p','Kollektionsvorschau','cr-footer-status');
   const preferences=make('button','Cookie-Einstellungen','cr-footer-preferences');preferences.type='button';preferences.dataset.cookieSettings='';
   bottom.append(copyright,status,preferences);footer.replaceChildren(grid,bottom);
  }

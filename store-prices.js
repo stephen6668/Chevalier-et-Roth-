@@ -1,7 +1,8 @@
 'use strict';
-// Approved gross EUR test prices. Checkout amounts are verified by the server.
+// Approved final EUR product prices. This public catalogue supports an offline
+// price preview; only a ready server can authorize an actual checkout amount.
 window.CR_STORE_PRICES = Object.freeze({currency:'eur',products:Object.freeze({
  halfzip:Object.freeze({amount:11000,available:true}),
  body:Object.freeze({amount:9000,available:true}),
  trousers:Object.freeze({amount:10000,available:true})
-}),shippingAmount:0});
+}),shippingAmount:null});

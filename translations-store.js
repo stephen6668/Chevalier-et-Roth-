@@ -1,6 +1,12 @@
 'use strict';
 (() => {
  const rows = [
+ ["Preisvorschau · Steuerberechnung im Checkout", "Price preview · tax illustration in checkout", "Aperçu du prix · calcul indicatif au paiement"],
+ ["Zur Preisübersicht", "View price overview", "Voir le récapitulatif"],
+ ["Die Kollektion ist in Vorbereitung. Preise und Versanddetails können Sie in der Übersicht prüfen.", "The collection is in preparation. Review prices and shipping details in the overview.", "La collection est en préparation. Consultez les prix et la livraison dans le récapitulatif."],
+ ["Versandkosten werden noch festgelegt. Die 17%-Berechnung im Checkout ist eine unverbindliche Rechenvorschau.", "Shipping costs are still to be confirmed. The 17% calculation in checkout is illustrative only.", "Les frais de livraison restent à confirmer. Le calcul à 17 % au paiement est uniquement indicatif."],
+ ["Produktgesamtpreis", "Product subtotal", "Sous-total des produits"],
+ ["Kollektionsvorschau", "Collection preview", "Aperçu de collection"],
  ['Studiofoto folgt','Studio photograph coming soon','Photo studio à venir'],['Foto erneut laden','Reload photograph','Recharger la photo'],
  ['3D-Vorschau','3D preview','Aperçu 3D'],
  ['Zum Inhalt springen','Skip to content','Aller au contenu'],

@@ -17,13 +17,14 @@ window.CRLegalConfig = (() => {
   registerName: 'RCS Luxembourg',
   registerNumber: '',
   vatId: '',
+  vatRegistered: false,
   businessPermit: '',
   shareCapital: '',
   returnAddress: '',
   isPreview: true,
   publicReleaseReady: false,
   giveawayReady: false,
-  updatedAt: '2026-11-03'
+  updatedAt: '2026-11-08'
  };
  const controllerComplete = [details.operatorName, details.country, details.address, details.postalCode, details.city, details.email].every(value => String(value).trim());
  const imprintComplete = controllerComplete && [details.managingDirector, details.registerNumber].every(value => String(value).trim());

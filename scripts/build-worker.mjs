@@ -24,7 +24,8 @@ const runtimeNames = [
  'fonts.css','footer.js','footer.css','privacy.js','privacy.css',
  'legal.html','legal.js','legal.css','legal-config.js',
  'i18n.js','i18n.css','translations-store.js','translations-legal.js',
- 'intro.js','intro.css','motion.js','motion.css'
+ 'intro.js','intro.css','motion.js','motion.css',
+ 'product-light.js','product-light.css','product-specs.js','product-details.js','product-details.css','commerce-config.js'
 ];
 const output = resolve(root, '.worker-output/dist');
 const modelRef = process.argv.find(value => value.startsWith('--model-ref='))?.slice('--model-ref='.length) || '78f52028a6a6b18ca8a7c5fa401bf6a0c62cdc77';
@@ -133,6 +134,7 @@ for (const [name, asset] of Object.entries(staticFiles)) {
 const [router, stripe, manifestText] = await Promise.all([
  readFile(resolve(root, 'worker/index.mjs'), 'utf8'), readFile(resolve(root, 'worker/stripe.mjs'), 'utf8'), readFile(resolve(root, '.openai/hosting.json'), 'utf8')
 ]);
+if (/\b(?:sk|rk)_(?:test|live)_[A-Za-z0-9]{20,}\b/.test(router + stripe)) throw new Error('A secret-like value was found in a server source file.');
 const manifest = JSON.parse(manifestText);
 if (typeof manifest.project_id !== 'string' || !manifest.project_id) throw new Error('The existing Site identity is required.');
 delete manifest.static;

@@ -23,7 +23,8 @@ function siteAssetHeaders(asset) {
   'content-length': String(asset.bytes),
   'etag': asset.etag,
   'cache-control': asset.type.startsWith('text/html') ? 'no-store' : 'public, max-age=300, must-revalidate',
-  'x-content-type-options': 'nosniff'
+  'x-content-type-options': 'nosniff',
+  ...(asset.type.startsWith('text/html') ? {'content-security-policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://*.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://raw.githubusercontent.com https://media.githubusercontent.com https://objects.githubusercontent.com; connect-src 'self' https://fra.cloud.appwrite.io https://*.stripe.com https://*.link.com https://raw.githubusercontent.com https://media.githubusercontent.com https://objects.githubusercontent.com; frame-src https://*.stripe.com https://*.link.com; font-src 'self'; worker-src 'self' blob:; base-uri 'self'; form-action 'self' https://*.stripe.com; object-src 'none'"} : {})
  });
 }
 

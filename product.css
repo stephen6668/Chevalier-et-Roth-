@@ -7,3 +7,9 @@
 @media(prefers-reduced-motion:reduce){.pdp-page *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 .pdp-photo-retry{min-height:44px;padding:9px 0;color:var(--burgundy);font:400 10px var(--sans);text-decoration:underline;text-underline-offset:4px}.pdp-image-stage.photo-pending .pdp-zoom-label{display:none}.pdp-image-stage.photo-pending .pdp-image-zoom{cursor:default;opacity:1}
+
+/* The actual studio images keep their white backdrop through every photo view. */
+.pdp-image-stage,.pdp-image-zoom,.pdp-model-stage,.pdp-thumbnails button,.pdp-related-image,.pdp-zoom-dialog,.pdp-zoom-dialog>img,.pdp-waitlist-summary img{background:#fff}
+
+/* Keep lateral copy reveals inside the content viewport during orientation changes. */
+.pdp-page #pdp-main{overflow-x:clip}

@@ -139,3 +139,12 @@ Bereits geprüft sind `body_mannequin_studio.png`, `body_beige_studio.png`, `hos
 Die tatsächliche statische GitHub-Pages-Veröffentlichung liegt unter `/Chevalier-et-Roth-/`. Die Original-PNGs liegen im Repository-Hauptordner. Die früheren `assets/gallery/*.png`-Pfade waren nur im Worker vorhanden und ergaben auf GitHub Pages HTTP 404. `gallery.js` verwendet jetzt die echten relativen Root-Dateinamen; der Worker bietet dafür dieselben Root-Routen und behält seine bisherigen verschachtelten Routen als Kompatibilitätsaliase.
 
 Der Bordeaux-Half-Zip verwendet die tatsächlich hochgeladene Datei `halfzip_weisser_studiohintergrund.png`. Vorhanden sind zehn Studio-PNGs: zwei für den Body, vier für den Half-Zip und vier für die Hose. Bei einem Ladefehler wird eine lokal ausgelieferte Kopie derselben Studioaufnahme versucht. Ohne vorhandenes Foto erscheint ein neutraler Platzhalter mit „Studiofoto folgt“ und einer erneuten Ladeoption. Die Bildergalerie ersetzt ein Foto nicht mehr durch ein gerendertes Produktbild. Die ausdrücklich ausgewählte 360°-Ansicht verwendet weiterhin das passende GLB-Modell.
+
+
+## Produktdetails, Licht und Preisvorschau
+
+Die Bildflächen sind weiß; das Licht über dem 3D-Banner wird nach dem Logo-Intro langsam aufgebaut und erscheint bei reduzierter Bewegung sofort. `product-specs.js` enthält die vom Betreiber bestätigten Stoffangaben: Half-Zip 100 % Merinowolle und Body 100 % Baumwoll-Jersey. Für Hose, Pflege und genaue Produktionsmaße bleiben die Angaben ausdrücklich offen. `product-details.js` zeigt diese Informationen und die ergänzbare Größentabelle in Deutsch, Englisch und Französisch.
+
+Die Checkout-Seite zeigt den vollständigen Warenwert schon vor einer API-Antwort. Die gewünschte 17%-Aufteilung ist als Rechenvorschau gekennzeichnet; sie ist kein Steuerausweis, da der Betreiber eine fehlende MwSt.-Registrierung bestätigt hat. Versand wird mit POST Luxembourg nach Europa geplant; ohne bestätigten Versandpreis entsteht keine irreführende kostenlose Lieferung und kein zahlbarer Gesamtbetrag.
+
+Der Backend-Code unterstützt expliziten Live-Modus, eingeschränkte Schlüssel, Händlerprüfung, signierte Ereignisse und idempotente Appwrite-Bestellungen. Die tatsächliche Aktivierung bleibt gesperrt, solange Server-Schlüssel, öffentlicher Zugang, Ereignisanbindung, Bestellschema und Versanddaten fehlen. Die vorhandenen Stripe-Live-Links und die konkreten Freigabeschritte stehen in [LIVE_CHECKOUT_SETUP.md](LIVE_CHECKOUT_SETUP.md). Es wurden keine echten Zahlungen oder Steuerregistrierungen ausgelöst.
