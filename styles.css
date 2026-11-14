@@ -10,3 +10,10 @@
 @media(max-width:380px){.brand>span{font-size:14px}.hero h1{font-size:62px}.hero-editorial{min-height:320px}.product-grid{gap:25px 12px}.product-card-info h3{font-size:24px}.card-colors button{width:25px;padding-inline:6px}.card-colors button span{width:13px;height:13px}.waitlist-variants{grid-template-columns:1fr 1fr}.waitlist-variants label:first-child{grid-column:1/-1}.collection-controls{gap:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 @media(max-width:760px){.hero-copy{align-self:stretch}.hero-editorial>img{object-position:100% center}}
+
+/* Supplied banner: show the complete, unchanged image at its natural ratio. */
+.hero.hero-banner{display:block;min-height:0;max-width:none;margin:0;padding:0;background:var(--cream)}
+.hero-banner>img{display:block;width:100%;height:auto;max-width:none;position:static;filter:none;opacity:1;object-fit:contain}
+.hero-action{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 6%;border-bottom:1px solid var(--line);background:var(--cream)}
+.hero-action .eyebrow{margin:0}.hero-action .text-link{flex:none}
+@media(max-width:480px){.hero-action{padding:13px 6%;gap:15px}.hero-action .eyebrow{font-size:8px;letter-spacing:1.2px}.hero-action .text-link{font-size:10px;gap:18px}}

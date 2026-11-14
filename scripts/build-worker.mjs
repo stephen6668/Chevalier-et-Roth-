@@ -62,6 +62,13 @@ for (const photo of photoManifest.photos) {
  if (observed) {photoBytes += photo.bytes;verifiedPhotos++;}
 }
 
+
+// Stream the owner-supplied, unmodified hero PNG through the same fixed GitHub
+// allowlist as the photographs; do not embed its 21 MB in the Worker bundle.
+const bannerPath='/assets/brand/banner.png';
+const bannerBytes=await readFile(resolve(sourceDirectory,bannerPath.slice(1)));
+photoFiles[bannerPath]={sourcePath:bannerPath,bytes:bannerBytes.length,etag:'"'+createHash('sha256').update(bannerBytes).digest('hex')+'"'};
+
 const mime = {
  '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
  '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.md': 'text/plain; charset=utf-8',
@@ -85,7 +92,7 @@ async function files(directory) {
 // Retain the original files in Git, but do not embed superseded brand artwork.
 // Only genuine gallery photos, fonts and current brand assets are included.
 // Render posters and 3D runtime files remain archived in Git, outside deployment.
-const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp','/vendor/model-viewer.min.js','/vendor/meshopt-decoder.js','/vendor/LICENSE-model-viewer.txt','/vendor/LICENSE-meshoptimizer.txt','/vendor/README.md']);
+const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp','/assets/brand/editorial-courtyard.webp','/vendor/model-viewer.min.js','/vendor/meshopt-decoder.js','/vendor/LICENSE-model-viewer.txt','/vendor/LICENSE-meshoptimizer.txt','/vendor/README.md']);
 const staticFiles = {};
 let staticBytes = 0;
 const runtimePaths = [];

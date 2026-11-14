@@ -3,6 +3,7 @@
   // Exact German DOM text and attribute values for the brand-bible redesign.
   // German remains the source language; campaign copy and product names stay intact.
   const rows = [
+    ["Chevalier & Roth – CR-Monogramm und Wortmarke vor einer Altstadt mit Brücke und Fluss.", "Chevalier & Roth – CR monogram and wordmark against an old town with a bridge and river.", "Chevalier & Roth – monogramme CR et nom de la marque devant une vieille ville, un pont et une rivière."],
     ['Zum Inhalt springen', 'Skip to content', 'Aller au contenu'],
     ['THE FIRST EDITION · IN ENTWICKLUNG', 'THE FIRST EDITION · IN DEVELOPMENT', 'THE FIRST EDITION · EN DÉVELOPPEMENT'],
     ['Menü öffnen', 'Open menu', 'Ouvrir le menu'],
