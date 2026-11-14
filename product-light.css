@@ -1,12 +1,2 @@
-/* White product frames keep the supplied studio photographs on a clean field. */
-.product-card-image,.product-card-image.product-card-3d,.product-card-image.bordeaux,.product-card-image.noir,.checkout-line-image{background:#fff}
-
-/* The lighting sits behind the garments, with no material or exposure changes. */
-.cr-product-light{position:absolute;left:-15%;top:-14%;width:130%;height:104%;z-index:0;pointer-events:none;opacity:.08;transform:scaleX(.92);transform-origin:50% 0;transition:opacity 3.8s cubic-bezier(.22,.61,.36,1),transform 3.8s cubic-bezier(.22,.61,.36,1)}
-.cr-product-light:before{content:'';position:absolute;inset:0 0 5%;background:radial-gradient(ellipse at 50% 0%,#fffef4eb 0%,#fffdf5a3 24%,#fffdf532 53%,transparent 76%);clip-path:polygon(39% 0,61% 0,100% 100%,0 100%);filter:blur(17px)}
-.cr-product-light:after{content:'';position:absolute;top:2%;left:28%;width:44%;height:16px;border-radius:50%;background:radial-gradient(ellipse,#fffef6e6,#fffdf55c 50%,transparent 75%);box-shadow:0 5px 43px 20px #fff9df3d;filter:blur(5px)}
-.hero-product-area.cr-light-prepared .product-aura{opacity:.14;transition:opacity 3.8s cubic-bezier(.22,.61,.36,1)}
-.hero-product-area.cr-light-lit .cr-product-light{opacity:.94;transform:scaleX(1)}
-.hero-product-area.cr-light-prepared.cr-light-lit .product-aura{opacity:.84}
-@media(max-width:800px){.cr-product-light{left:-8%;top:5%;width:116%;height:80%}.cr-product-light:before{clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);filter:blur(13px)}.cr-product-light:after{left:25%;width:50%;height:12px;box-shadow:0 5px 33px 14px #fff9df32}}
-@media(prefers-reduced-motion:reduce){.cr-product-light,.hero-product-area.cr-light-prepared .product-aura{transition:none!important}.hero-product-area.cr-light-prepared .cr-product-light{opacity:.94;transform:none}.hero-product-area.cr-light-prepared .product-aura{opacity:.84}}
+/* Clean frames for the supplied studio photographs. */
+.product-card-image,.checkout-line-image{background:#fff}

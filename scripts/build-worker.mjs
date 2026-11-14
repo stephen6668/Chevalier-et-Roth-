@@ -17,7 +17,7 @@ async function runtimeFile(path) {
 // never become accidental public assets in the flat-repository layout.
 const sourceDirectory = await runtimeFile(resolve(root, 'dist/index.html')) ? resolve(root, 'dist') : root;
 const runtimeNames = [
- 'index.html', 'styles.css', 'app.js', 'catalog.js', 'gallery.js', 'viewer-setup.js',
+ 'index.html', 'styles.css', 'app.js', 'catalog.js', 'gallery.js',
  'site-config.js', 'appwrite-client.js', 'launch.js',
  'admin.html', 'admin.js', 'admin.css', 'product.html', 'product.js', 'product.css',
  'checkout.html', 'checkout.js', 'checkout.css', 'store-prices.js',
@@ -25,12 +25,9 @@ const runtimeNames = [
  'legal.html','legal.js','legal.css','legal-config.js',
  'i18n.js','i18n.css','translations-store.js','translations-legal.js',
  'motion.js','motion.css',
- 'product-light.css','product-specs.js','product-details.js','product-details.css','commerce-config.js'
+ 'product-specs.js','product-details.js','product-details.css','commerce-config.js'
 ];
 const output = resolve(root, '.worker-output/dist');
-const modelRef = process.argv.find(value => value.startsWith('--model-ref='))?.slice('--model-ref='.length) || '78f52028a6a6b18ca8a7c5fa401bf6a0c62cdc77';
-if (!/^[a-f0-9]{40}$/.test(modelRef)) throw new Error('The model source must be an exact Git commit SHA.');
-const modelOrigin = 'https://raw.githubusercontent.com/stephen6668/Chevalier-et-Roth-/' + modelRef;
 // Original studio photographs stay byte-for-byte PNGs outside the compressed
 // Worker. Only this checked source manifest can create photo routes. The fixed
 // main-branch filenames let future user uploads appear without a redeployment.
@@ -77,17 +74,20 @@ async function files(directory) {
  for (const entry of await readdir(directory, {withFileTypes: true})) {
   if (entry.isSymbolicLink()) throw new Error('Symlinks cannot be embedded in the Worker.');
   const path = resolve(directory, entry.name);
-  if (entry.isDirectory()) result.push(...await files(path));
+  if (entry.isDirectory()) {
+   if (['assets/models','assets/products'].includes(relative(sourceDirectory,path).replaceAll('\\','/'))) continue;
+   result.push(...await files(path));
+  }
   else if (entry.isFile()) result.push(path);
  }
  return result.sort();
 }
 // Retain the original files in Git, but do not embed superseded brand artwork.
-// Every gallery fallback, product image, model, font and current brand asset is
-// still included. References to a retired asset below fail validation.
-const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp']);
-const staticFiles = {}, modelFiles = {};
-let staticBytes = 0, modelBytes = 0;
+// Only genuine gallery photos, fonts and current brand assets are included.
+// Render posters and 3D runtime files remain archived in Git, outside deployment.
+const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp','/vendor/model-viewer.min.js','/vendor/meshopt-decoder.js','/vendor/LICENSE-model-viewer.txt','/vendor/LICENSE-meshoptimizer.txt','/vendor/README.md']);
+const staticFiles = {};
+let staticBytes = 0;
 const runtimePaths = [];
 for (const name of runtimeNames) {
  const path = resolve(sourceDirectory, name);
@@ -105,10 +105,6 @@ for (const path of runtimePaths.sort()) {
   continue;
  }
 
- if (extension === '.glb') {
-  if (!/^\/assets\/models\/(?:body|halfzip|trousers)-(?:bordeaux|black|gray|beige|navy)-studio\.glb$/.test(name)) throw new Error('Unexpected model asset: ' + name);
-  modelFiles[name] = {bytes: bytes.length, etag}; modelBytes += bytes.length; continue;
- }
  const license = /\/LICENSE[-A-Za-z0-9.]*$/.test(name);
  if (!mime[extension] && !license) throw new Error('Unsupported asset type: ' + name);
  const binary = !textExtensions.has(extension) && !license;
@@ -123,7 +119,6 @@ for (const [name, asset] of Object.entries(staticFiles)) {
   if (asset.body.includes(retired.split('/').pop())) throw new Error('Retired brand asset is still referenced in ' + name + ': ' + retired);
  }
 }
-if (Object.keys(modelFiles).length !== 15) throw new Error('Expected all 15 optimized product models.');
 for (const name of ['index.html', 'product.html', 'checkout.html']) {
  if (!staticFiles['/' + name]) throw new Error('Required storefront page is missing: ' + name);
 }
@@ -137,7 +132,7 @@ for (const [name, asset] of Object.entries(staticFiles)) {
   const url = new URL(target, 'https://runtime.invalid' + name);
   if (url.origin !== 'https://runtime.invalid') continue;
   const dependency = url.pathname === '/' ? '/index.html' : url.pathname;
-  if (!Object.hasOwn(staticFiles, dependency) && !Object.hasOwn(modelFiles, dependency) && !Object.hasOwn(photoFiles, dependency)) {
+  if (!Object.hasOwn(staticFiles, dependency) && !Object.hasOwn(photoFiles, dependency)) {
    throw new Error('Missing local dependency in ' + name + ': ' + dependency);
   }
  }
@@ -154,10 +149,9 @@ if (/^\s*import\s/m.test(stripeSource)) throw new Error('The Stripe handler must
 const routerSource = router.replace(/^import \{handleStripeRequest\} from '\.\/stripe\.mjs';\s*$/m, '');
 const source = '// Generated from authored dist/ assets and worker modules. No runtime secrets are embedded.\n' +
  'const STATIC_FILES=' + JSON.stringify(staticFiles) + ';\n' +
- 'const MODEL_FILES=' + JSON.stringify(modelFiles) + ';\n' +
  'const PHOTO_FILES=' + JSON.stringify(photoFiles) + ';\n' +
  'const PHOTO_SOURCE_ORIGIN=' + JSON.stringify(photoOrigin) + ';\n' +
- 'const MODEL_SOURCE_ORIGIN=' + JSON.stringify(modelOrigin) + ';\n' + stripeSource + '\n' + routerSource;
+ stripeSource + '\n' + routerSource;
 const parsed = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 if (typeof parsed.default?.fetch !== 'function') throw new Error('The artifact must export default.fetch.');
 const gzipBytes = gzipSync(source, {level: 9}).length;
@@ -167,4 +161,4 @@ await mkdir(resolve(output, 'server'), {recursive: true});
 await mkdir(resolve(output, '.openai'), {recursive: true});
 await writeFile(resolve(output, 'server/index.js'), source);
 await writeFile(resolve(output, '.openai/hosting.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log(JSON.stringify({sourceDirectory, output, workerBytes: Buffer.byteLength(source), gzipBytes, embeddedFiles: Object.keys(staticFiles).length, embeddedBytes: staticBytes, streamedModels: Object.keys(modelFiles).length, modelBytes, modelRef, streamedPhotos: logicalPhotoNames.size, photoRoutes: Object.keys(photoFiles).length, verifiedPhotos, photoBytes, photoRef, project_id: manifest.project_id}));
+console.log(JSON.stringify({sourceDirectory, output, workerBytes: Buffer.byteLength(source), gzipBytes, embeddedFiles: Object.keys(staticFiles).length, embeddedBytes: staticBytes, streamedPhotos: logicalPhotoNames.size, photoRoutes: Object.keys(photoFiles).length, verifiedPhotos, photoBytes, photoRef, project_id: manifest.project_id}));

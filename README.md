@@ -1,5 +1,19 @@
 # Chevalier & Roth — The First Edition
 
+## Aktueller Stand: Produktfotos statt 3D
+
+Die Website verwendet ausschließlich die vorhandenen Studiofotos für Produktkarten, Suche, persönliche Auswahl, Produktgalerie und Preisübersicht. 3D-Ansichten, 360°-Steuerung und gerenderte Produktposter werden nicht mehr ausgeliefert. Die ursprünglichen Modelldateien bleiben als Quellen im Repository erhalten.
+
+Vorhanden sind zehn Studiofotos: Body in Bordeaux und Beige; Half-Zip sowie Hose jeweils in Bordeaux, Schwarz, Grau und Beige. Für Body in Schwarz/Grau/Navy und Half-Zip/Hose in Navy fehlt noch ein Foto. Diese Varianten erhalten einen neutralen Platzhalter beziehungsweise „Foto folgt“; es wird weder eine andere Farbe noch ein Renderbild eingesetzt.
+
+`catalog.js` ordnet die Fotos für Karten und Auswahl zu; `gallery.js` verwaltet die Studio-Galerie mit Original-PNG, passendem WebP und neutralem Platzhalter als Rückfall. Zoom, Farb-/Größenwahl, Variantenlinks, Warteliste, lokale Auswahl und Zahlungsfreigaben bleiben erhalten. Der Half-Zip startet auf der Homepage in Bordeaux, wofür ein tatsächliches Foto vorliegt.
+
+Frontend-Quellen liegen im Repository-Stamm. `node scripts/build-worker.mjs` baut den Worker, `node scripts/stage-worker.mjs` bereitet das generierte Deployment für Sites vor. Aktuelle Marken- und Bildnachweise stehen in [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Site behält ihren privaten Zugriff; offene Verkaufsdaten und Freigaben bleiben unverändert.
+
+## Historische Implementierungsnotizen
+
+Die folgenden Abschnitte dokumentieren frühere Entwicklungsstände. Angaben zu 3D, Modellpostern, älteren Intros und damaligen Checkout-Konfigurationen sind historische Notizen und beschreiben nicht den oben genannten aktuellen Foto-Auftritt.
+
 Neuaufbau nach dem aktualisierten Markenplan vom 14. November 2026: Navy und Creme, originale transparente CR-Monogramme, redaktioneller Kampagneneinstieg und DE/EN/FR. Umsetzung und Bildnachweis: [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — jeweils in Bordeaux, Schwarz, Grau, Beige und Navyblau mit den hochgeladenen 3D-Farbmodellen.
 
 ## Lokal starten

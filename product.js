@@ -15,15 +15,15 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
   dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialog(dialog);});
  }
  if(!product){get('pdp-not-found').hidden=false;document.title='Produkt nicht gefunden — Chevalier & Roth';return;}
- const reduced=matchMedia('(prefers-reduced-motion: reduce)'),viewer=get('pdp-model'),modelStage=get('pdp-model-stage');
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let color=colors.some(c=>c.id===params.get('color'))?params.get('color'):'bordeaux',size=validSizes.includes(params.get('size'))?params.get('size'):'M';
- let gallery=[],imageIndex=0,view='images',modelStarted=false,modelReady=false,requestedModel='',lastSuccessfulModel='',rotation=false,submitting=false;
+ let gallery=[],imageIndex=0,submitting=false;
  const descriptions={
   body:{subtitle:'Col V · La pièce essentielle',silhouette:'Un V profond, une ligne près du corps. Ein tiefer V-Ausschnitt und lange Ärmel prägen die körpernahe Silhouette des Body.',details:'Das goldfarbene CR-Monogramm setzt einen ruhigen Akzent. Wählen Sie Bordeaux, Schwarz, Grau, Beige oder Navyblau und entdecken Sie die Silhouette aus jeder Perspektive.'},
   halfzip:{subtitle:'Signature · L’allure moderne',silhouette:'Ein markanter Stehkragen, ein kurzer Reißverschluss und lange Ärmel. Die klare Silhouette des Half-Zip verbindet eine sportliche Form mit dem Ausdruck der Maison.',details:'Ein goldfarbener Reißverschluss und das CR-Monogramm setzen Akzente. Fünf Farbwelten – Bordeaux, Schwarz, Grau, Beige und Navyblau – geben der Silhouette ihren eigenen Charakter.'},
   trousers:{subtitle:'Jambe large · Une ligne libre',silhouette:'Eine weite Beinform mit fließender Linie. Bund, Kordelzug und die großzügige Silhouette geben der Hose ihren entspannten, klaren Ausdruck.',details:'Goldfarbene Kordelenden und das CR-Monogramm verbinden die Hose mit der Signature-Kollektion. Entdecken Sie das weite Bein in Bordeaux, Schwarz, Grau, Beige oder Navyblau.'}
  };
- const variant=()=>product.variants[color],absolute=url=>new URL(url,document.baseURI).href;
+ const variant=()=>product.variants[color];
  function updateURL(){const url=new URL(location.href);url.searchParams.set('product',product.id);url.searchParams.set('color',color);url.searchParams.set('size',size);history.replaceState(null,'',url);}
  function productURL(id){const query=new URLSearchParams({product:id,color,size});return 'product.html?'+query;}
  function getGallery(){const entries=window.CR_PRODUCT_GALLERIES?.[product.id]?.[color],fallback={src:'assets/studio-photo-pending.svg',alt:product.name+' in '+variant().name+' – Studiofoto folgt',label:'Studiofoto folgt'};if(!Array.isArray(entries)||!entries.length)return [fallback];return entries.filter(entry=>entry&&typeof entry.src==='string'&&entry.src).map(entry=>({...entry,src:entry.src,alt:entry.alt||fallback.alt,label:entry.label||'Studioansicht'}));}
@@ -58,48 +58,20 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
  function renderGallery(retry=false){
   gallery=getGallery();if(retry)gallery.forEach(image=>{if(!image.src.endsWith('.svg'))image.src+='?photo_retry='+Date.now();});
   const thumbnails=get('pdp-thumbnails');thumbnails.replaceChildren();
-  gallery.forEach((image,i)=>{const button=node('button');button.type='button';button.dataset.pdpImage=String(i);button.setAttribute('aria-label',image.label+' – Bild '+(i+1));button.setAttribute('aria-pressed',String(i===0));const thumb=node('img');photoImage(thumb,{...image,alt:'',fallbackAlt:''});thumb.width=66;thumb.height=83;thumb.loading='lazy';button.append(thumb);button.addEventListener('click',()=>{setView('images');setImage(i);});thumbnails.append(button);});
+  gallery.forEach((image,i)=>{const button=node('button');button.type='button';button.dataset.pdpImage=String(i);button.setAttribute('aria-label',image.label+' – Bild '+(i+1));button.setAttribute('aria-pressed',String(i===0));const thumb=node('img');photoImage(thumb,{...image,alt:'',fallbackAlt:''});thumb.width=66;thumb.height=83;thumb.loading='lazy';button.append(thumb);button.addEventListener('click',()=>setImage(i));thumbnails.append(button);});
   setImage(0);
  }
- function updateRotation(){viewer.toggleAttribute('auto-rotate',view==='model'&&modelReady&&rotation&&!reduced.matches);const button=get('pdp-model-rotation');button.setAttribute('aria-pressed',String(rotation));button.setAttribute('aria-label',rotation?'Automatische Drehung pausieren':'Automatische Drehung starten');button.textContent=rotation?'Ⅱ':'▷';}
- function markModelReady(url){
-  if(!url||url!==requestedModel||absolute(viewer.getAttribute('src'))!==requestedModel)return;
-  modelReady=true;lastSuccessfulModel=url;viewer.dataset.readyModel=url;modelStage.classList.add('is-ready');
-  viewer.resetTurntableRotation?.(0);viewer.jumpCameraToGoal?.();viewer.dismissPoster?.();get('pdp-model-status').textContent='3D-Ansicht · '+variant().name+' · Zum Drehen ziehen';updateRotation();
- }
- async function recoverCachedModel(url){
-  // A rapid A → B → A can keep the already loaded A without another load event.
-  // Wait for the viewer's reactive src update before inspecting its loaded state.
-  try{await viewer.updateComplete;}catch{return;}
-  if(url===requestedModel&&viewer.loaded&&lastSuccessfulModel===url&&viewer.dataset.readyModel===url)markModelReady(url);
- }
- function loadModel(){
-  modelStarted=true;const selected=variant(),url=absolute(selected.model);if(requestedModel===url)return;
-  requestedModel=url;modelReady=false;modelStage.classList.remove('is-ready');viewer.removeAttribute('auto-rotate');viewer.setAttribute('poster',selected.image);viewer.setAttribute('alt','Drehbare 3D-Ansicht: '+product.name+' in '+selected.name);
-  get('pdp-model-poster').src=selected.image;get('pdp-model-overlay').src=selected.image;get('pdp-model-status').textContent='3D-Ansicht in '+selected.name+' wird geladen …';
-  viewer.showPoster?.();viewer.setAttribute('src',selected.model);viewer.dataset.requestedModel=url;viewer.dataset.variantColor=color;updateRotation();
-  recoverCachedModel(url);
- }
- function setView(next){view=next;get('pdp-image-stage').hidden=view!=='images';modelStage.hidden=view!=='model';get('pdp-view-images').setAttribute('aria-pressed',String(view==='images'));get('pdp-view-model').setAttribute('aria-pressed',String(view==='model'));get('pdp-thumbnails').hidden=view!=='images';get('pdp-image-caption').hidden=view!=='images';if(view==='model')loadModel();updateRotation();}
- function setColor(next){if(!product.variants[next])return;color=next;get('pdp-color-name').textContent=variant().name;document.querySelectorAll('[data-pdp-color]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pdpColor===color)));renderGallery();if(modelStarted)loadModel();updateWaitlistSummary();renderRelated();updateURL();}
+ function setColor(next){if(!product.variants[next])return;color=next;get('pdp-color-name').textContent=variant().name;document.querySelectorAll('[data-pdp-color]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pdpColor===color)));renderGallery();updateWaitlistSummary();renderRelated();updateURL();}
  function setSize(next){if(!validSizes.includes(next))return;size=next;document.querySelectorAll('[data-pdp-size]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pdpSize===size)));updateWaitlistSummary();renderRelated();updateURL();}
  function updateWaitlistSummary(){photoImage(get('pdp-waitlist-image'),gallery[0]||getGallery()[0]);get('pdp-waitlist-product').textContent=product.name;get('pdp-waitlist-variant').textContent=variant().name+' / '+size+' · Goldene Details';}
  function renderRelated(){get('pdp-checkout').href='checkout.html?'+new URLSearchParams({product:product.id,color,size});const container=get('pdp-related-grid');container.replaceChildren();products.filter(p=>p.id!==product.id).forEach(p=>{const card=node('a',undefined,'pdp-related-card');card.href=productURL(p.id);card.dataset.pdpRelated=p.id;const frame=node('div',undefined,'pdp-related-image'),image=node('img');const photos=window.CR_PRODUCT_GALLERIES?.[p.id]?.[color];photoImage(image,photos?.[0]||{src:'assets/studio-photo-pending.svg',alt:p.name+' – Studiofoto folgt'});image.loading='lazy';const label=node('span'),type=node('span',p.category),arrow=node('span','↗');arrow.setAttribute('aria-hidden','true');label.append(type,arrow);frame.append(image,label);card.append(frame,node('h3',p.name),node('p',variant().name+' / Gold'));container.append(card);});}
  document.title=product.name+' — Chevalier & Roth';get('pdp-breadcrumb-name').textContent=product.name;get('pdp-title').textContent=product.name;get('pdp-subtitle').textContent=descriptions[product.id].subtitle;get('pdp-description').textContent=product.description;get('pdp-silhouette').textContent=descriptions[product.id].silhouette;get('pdp-details-copy').textContent=descriptions[product.id].details;get('pdp-number').textContent='PIÈCE N° '+String(products.findIndex(p=>p.id===product.id)+1).padStart(2,'0');
  colors.forEach(entry=>{const button=node('button');button.type='button';button.dataset.pdpColor=entry.id;button.style.setProperty('--swatch',entry.swatch);button.setAttribute('aria-label',entry.name);button.title=entry.name;button.setAttribute('aria-pressed','false');const swatch=node('span');swatch.setAttribute('aria-hidden','true');button.append(swatch);button.addEventListener('click',()=>setColor(entry.id));get('pdp-colors').append(button);});
  validSizes.forEach(entry=>{const button=node('button',entry);button.type='button';button.dataset.pdpSize=entry;button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>setSize(entry));get('pdp-sizes').append(button);});
- get('pdp-view-images').addEventListener('click',()=>setView('images'));get('pdp-view-model').addEventListener('click',()=>setView('model'));
  get('pdp-photo-retry').addEventListener('click',()=>{renderGallery(true);updateWaitlistSummary();});
  get('pdp-gallery-previous').addEventListener('click',()=>setImage(imageIndex-1));get('pdp-gallery-next').addEventListener('click',()=>setImage(imageIndex+1));get('pdp-image-zoom').addEventListener('click',()=>openDialog(zoom));get('pdp-zoom-previous').addEventListener('click',()=>setImage(imageIndex-1));get('pdp-zoom-next').addEventListener('click',()=>setImage(imageIndex+1));
  zoom.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();setImage(imageIndex-1);}if(event.key==='ArrowRight'){event.preventDefault();setImage(imageIndex+1);}});
  get('pdp-size-guide').addEventListener('click',()=>openDialog(sizeDialog));
- viewer.addEventListener('load',event=>{if(event.detail?.url)markModelReady(absolute(event.detail.url));});
- viewer.addEventListener('error',event=>{const url=event.detail?.sourceError?.url;if(url&&absolute(url)!==requestedModel)return;if(modelReady)return;modelStage.classList.remove('is-ready');get('pdp-model-status').textContent='3D ist gerade nicht verfügbar. Das passende Produktbild bleibt sichtbar.';updateRotation();});
- viewer.addEventListener('progress',event=>viewer.style.setProperty('--progress',String((event.detail?.totalProgress||0)*100)+'%'));
- function pauseRotation(){rotation=false;updateRotation();}
- viewer.addEventListener('camera-change',event=>{if(event.detail?.source==='user-interaction')pauseRotation();});
- function rotate(delta){if(!modelReady)return;pauseRotation();const orbit=viewer.getCameraOrbit?.();if(!orbit)return;viewer.cameraOrbit=String(orbit.theta*180/Math.PI+delta)+'deg '+String(orbit.phi*180/Math.PI)+'deg '+String(orbit.radius)+'m';}
- get('pdp-model-left').addEventListener('click',()=>rotate(-35));get('pdp-model-right').addEventListener('click',()=>rotate(35));get('pdp-model-rotation').addEventListener('click',()=>{rotation=!rotation;updateRotation();});get('pdp-model-reset').addEventListener('click',()=>{pauseRotation();viewer.resetTurntableRotation?.(0);viewer.setAttribute('camera-orbit','0deg 80deg 105%');viewer.jumpCameraToGoal?.();});reduced.addEventListener('change',()=>{if(reduced.matches)pauseRotation();});
  get('pdp-waitlist-open').addEventListener('click',()=>{get('pdp-waitlist').scrollIntoView({behavior:reduced.matches?'instant':'smooth',block:'start'});get('pdp-waitlist-name').focus({preventScroll:true});});
  get('pdp-waitlist-form').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget;if(submitting||!form.reportValidity())return;

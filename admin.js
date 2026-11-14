@@ -6,7 +6,7 @@
   const config = api?.config || {};
   const views = {
     waitlist: {table: config.waitlistTableId, caption: 'WARTELISTE', title: 'Vorfreude auf die Kollektion.', description: 'Anmeldungen mit gewähltem Produkt, Farbe und Größe. Der Status wird direkt in Appwrite gespeichert.'},
-    products: {table: config.productTableId, caption: 'CR_PRODUCTS', title: 'Die Signature-Kollektion.', description: 'Produktdaten und Bestand aus Appwrite. p1 = Half-Zip · p2 = Hose · p3 = Body. Die 3D-Modelle der Website bleiben erhalten.'},
+    products: {table: config.productTableId, caption: 'CR_PRODUCTS', title: 'Die Signature-Kollektion.', description: 'Produktdaten und Bestand aus Appwrite. p1 = Half-Zip · p2 = Hose · p3 = Body. Die Produktfotos werden über den lokalen Katalog zugeordnet.'},
     codes: {table: config.codeTableId, caption: 'CR_CODES', title: 'Besondere Einladungen.', description: 'Codes und ihre Bedingungen zentral verwalten. Eine Einlösung wird erst im serverseitigen Checkout verbindlich geprüft.'},
     orders: {table: config.orderTableId, caption: 'CR_ORDERS', title: 'Bestellungen im Überblick.', description: 'Bestehende Bestellungen aus Appwrite. Diese Ansicht liest die vom Bestellsystem gespeicherten Daten.'},
     giveaway: {table: config.giveawayTableId, caption: 'FIRST COLLECTION GIVEAWAY', title: 'Ein besonderer Auftakt.', description: 'Teilnahmen am First Collection Giveaway. Statusänderungen werden in cr_giveaway gespeichert.'}
@@ -186,7 +186,7 @@
       field('description','Beschreibung',data.description || '',{textarea:true,wide:true,maxLength:4096});
       field('sizes','Größen (JSON-Liste)',data.sizes || '["S","M","L","XL"]',{textarea:true,required:true,maxLength:2048,hint:'Beispiel: ["S","M","L","XL"]'});
       field('colors','Farben (JSON-Liste)',data.colors || '["Bordeaux","Schwarz","Grau","Beige","Navyblau"]',{textarea:true,required:true,maxLength:2048,hint:'Bestehende Daten werden beim Öffnen unverändert übernommen.'});
-      field('images','Bildpfade (JSON-Liste)',data.images || '[]',{textarea:true,wide:true,required:true,maxLength:4096,hint:'Die 3D-Modelle der Website werden über den lokalen Katalog zugeordnet. Bestehende Bildpfade nur bei Bedarf ändern.'});
+      field('images','Bildpfade (JSON-Liste)',data.images || '[]',{textarea:true,wide:true,required:true,maxLength:4096,hint:'Die Studiofotos der Website werden über den lokalen Katalog zugeordnet. Bestehende Bildpfade nur bei Bedarf ändern.'});
     } else {
       field('code','Code',data.code || '',{required:true,maxLength:64}); field('percent','Rabatt (%)',data.percent ?? 10,{type:'number',required:true,min:0,max:100,step:1});
       field('active','Code aktiv',data.active ?? true,{type:'checkbox'}); field('minOrder','Mindestbestellwert (€)',data.minOrder ?? 0,{type:'number',required:true,min:0,step:'0.01'});
