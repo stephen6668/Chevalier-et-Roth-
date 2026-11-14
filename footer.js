@@ -21,19 +21,19 @@
   footer.setAttribute('aria-label','Chevalier & Roth – Service und Rechtliches');
   const grid=make('div',undefined,'cr-footer-grid'),identity=make('div',undefined,'cr-footer-identity');
   const brand=link('','./','cr-footer-brand');brand.setAttribute('aria-label','Chevalier & Roth – Startseite');
-  const monogram=make('img');monogram.src='assets/brand-monogram.webp';monogram.width=46;monogram.height=58;monogram.loading='lazy';monogram.alt='';
-  const lockup=make('span','CHEVALIER & ROTH','cr-footer-wordmark');lockup.append(make('small','EST. 2024','cr-footer-established'));brand.append(monogram,lockup);
-  identity.append(brand,make('p','Une allure. Une signature.','cr-footer-motto'),make('p','Zeitlose Linien. Fünf Farbwelten.','cr-footer-description'));
+  const monogram=make('img');monogram.src='assets/brand/cr-cream.png';monogram.width=46;monogram.height=58;monogram.loading='lazy';monogram.alt='';
+  const lockup=make('span','CHEVALIER & ROTH','cr-footer-wordmark');brand.append(monogram,lockup);
+  identity.append(brand,make('p','Designed to Feel Exceptional.','cr-footer-motto'),make('p','Europäische Eleganz. Ein neues Kapitel aus Luxemburg.','cr-footer-description'));
   const company=make('div',undefined,'cr-footer-company');company.append(make('p',config.operatorName||'Chevalier & Roth'),make('p',config.country||'Luxemburg'));
   const phone=typeof config.phone==='string'?config.phone.trim():'';
   if(/^\+?[0-9 ()-]{6,30}$/.test(phone))company.append(link(config.phoneDisplay||phone,'tel:'+phone.replace(/[^+0-9]/g,''),'cr-footer-phone'));
   if(typeof config.email==='string'&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.email))company.append(link(config.email,'mailto:'+config.email,'cr-footer-email'));
   identity.append(company);
   const social=make('nav',undefined,'cr-footer-social');social.setAttribute('aria-label','Chevalier & Roth auf Social Media');social.append(socialLink('Instagram',site.instagramUrl,'https://www.instagram.com/chevalierandroth/'),socialLink('TikTok',site.tiktokUrl,'https://www.tiktok.com/@chevalier.roth'));identity.append(social);
-  grid.append(identity,navigation('Die Kollektion',[
+  grid.append(identity,navigation('The First Edition',[
    ['Alle Stücke','./#collection'],['Le Body','product.html?product=body'],['Le Half-Zip','product.html?product=halfzip'],['Le Pantalon','product.html?product=trousers']
   ]),navigation('Service',[
-   ['Auf die Warteliste','./#waitlist'],['Kontakt','legal.html?page=impressum'],['Versand & Rückgabe','legal.html?page=versand'],['Barrierefreiheit','legal.html?page=barrierefreiheit'],['Teilnahmebedingungen','legal.html?page=giveaway']
+   ['Early Access','./#waitlist'],['Unser Ansatz','./#approach'],['Kontakt','legal.html?page=impressum'],['Versand & Rückgabe','legal.html?page=versand'],['Barrierefreiheit','legal.html?page=barrierefreiheit'],['Teilnahmebedingungen','legal.html?page=giveaway']
   ]),navigation('Rechtliches',[
    ['Impressum','legal.html?page=impressum'],['Datenschutz','legal.html?page=datenschutz'],['Cookies & Speicher','legal.html?page=cookies'],['AGB / Nutzung','legal.html?page=agb'],['Widerruf','legal.html?page=widerruf']
   ]));

@@ -1,6 +1,6 @@
-# Chevalier & Roth — Collection Signature
+# Chevalier & Roth — The First Edition
 
-Responsive Designvorschau in Elfenbein, Gold und Bordeaux. Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — jeweils in Bordeaux, Schwarz, Grau, Beige und Navyblau mit den hochgeladenen 3D-Farbmodellen.
+Neuaufbau nach dem aktualisierten Markenplan vom 14. November 2026: Navy und Creme, originale transparente CR-Monogramme, redaktioneller Kampagneneinstieg und DE/EN/FR. Umsetzung und Bildnachweis: [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — jeweils in Bordeaux, Schwarz, Grau, Beige und Navyblau mit den hochgeladenen 3D-Farbmodellen.
 
 ## Lokal starten
 

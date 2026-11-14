@@ -18,14 +18,14 @@ async function runtimeFile(path) {
 const sourceDirectory = await runtimeFile(resolve(root, 'dist/index.html')) ? resolve(root, 'dist') : root;
 const runtimeNames = [
  'index.html', 'styles.css', 'app.js', 'catalog.js', 'gallery.js', 'viewer-setup.js',
- 'site-config.js', 'appwrite-client.js', 'launch.js', 'launch.css',
+ 'site-config.js', 'appwrite-client.js', 'launch.js',
  'admin.html', 'admin.js', 'admin.css', 'product.html', 'product.js', 'product.css',
  'checkout.html', 'checkout.js', 'checkout.css', 'store-prices.js',
  'fonts.css','footer.js','footer.css','privacy.js','privacy.css',
  'legal.html','legal.js','legal.css','legal-config.js',
  'i18n.js','i18n.css','translations-store.js','translations-legal.js',
- 'intro.js','intro.css','motion.js','motion.css',
- 'product-light.js','product-light.css','product-specs.js','product-details.js','product-details.css','commerce-config.js'
+ 'motion.js','motion.css',
+ 'product-light.css','product-specs.js','product-details.js','product-details.css','commerce-config.js'
 ];
 const output = resolve(root, '.worker-output/dist');
 const modelRef = process.argv.find(value => value.startsWith('--model-ref='))?.slice('--model-ref='.length) || '78f52028a6a6b18ca8a7c5fa401bf6a0c62cdc77';
@@ -82,6 +82,10 @@ async function files(directory) {
  }
  return result.sort();
 }
+// Retain the original files in Git, but do not embed superseded brand artwork.
+// Every gallery fallback, product image, model, font and current brand asset is
+// still included. References to a retired asset below fail validation.
+const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp']);
 const staticFiles = {}, modelFiles = {};
 let staticBytes = 0, modelBytes = 0;
 const runtimePaths = [];
@@ -92,6 +96,7 @@ for (const name of runtimeNames) {
 runtimePaths.push(...await files(resolve(sourceDirectory, 'assets')), ...await files(resolve(sourceDirectory, 'vendor')));
 for (const path of runtimePaths.sort()) {
  const name = '/' + relative(sourceDirectory, path).replaceAll('\\', '/');
+ if (retiredAssets.has(name)) continue;
  if (name.split('/').some(part => part.startsWith('.'))) throw new Error('Hidden files cannot be embedded: ' + name);
  const bytes = await readFile(path), extension = extname(path).toLowerCase();
  const etag = '"' + createHash('sha256').update(bytes).digest('hex') + '"';
@@ -111,6 +116,12 @@ for (const path of runtimePaths.sort()) {
  if (!binary && /\b(?:sk|rk)_(?:test|live)_[A-Za-z0-9]{20,}\b/.test(body)) throw new Error('A secret-like value was found in a public asset: ' + name);
  staticFiles[name] = {type: license ? 'text/plain; charset=utf-8' : mime[extension], bytes: bytes.length, etag, binary, body};
  staticBytes += bytes.length;
+}
+for (const [name, asset] of Object.entries(staticFiles)) {
+ if (asset.binary) continue;
+ for (const retired of retiredAssets) {
+  if (asset.body.includes(retired.split('/').pop())) throw new Error('Retired brand asset is still referenced in ' + name + ': ' + retired);
+ }
 }
 if (Object.keys(modelFiles).length !== 15) throw new Error('Expected all 15 optimized product models.');
 for (const name of ['index.html', 'product.html', 'checkout.html']) {
@@ -150,7 +161,7 @@ const source = '// Generated from authored dist/ assets and worker modules. No r
 const parsed = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 if (typeof parsed.default?.fetch !== 'function') throw new Error('The artifact must export default.fetch.');
 const gzipBytes = gzipSync(source, {level: 9}).length;
-if (gzipBytes > 3 * 1024 * 1024) throw new Error('The self-contained Worker exceeds the conservative 3 MiB compressed limit.');
+if (gzipBytes > 3 * 1024 * 1024) throw new Error('The self-contained Worker exceeds the conservative 3 MiB compressed limit: ' + gzipBytes + ' bytes.');
 await rm(output, {recursive: true, force: true});
 await mkdir(resolve(output, 'server'), {recursive: true});
 await mkdir(resolve(output, '.openai'), {recursive: true});

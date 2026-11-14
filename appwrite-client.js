@@ -7,7 +7,7 @@ window.CRBackend = (() => {
  function init() {
   if (services) return services;
   const sdk = window.Appwrite;
-  if (!sdk || typeof sdk.TablesDB !== 'function') throw new Error('Die Verbindung konnte nicht gestartet werden. Bitte lade die Seite neu.');
+  if (!sdk || typeof sdk.TablesDB !== 'function') throw new Error('Die Verbindung konnte nicht gestartet werden. Bitte laden Sie die Seite neu.');
   const client = new sdk.Client().setEndpoint(config.endpoint).setProject(config.projectId);
   services = {account: new sdk.Account(client), tables: new sdk.TablesDB(client), teams: new sdk.Teams(client), sdk};
   return services;
@@ -54,7 +54,7 @@ window.CRBackend = (() => {
  async function login(loginEmail, password) {
   const {account} = init();
   const safeEmail = email(loginEmail);
-  if (!String(password || '')) throw new Error('Bitte dein Passwort eingeben.');
+  if (!String(password || '')) throw new Error('Bitte Ihr Passwort eingeben.');
   await timed(account.createEmailPasswordSession({email: safeEmail, password: String(password)}), 'Anmelden');
   const user = await currentUser();
   if (!user) throw new Error('Die Sitzung konnte nicht geladen werden. Bitte erneut anmelden.');
@@ -116,7 +116,7 @@ window.CRBackend = (() => {
   if (entry.privacyAccepted !== true) throw new Error('Bitte den Datenschutzhinweisen zustimmen.');
   const data = {
    userId: 'guest',
-   name: text(entry.name, 255, 'deinen Namen'),
+   name: text(entry.name, 255, 'Ihren Namen'),
    email: email(entry.email),
    productId: productId(entry.productId),
    productName: text(entry.productName, 255, 'einen Produktnamen'),
@@ -129,11 +129,11 @@ window.CRBackend = (() => {
  async function enterGiveaway(entry) {
   if(window.CRLegalConfig?.giveawayReady !== true) throw new Error('Das Giveaway ist noch nicht zur Teilnahme freigegeben.');
   if (Date.now() >= new Date(config.launchAt).getTime()) throw new Error('Das Gewinnspiel ist bereits beendet.');
-  if (entry.socialConfirmed !== true) throw new Error('Bitte bestätige, dass du uns auf TikTok und Instagram folgst.');
+  if (entry.socialConfirmed !== true) throw new Error('Bitte bestätigen Sie, dass Sie uns auf TikTok und Instagram folgen.');
   if (entry.privacyAccepted !== true) throw new Error('Bitte den Teilnahme- und Datenschutzhinweisen zustimmen.');
   const data = {
-   firstName: text(entry.firstName, 120, 'deinen Vornamen'),
-   lastName: text(entry.lastName, 120, 'deinen Nachnamen'),
+   firstName: text(entry.firstName, 120, 'Ihren Vornamen'),
+   lastName: text(entry.lastName, 120, 'Ihren Nachnamen'),
    email: email(entry.email),
    prizeId: productId(entry.prizeId),
    prizeName: text(entry.prizeName, 255, 'einen Gewinn'),
@@ -151,15 +151,15 @@ window.CRBackend = (() => {
   const code = Number(error?.code || error?.status || 0), type = error?.type || '';
   if (type === 'user_invalid_credentials') return 'E-Mail oder Passwort ist falsch.';
   if (type === 'user_session_already_exists') return 'Es besteht bereits eine Sitzung. Bitte zuerst abmelden und dann erneut anmelden.';
-  if (type === 'appwrite_timeout') return 'Die Antwort dauert zu lange. Falls du ein Formular gesendet hast, prüfe den Eintrag vor einem erneuten Versuch.';
+  if (type === 'appwrite_timeout') return 'Die Antwort dauert zu lange. Falls Sie ein Formular gesendet haben, prüfen Sie den Eintrag vor einem erneuten Versuch.';
   if (type === 'general_unknown_origin') return 'Diese Webadresse ist in Appwrite noch nicht als Web-Plattform freigegeben.';
-  if (code === 429) return 'Zu viele Versuche. Bitte warte einen Moment und versuche es erneut.';
-  if (code === 401 || code === 403) return 'Der Zugriff wurde nicht freigegeben. Bitte prüfe deine Anmeldung und die Appwrite-Berechtigungen.';
-  if (code === 404) return 'Der Datenbereich wurde nicht gefunden. Bitte prüfe die Appwrite-Konfiguration.';
-  if (code === 409) return 'Dieser Eintrag existiert bereits. Bitte verwende einen anderen Code oder aktualisiere den vorhandenen Eintrag.';
+  if (code === 429) return 'Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.';
+  if (code === 401 || code === 403) return 'Der Zugriff wurde nicht freigegeben. Bitte prüfen Sie Ihre Anmeldung und die Appwrite-Berechtigungen.';
+  if (code === 404) return 'Der Datenbereich wurde nicht gefunden. Bitte prüfen Sie die Appwrite-Konfiguration.';
+  if (code === 409) return 'Dieser Eintrag existiert bereits. Bitte verwenden Sie einen anderen Code oder aktualisieren Sie den vorhandenen Eintrag.';
   if (code === 400 && /column|attribute|schema/i.test(error?.message || '')) return 'Die benötigten Datenfelder fehlen in Appwrite oder passen nicht zur Tabelle.';
-  if (error instanceof TypeError || /failed to fetch|network|load failed/i.test(error?.message || '')) return 'Die Verbindung konnte nicht hergestellt werden. Bitte prüfe Internet und Appwrite-Webadresse.';
-  return error?.message || 'Die Anfrage konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
+  if (error instanceof TypeError || /failed to fetch|network|load failed/i.test(error?.message || '')) return 'Die Verbindung konnte nicht hergestellt werden. Bitte prüfen Sie Ihre Internetverbindung oder versuchen Sie es später erneut.';
+  return error?.message || 'Die Anfrage konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.';
  }
  return Object.freeze({config, productIds, currentUser, login, logout, isAdmin, list, create, update, remove, addWaitlist, enterGiveaway, publicProducts, errorMessage});
 })();

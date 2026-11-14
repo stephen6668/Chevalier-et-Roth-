@@ -8,3 +8,6 @@ node_modules/
 .worker-output/
 site-deployment.tar.gz
 worker-deployment.tar.gz
+
+# Generated deployment output; authored storefront files live at repository root.
+dist/
