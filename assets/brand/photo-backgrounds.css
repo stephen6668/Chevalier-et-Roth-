@@ -1,0 +1,31 @@
+/* Beige product-photo presentation. The supplied hero and source photos stay intact. */
+.product-card-image,
+.detail-image,
+.search-result,
+.cart-item,
+.pdp-page .pdp-image-stage,
+.pdp-page .pdp-thumbnails button,
+.pdp-page .pdp-related-image,
+.pdp-page .pdp-zoom-dialog,
+.pdp-waitlist-photo,
+.checkout-page .checkout-line-image{
+ background:var(--cream,#f2ebdd);
+ isolation:isolate;
+}
+.product-card-image>img,
+.detail-image>img,
+.search-result>img,
+.cart-item>img,
+.pdp-image-zoom>img,
+.pdp-thumbnails img,
+.pdp-related-image>img,
+.pdp-zoom-dialog>img,
+.pdp-waitlist-photo>img,
+.checkout-line-image>img{
+ background:transparent;
+ mix-blend-mode:darken;
+}
+.pdp-waitlist-photo{display:block;flex:0 0 57px;width:57px;height:72px;overflow:hidden}
+.pdp-page .pdp-waitlist-photo>img{display:block;width:100%;height:100%;background:transparent}
+.pdp-page .pdp-zoom-label,
+.pdp-page .pdp-gallery-navigation button{background:#f2ebdde6}
