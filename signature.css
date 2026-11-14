@@ -1,0 +1,48 @@
+/* La Signature — a brief, interactive Maison entrance. */
+.signature-entry{position:fixed;inset:0;margin:0;padding:0;width:100%;height:100%;height:100dvh;max-width:none;max-height:none;border:0;overflow:hidden;background:transparent;color:var(--cream,#f2ebdd);isolation:isolate;--signature-gold:#c4aa82}
+.signature-entry:not([open]){display:none}
+.signature-entry::backdrop{background:transparent}
+.signature-shutter{position:absolute;inset:0;width:50.1%;background:#19283e;z-index:-2;transition:transform 1.05s cubic-bezier(.76,0,.24,1);will-change:transform}
+.signature-shutter-left{right:auto}.signature-shutter-right{left:auto}
+.signature-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1;transition:opacity .42s ease}
+.signature-frame{position:absolute;inset:22px;border:1px solid #c4aa8236;pointer-events:none;transition:opacity .3s}
+.signature-top{position:absolute;inset:39px 50px auto;display:flex;justify-content:space-between;align-items:center;gap:20px;font:400 9px/1.7 var(--sans,Arial,sans-serif);letter-spacing:2px}
+.signature-top>span{color:var(--signature-gold)}
+.signature-skip{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 0 9px 15px;color:#f2ebddd6;font-size:10px;letter-spacing:.3px}
+.signature-skip:hover{color:#fff}.signature-entry button:focus-visible{outline:2px solid #c4aa82;outline-offset:6px}
+.signature-content{position:absolute;inset:17% 24px 15%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.signature-kicker{font:400 9px/1.6 var(--sans,Arial,sans-serif);letter-spacing:4px;color:#e0ccb0;margin:0 0 24px}
+.signature-mark{display:block;width:clamp(92px,9vw,142px);height:clamp(105px,10vw,160px);background:#d2b990;-webkit-mask:url('assets/brand/cr-navy.png') center/contain no-repeat;mask:url('assets/brand/cr-navy.png') center/contain no-repeat;filter:drop-shadow(0 0 18px #c4aa8228);margin-bottom:22px}
+.signature-title{font:400 clamp(49px,6.7vw,100px)/.84 var(--serif,Georgia,serif);letter-spacing:-2.8px;color:var(--cream,#f2ebdd);margin:0}
+.signature-title em{display:block;font-weight:400;color:#d8be96;line-height:1.04}
+.signature-name{font:400 10px/1.6 var(--sans,Arial,sans-serif);letter-spacing:3.8px;margin:21px 0 26px;color:#f2ebddd1}
+.signature-enter{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:38px;min-height:48px;border:1px solid #c4aa8280;padding:12px 20px;background:#19283ed9;color:var(--cream,#f2ebdd);font:400 11px/1.7 var(--sans,Arial,sans-serif);transition:background .2s,border-color .2s}
+.signature-enter:hover{background:#c4aa821c;border-color:#c4aa82}
+.signature-arrow{display:block;width:29px;height:1px;background:var(--signature-gold);position:relative;transition:transform .25s}
+.signature-arrow::after{content:'';position:absolute;right:0;top:-3px;width:7px;height:7px;border-top:1px solid var(--signature-gold);border-right:1px solid var(--signature-gold);transform:rotate(45deg)}
+.signature-enter:hover .signature-arrow{transform:translateX(4px)}
+.signature-bottom{position:absolute;inset:auto 50px 39px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;font:400 9px/1.7 var(--sans,Arial,sans-serif);letter-spacing:1.1px;color:#e0ccb0}
+.signature-hint{display:flex;align-items:center;gap:12px;letter-spacing:.35px;color:#f2ebddab}
+.signature-hint::before{content:'';width:6px;height:6px;border:1px solid #c4aa82;border-radius:50%}
+.signature-progress{width:80px;height:1px;background:#c4aa8235;overflow:hidden;margin:9px 0 0 auto}
+.signature-progress::after{content:'';display:block;height:1px;background:#d2b990;transform-origin:left;animation:signature-progress 3.8s linear both}
+.signature-entry.is-replay .signature-progress{visibility:hidden}
+.signature-entry.is-leaving .signature-shutter-left{transform:translateX(-100%)}
+.signature-entry.is-leaving .signature-shutter-right{transform:translateX(100%)}
+.signature-entry.is-leaving .signature-content{opacity:0;transform:translateY(-10px);transition:opacity .28s,transform .55s}
+.signature-entry.is-leaving .signature-canvas,.signature-entry.is-leaving .signature-frame,.signature-entry.is-leaving .signature-top,.signature-entry.is-leaving .signature-bottom{opacity:0;transition:opacity .32s}
+.signature-entry.is-arriving .signature-mark,.signature-entry.is-arriving .signature-kicker,.signature-entry.is-arriving .signature-title,.signature-entry.is-arriving .signature-name,.signature-entry.is-arriving .signature-enter{animation:signature-arrive .85s cubic-bezier(.16,1,.3,1) both}
+.signature-entry.is-arriving .signature-title{animation-delay:.08s}.signature-entry.is-arriving .signature-name{animation-delay:.16s}.signature-entry.is-arriving .signature-enter{animation-delay:.24s}
+.hero-action{flex-wrap:wrap}
+.signature-replay{display:inline-flex;align-items:center;gap:11px;min-height:44px;padding:8px 0;font:400 10px/1.6 var(--sans,Arial,sans-serif);color:var(--brown,#73543f);border-bottom:1px solid #73543f45;margin:0}
+.signature-replay::before{content:'';width:15px;height:15px;border:1px solid #73543f80;border-radius:50%;background:url('assets/brand/cr-navy.png') center/7px auto no-repeat}
+.signature-replay:hover{border-color:var(--brown,#73543f)}
+html.signature-open{overflow:hidden}
+@keyframes signature-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes signature-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(min-width:900px){.signature-content{inset:15% 24px 14%}.signature-mark{margin-bottom:23px}}
+@media(max-width:760px){.hero-action .signature-replay{flex-basis:100%;justify-content:center;border-bottom:0}.hero-action{row-gap:0}}
+@media(max-width:600px){.signature-frame{inset:12px}.signature-top{inset:23px 28px auto;font-size:7px;letter-spacing:1.3px}.signature-skip{font-size:9px}.signature-content{inset:14% 22px 16%}.signature-kicker{font-size:8px;letter-spacing:3px;margin-bottom:25px}.signature-title{font-size:clamp(53px,14vw,78px);letter-spacing:-2px}.signature-mark{width:105px;height:118px;margin-bottom:26px}.signature-name{font-size:8px;letter-spacing:2.6px;margin:22px 0 28px}.signature-enter{font-size:10px;min-height:48px;padding:12px 18px;gap:30px}.signature-bottom{inset:auto 28px 28px;font-size:7px;letter-spacing:.8px}.signature-hint{font-size:8px;gap:7px;max-width:145px;letter-spacing:.1px}.signature-progress{width:50px}}
+@media(max-height:620px){.signature-content{inset:70px 20px 75px}.signature-mark{width:70px;height:78px;margin-bottom:15px}.signature-kicker{margin-bottom:13px}.signature-title{font-size:55px}.signature-name{margin:14px 0 18px;font-size:8px}.signature-enter{min-height:42px;padding-block:8px}.signature-bottom{bottom:25px}}
+@media(max-height:480px){.signature-content{inset:60px 20px 65px}.signature-mark{display:none}.signature-title{font-size:45px;letter-spacing:-1px}.signature-kicker{font-size:7px;margin-bottom:12px}.signature-name{margin:12px 0}.signature-top{top:20px}.signature-bottom{bottom:22px}}
+@media(prefers-reduced-motion:reduce){.signature-entry *{animation:none!important;transition:none!important}.signature-entry .signature-hint,.signature-progress{display:none}}

@@ -15,3 +15,7 @@ Das aktuelle Hero-Bild assets/brand/banner.png ist die vom Betreiber gelieferte 
 ## Build und Veröffentlichung
 
 Frontend-Quellen liegen im Repository-Stamm. `node scripts/build-worker.mjs` baut einen eigenständigen Worker unter .worker-output/dist; `node scripts/stage-worker.mjs` kopiert ausschließlich das generierte Deployment nach dist für den Sites-Paketworkflow. dist ist ignoriert. Originalfoto-Routen und serverseitige Zahlungsprüfung bleiben erhalten; die GLB-Auslieferung und der 3D-Viewer entfallen. Nicht mehr verwendete alte Markenbilder/Intro-Skripte bleiben in der Historie und im Repository, werden aber nicht mehr ausgeliefert.
+
+## La Signature · neuer Einstieg
+
+Ein dekoratives Canvas-Feld aus feinen Champagnerfäden umrahmt das unveränderte CR-Monogramm und den Original-Slogan auf Deep Navy. Maus- und Berührungseingaben bewegen die Fäden. Zwei seitlich öffnende Flächen enthüllen danach das originale Banner. Der Einstieg startet bei einem direkten, frischen Startseitenaufruf oder Neuladen und dauert einschließlich Übergang etwa fünf Sekunden; Eintritt, Direktlink und Escape bleiben sofort verfügbar. Sprungmarken, Panel-Aufrufe, interne Ankünfte und Rücknavigation umgehen ihn. Bei reduzierter Bewegung erscheint die Website direkt; die manuell aufrufbare Fassung bleibt statisch. DE/EN/FR, Tastaturbedienung, mobile Breite und Beendigung der Zeichenanimation wurden berücksichtigt. Kein neuer Speicher oder externer Dienst.
