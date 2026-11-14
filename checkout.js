@@ -3,7 +3,7 @@
  const selectionStorage=window.CRPrivacy.selectionStorage;
  const get=id=>document.getElementById(id),products=window.CR_PRODUCTS||[],byId=Object.fromEntries(products.map(product=>[product.id,product]));
  const config=window.CR_COMMERCE_CONFIG||{},approved=window.CR_STORE_PRICES||{},query=new URLSearchParams(location.search);
- const validSizes=['S','M','L','XL'],returnStatus=query.get('status'),sessionId=query.get('session_id');
+ const validSizes=window.CR_SIZES||['S','M','L'],returnStatus=query.get('status'),sessionId=query.get('session_id');
  const direct=query.has('product'),returning=returnStatus==='cancelled'||returnStatus==='success',resultOnly=returnStatus==='success',snapshotKey='cr-checkout-selection-v1';
  let items=[],catalog=null,busy=false,verifiedPaid=false,attemptId='',attemptSignature='',loadVersion=0;
  const words={
@@ -14,7 +14,7 @@
  const language=()=>{const value=window.CRI18N?.getLanguage()||document.documentElement.lang;return words[value]?value:'de';};
  const text=key=>words[language()][key]||words.de[key]||key;
  const money=cents=>new Intl.NumberFormat({de:'de-DE',en:'en-GB',fr:'fr-FR'}[language()],{style:'currency',currency:'EUR'}).format(cents/100);
- const colorName=id=>({en:{bordeaux:'Bordeaux',black:'Black',gray:'Grey',beige:'Beige',navy:'Navy blue'},fr:{bordeaux:'Bordeaux',black:'Noir',gray:'Gris',beige:'Beige',navy:'Bleu marine'}}[language()]?.[id]||byId[items.find(item=>item.color===id)?.product]?.variants[id]?.name||window.CR_COLORS?.find(color=>color.id===id)?.name||id);
+ const colorName=id=>({en:{bordeaux:'Bordeaux',beige:'Beige',navy:'Navy blue'},fr:{bordeaux:'Bordeaux',beige:'Beige',navy:'Bleu marine'}}[language()]?.[id]||byId[items.find(item=>item.color===id)?.product]?.variants[id]?.name||window.CR_COLORS?.find(color=>color.id===id)?.name||id);
  function el(tag,value,className){const element=document.createElement(tag);if(value!==undefined)element.textContent=String(value);if(className)element.className=className;return element;}
  const amountValid=value=>Number.isSafeInteger(value)&&value>0&&value<=1000000;
  function valid(item){return item&&byId[item.product]?.variants[item.color]&&validSizes.includes(item.size)&&Number.isInteger(item.qty)&&item.qty>0&&item.qty<=20;}

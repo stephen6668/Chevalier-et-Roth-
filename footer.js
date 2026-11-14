@@ -31,7 +31,7 @@
   identity.append(company);
   const social=make('nav',undefined,'cr-footer-social');social.setAttribute('aria-label','Chevalier & Roth auf Social Media');social.append(socialLink('Instagram',site.instagramUrl,'https://www.instagram.com/chevalierandroth/'),socialLink('TikTok',site.tiktokUrl,'https://www.tiktok.com/@chevalier.roth'));identity.append(social);
   grid.append(identity,navigation('The First Edition',[
-   ['Alle Stücke','./#collection'],['Le Body','product.html?product=body'],['Le Half-Zip','product.html?product=halfzip'],['Le Pantalon','product.html?product=trousers']
+   ['Alle Stücke','./#collection'],['Le Body','product.html?product=body'],['Le Half-Zip','product.html?product=halfzip'],['Le Pantalon Femme','product.html?product=trousers'],['Le Pantalon Homme','product.html?product=trousers-men']
   ]),navigation('Service',[
    ['Early Access','./#waitlist'],['Unser Ansatz','./#approach'],['Kontakt','legal.html?page=impressum'],['Versand & Rückgabe','legal.html?page=versand'],['Barrierefreiheit','legal.html?page=barrierefreiheit'],['Teilnahmebedingungen','legal.html?page=giveaway']
   ]),navigation('Rechtliches',[

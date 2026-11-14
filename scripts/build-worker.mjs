@@ -40,7 +40,7 @@ const photoFiles = {}, logicalPhotoNames = new Set();
 // This one historical upload has a different filename from the product/colour
 // convention. Only this checked override may change a photo's upstream file.
 const photoSourceOverrides = Object.freeze({halfzip_mannequin_studio: 'halfzip_weisser_studiohintergrund.png'});
-let photoBytes = 0, verifiedPhotos = 0;
+let photoBytes = 0, verifiedPhotos = 0, activePhotoCount = 0;
 for (const photo of photoManifest.photos) {
  if (!requiredPhotoNames.has(photo.file)) throw new Error('Unexpected studio-photo filename.');
  if (logicalPhotoNames.has(photo.file)) throw new Error('Duplicate logical studio photograph.');
@@ -49,6 +49,9 @@ for (const photo of photoManifest.photos) {
  if (sourceFile !== photo.file && photoSourceOverrides[photo.file.slice(0, -4)] !== sourceFile) throw new Error('Unexpected studio-photo source override.');
  const observed = photo.bytes !== undefined || photo.sha256 !== undefined || photo.git_blob_sha !== undefined;
  if (observed && (!Number.isSafeInteger(photo.bytes) || photo.bytes <= 0 || photo.bytes > 32 * 1024 * 1024 || !/^[a-f0-9]{64}$/.test(photo.sha256) || !/^[a-f0-9]{40}$/.test(photo.git_blob_sha))) throw new Error('Invalid observed studio-photo metadata.');
+ // Retain the upload inventory, but retire all old trouser photos and removed colours.
+ if (photo.file.startsWith('hose_') || /_(?:black|gray)_/.test(photo.file)) continue;
+ activePhotoCount++;
  // main can change after this build. Its response must use the upstream ETag,
  // rather than the hashes recorded when an available PNG was checked.
  const asset = {sourcePath: '/' + sourceFile, ...(photoRef !== 'main' && observed ? {bytes: photo.bytes, etag: '"' + photo.sha256 + '"'} : {})};
@@ -92,7 +95,7 @@ async function files(directory) {
 // Retain the original files in Git, but do not embed superseded brand artwork.
 // Only genuine gallery photos, fonts and current brand assets are included.
 // Render posters and 3D runtime files remain archived in Git, outside deployment.
-const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp','/assets/brand/editorial-courtyard.webp','/vendor/model-viewer.min.js','/vendor/meshopt-decoder.js','/vendor/LICENSE-model-viewer.txt','/vendor/LICENSE-meshoptimizer.txt','/vendor/README.md']);
+const retiredAssets = new Set(['/assets/brand-monogram.webp', '/assets/maison-hero.webp','/assets/brand/editorial-courtyard.webp','/assets/gallery/halfzip-black-studio.webp','/assets/gallery/halfzip-gray-studio.webp','/assets/gallery/trousers-black-studio.webp','/assets/gallery/trousers-gray-studio.webp','/vendor/model-viewer.min.js','/vendor/meshopt-decoder.js','/vendor/LICENSE-model-viewer.txt','/vendor/LICENSE-meshoptimizer.txt','/vendor/README.md']);
 const staticFiles = {};
 let staticBytes = 0;
 const runtimePaths = [];
@@ -168,4 +171,4 @@ await mkdir(resolve(output, 'server'), {recursive: true});
 await mkdir(resolve(output, '.openai'), {recursive: true});
 await writeFile(resolve(output, 'server/index.js'), source);
 await writeFile(resolve(output, '.openai/hosting.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log(JSON.stringify({sourceDirectory, output, workerBytes: Buffer.byteLength(source), gzipBytes, embeddedFiles: Object.keys(staticFiles).length, embeddedBytes: staticBytes, streamedPhotos: logicalPhotoNames.size, photoRoutes: Object.keys(photoFiles).length, verifiedPhotos, photoBytes, photoRef, project_id: manifest.project_id}));
+console.log(JSON.stringify({sourceDirectory, output, workerBytes: Buffer.byteLength(source), gzipBytes, embeddedFiles: Object.keys(staticFiles).length, embeddedBytes: staticBytes, streamedPhotos: activePhotoCount, photoRoutes: Object.keys(photoFiles).length, verifiedPhotos, photoBytes, photoRef, project_id: manifest.project_id}));

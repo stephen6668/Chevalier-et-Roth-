@@ -3,6 +3,40 @@
   // Exact German DOM text and attribute values for the brand-bible redesign.
   // German remains the source language; campaign copy and product names stay intact.
   const rows = [
+    ["Damen", "Women", "Femme"],
+    ["Herren", "Men", "Homme"],
+    ["Ein tiefer V-Ausschnitt, lange Ärmel und eine körpernahe Silhouette. In Beige, Navyblau und Bordeaux.", "A deep V-neck, long sleeves and a close-fitting silhouette. In beige, navy blue and Bordeaux.", "Un décolleté en V profond, des manches longues et une silhouette près du corps. En beige, bleu marine et bordeaux."],
+    ["Ein markanter Stehkragen, ein goldfarbener Reißverschluss und eine ruhige Silhouette. In Beige, Navyblau und Bordeaux.", "A distinctive stand collar, a gold-coloured zip and an understated silhouette. In beige, navy blue and Bordeaux.", "Un col montant affirmé, une fermeture dorée et une silhouette sobre. En beige, bleu marine et bordeaux."],
+    ["Palazzohose für Damen mit weitem Bein, Bundfalten, goldfarbenem Knopf und CR-Monogramm. In Beige, Navyblau und Bordeaux.", "Women’s palazzo trousers with a wide leg, pleats, a gold-coloured button and the CR monogram. In beige, navy blue and Bordeaux.", "Un pantalon palazzo pour femme à jambe ample, avec des plis, un bouton doré et le monogramme CR. En beige, bleu marine et bordeaux."],
+    ["Hose für Herren mit geradem, schmalerem Bein, Bundfalten, goldfarbenem Knopf und CR-Monogramm. In Beige, Navyblau und Bordeaux.", "Men’s trousers with a straight, narrower leg, pleats, a gold-coloured button and the CR monogram. In beige, navy blue and Bordeaux.", "Un pantalon pour homme à jambe droite et moins ample, avec des plis, un bouton doré et le monogramme CR. En beige, bleu marine et bordeaux."],
+    ["Beispiel: [\"S\",\"M\",\"L\"]", "Example: [\"S\",\"M\",\"L\"]", "Exemple : [\"S\",\"M\",\"L\"]"],
+
+    // Current four-piece range: three colours and S/M/L only.
+    ["Damenhose", "Women’s trousers", "Pantalon femme"],
+    ["Herrenhose", "Men’s trousers", "Pantalon homme"],
+    ["Damen · Weites Bein", "Women · Wide leg", "Femme · Jambe ample"],
+    ["Herren · Gerades Bein", "Men · Straight leg", "Homme · Jambe droite"],
+    ["Femme · Palazzo", "Women · Palazzo", "Femme · Palazzo"],
+    ["Homme · Ligne droite", "Men · Straight leg", "Homme · Ligne droite"],
+    ["Vier Perspektiven.", "Four perspectives.", "Quatre perspectives."],
+    ["Zeitlose Linien. Drei Farbwelten.", "Timeless lines. Three colour palettes.", "Des lignes intemporelles. Trois univers de couleurs."],
+    ["Entdecken Sie Body, Half-Zip sowie Damen- und Herrenhosen in der Signature-Kollektion.", "Discover the bodysuit, Half-Zip and trousers for women and men in the Signature collection.", "Découvrez le body, le Half-Zip et les pantalons pour femme et homme dans la collection Signature."],
+    ["Für diese Kollektionsvorschau sind S, M und L auswählbar. Verbindliche Maße und Passformhinweise folgen mit der finalen Kollektion. Die Größenwahl wird für Ihre Wartelistenanfrage gespeichert.", "S, M and L are available to select in this collection preview. Confirmed measurements and fit guidance will follow with the final collection. Your size selection is saved with your waiting-list request.", "Les tailles S, M et L peuvent être sélectionnées dans cet aperçu de collection. Les mesures définitives et les conseils de coupe suivront avec la collection finale. Votre choix de taille est enregistré avec votre demande d’inscription."],
+    ["Eine Palazzohose für Damen mit weitem Bein und klaren Bundfalten. Die großzügige Silhouette fällt vom Bund bis zum Saum weit und fließend.", "Women’s palazzo trousers with a wide leg and clean pleats. The generous silhouette flows loosely from the waistband to the hem.", "Un pantalon palazzo pour femme à jambe ample et plis nets. Sa silhouette généreuse tombe avec fluidité de la taille jusqu’à l’ourlet."],
+    ["Ein goldfarbener Knopf am Bund und das CR-Monogramm setzen feine Akzente. Entdecken Sie die Damenhose in Beige, Navyblau und Bordeaux.", "A gold-coloured button at the waist and the CR monogram add subtle accents. Discover the women’s trousers in beige, navy blue and Bordeaux.", "Un bouton doré à la taille et le monogramme CR apportent des accents discrets. Découvrez le pantalon femme en beige, bleu marine et bordeaux."],
+    ["Eine Herrenhose mit gerader, schmalerer Beinform und klaren Bundfalten. Der Schnitt führt das Bein ruhiger und weniger weit als bei der Damen-Palazzohose.", "Men’s trousers with a straight, narrower leg and clean pleats. The cut follows a more restrained, less ample line than the women’s palazzo trousers.", "Un pantalon pour homme à jambe droite et moins ample, avec des plis nets. Sa coupe suit une ligne plus sobre et plus étroite que celle du pantalon palazzo pour femme."],
+    ["Ein goldfarbener Knopf am Bund und das CR-Monogramm prägen die Herrenhose. Wählen Sie Beige, Navyblau oder Bordeaux.", "A gold-coloured button at the waist and the CR monogram define the men’s trousers. Choose beige, navy blue or Bordeaux.", "Un bouton doré à la taille et le monogramme CR caractérisent le pantalon homme. Choisissez le beige, le bleu marine ou le bordeaux."],
+    ["Das goldfarbene CR-Monogramm setzt einen ruhigen Akzent. Wählen Sie Beige, Navyblau oder Bordeaux und entdecken Sie die Silhouette aus jeder Perspektive.", "The gold-coloured CR monogram adds a subtle accent. Choose beige, navy blue or Bordeaux and explore the silhouette from every angle.", "Le monogramme CR doré apporte un accent discret. Choisissez le beige, le bleu marine ou le bordeaux et découvrez la silhouette sous tous les angles."],
+    ["Ein goldfarbener Reißverschluss und das CR-Monogramm setzen Akzente. Drei Farbwelten – Beige, Navyblau und Bordeaux – geben der Silhouette ihren eigenen Charakter.", "A gold-coloured zip and the CR monogram add accents. Three colours — beige, navy blue and Bordeaux — give the silhouette its own character.", "Une fermeture dorée et le monogramme CR ponctuent la pièce. Trois couleurs — beige, bleu marine et bordeaux — donnent à la silhouette son caractère."],
+    ["Bitte eines der vier Kollektionsprodukte auswählen.", "Please select one of the four collection pieces.", "Veuillez sélectionner l’une des quatre pièces de la collection."],
+    ["Bitte S, M oder L auswählen.", "Please select S, M or L.", "Veuillez sélectionner S, M ou L."],
+    ["Bitte Beige, Navyblau oder Bordeaux auswählen.", "Please select beige, navy blue or Bordeaux.", "Veuillez sélectionner le beige, le bleu marine ou le bordeaux."],
+    ["Produktdaten und Bestand aus Appwrite. p1 = Half-Zip · p2 = Damenhose · p3 = Body · p4 = Herrenhose. Die Produktfotos werden über den lokalen Katalog zugeordnet.", "Product data and stock from Appwrite. p1 = Half-Zip · p2 = Women’s trousers · p3 = Body · p4 = Men’s trousers. Product photos are assigned through the local catalogue.", "Données produits et stock dans Appwrite. p1 = Half-Zip · p2 = Pantalon femme · p3 = Body · p4 = Pantalon homme. Les photos des produits sont associées via le catalogue local."],
+    ["p2 · Damenhose", "p2 · Women’s trousers", "p2 · Pantalon femme"],
+    ["p4 · Herrenhose", "p4 · Men’s trousers", "p4 · Pantalon homme"],
+    ["Diese Website stellt vier Kollektionsentwürfe vor: Body, Half-Zip, Damenhose mit weitem Bein und Herrenhose mit geraderem Bein. Zur Auswahl stehen Beige, Navyblau und Bordeaux sowie die Größen S, M und L. Produktfotos und Beschreibungen vermitteln die Gestaltung; verbindliche Materialzusammensetzung, Pflegehinweise und Produktionsmaße werden zur finalen Kollektion ergänzt.", "This website presents four collection designs: the bodysuit, Half-Zip, women’s wide-leg trousers and men’s straighter-leg trousers. Beige, navy blue and Bordeaux and sizes S, M and L are available to select. Product photos and descriptions convey the design; confirmed material composition, care instructions and production measurements will be added for the final collection.", "Ce site présente quatre modèles de collection : le body, le Half-Zip, le pantalon femme à jambe ample et le pantalon homme à jambe plus droite. Les couleurs proposées sont le beige, le bleu marine et le bordeaux, et les tailles S, M et L. Les photos et descriptions présentent leur conception ; la composition définitive, les conseils d’entretien et les mesures de production seront précisés pour la collection finale."],
+    ["Die Preisvorschau verwendet Half-Zip 110 €, Body 90 € und Damenhose 100 €. Der Preis der Herrenhose steht noch nicht fest. Versandkosten sind noch nicht bestätigt. Der Betreiber ist derzeit nicht für die Mehrwertsteuer registriert. Die separat dargestellte 17%-Aufteilung ist ausschließlich eine unverbindliche Rechenvorschau und kein Steuerausweis.", "The price preview uses €110 for the Half-Zip, €90 for the bodysuit and €100 for the women’s trousers. The price of the men’s trousers has not yet been set. Shipping costs have not yet been confirmed. The operator is not currently VAT registered. The separately displayed 17% breakdown is solely an illustrative calculation, not a tax statement.", "L’aperçu des prix utilise 110 € pour le Half-Zip, 90 € pour le body et 100 € pour le pantalon femme. Le prix du pantalon homme n’est pas encore fixé. Les frais de livraison ne sont pas encore confirmés. L’exploitant n’est actuellement pas immatriculé à la TVA. La ventilation à 17 % présentée séparément est uniquement un calcul indicatif et non un décompte de taxe."],
+
     ["Chevalier & Roth – CR-Monogramm und Wortmarke vor einer Altstadt mit Brücke und Fluss.", "Chevalier & Roth – CR monogram and wordmark against an old town with a bridge and river.", "Chevalier & Roth – monogramme CR et nom de la marque devant une vieille ville, un pont et une rivière."],
     ['Zum Inhalt springen', 'Skip to content', 'Aller au contenu'],
     ['THE FIRST EDITION · IN ENTWICKLUNG', 'THE FIRST EDITION · IN DEVELOPMENT', 'THE FIRST EDITION · EN DÉVELOPPEMENT'],
@@ -174,8 +208,8 @@
   }
 
   // Translate generated accessible names without changing the original product names.
-  const product = '(Le Body|Le Half-Zip|Le Pantalon|Body|Half-Zip|Hose)';
-  const colour = '(Bordeaux|Schwarz|Grau|Beige|Navyblau)';
+  const product = '(Le Body|Le Half-Zip|Le Pantalon Femme|Le Pantalon Homme|Le Pantalon|Body|Half-Zip|Damenhose|Herrenhose|Hose)';
+  const colour = '(Bordeaux|Beige|Navyblau)';
   const colours = {
     en: {Bordeaux: 'Bordeaux', Schwarz: 'Black', Grau: 'Grey', Beige: 'Beige', Navyblau: 'Navy blue'},
     fr: {Bordeaux: 'Bordeaux', Schwarz: 'Noir', Grau: 'Gris', Beige: 'Beige', Navyblau: 'Bleu marine'}
@@ -183,6 +217,22 @@
   const rule = (source, en, fr) => ({re: new RegExp('^' + source + '$'), en, fr});
   window.CR_I18N_PATTERNS ||= [];
   window.CR_I18N_PATTERNS.push(
+    rule(product + ' in ' + colour + ' – (Studioansicht|Studiofoto folgt)',
+      match => match[1] + ' in ' + colours.en[match[2]] + ' – ' + (match[3] === 'Studiofoto folgt' ? 'studio photograph coming soon' : 'studio view'),
+      match => match[1] + ' en ' + colours.fr[match[2]] + ' – ' + (match[3] === 'Studiofoto folgt' ? 'photo studio à venir' : 'vue studio')),
+    rule(product + ' – Studiofoto folgt',
+      match => match[1] + ' – studio photograph coming soon',
+      match => match[1] + ' – photo studio à venir'),
+    rule(product + ' ' + colour + ' (S|M|L) (verringern|erhöhen|entfernen)',
+      match => (match[4] === 'entfernen' ? 'Remove' : match[4] === 'verringern' ? 'Decrease' : 'Increase') + ' ' + match[1] + ' ' + colours.en[match[2]] + ' ' + match[3],
+      match => (match[4] === 'entfernen' ? 'Supprimer' : match[4] === 'verringern' ? 'Diminuer' : 'Augmenter') + ' ' + match[1] + ' ' + colours.fr[match[2]] + ' ' + match[3]),
+    rule(product + ' in ' + colour + ' / (S|M|L) ist vorgemerkt\\. Wir melden uns zum Start\\.',
+      match => match[1] + ' in ' + colours.en[match[2]] + ' / ' + match[3] + ' is on your waiting list. We will contact you at launch.',
+      match => match[1] + ' en ' + colours.fr[match[2]] + ' / ' + match[3] + ' est sur votre liste d’attente. Nous vous contacterons au lancement.'),
+    rule(product + ' · ' + colour + ' / (S|M|L) wurde Ihrer Auswahl hinzugefügt\\.',
+      match => match[1] + ' · ' + colours.en[match[2]] + ' / ' + match[3] + ' has been added to your selection.',
+      match => match[1] + ' · ' + colours.fr[match[2]] + ' / ' + match[3] + ' a été ajouté à votre sélection.'),
+
     rule(product + ' ansehen',
       match => 'View ' + match[1],
       match => 'Voir ' + match[1]),

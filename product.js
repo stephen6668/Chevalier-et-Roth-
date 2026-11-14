@@ -2,7 +2,7 @@
 const selectionStorage=window.CRPrivacy.selectionStorage;
 (() => {
  const get=id=>document.getElementById(id),products=window.CR_PRODUCTS||[],colors=window.CR_COLORS||[],api=window.CRBackend;
- const validSizes=['S','M','L','XL'],params=new URLSearchParams(location.search),rawProduct=params.get('product');
+ const validSizes=window.CR_SIZES||['S','M','L'],params=new URLSearchParams(location.search),rawProduct=params.get('product');
  const product=products.find(p=>p.id===(rawProduct||'halfzip'));
 
  function node(tag,text,className){const element=document.createElement(tag);if(text!==undefined)element.textContent=String(text);if(className)element.className=className;return element;}
@@ -19,9 +19,10 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
  let color=colors.some(c=>c.id===params.get('color'))?params.get('color'):'bordeaux',size=validSizes.includes(params.get('size'))?params.get('size'):'M';
  let gallery=[],imageIndex=0,submitting=false;
  const descriptions={
-  body:{subtitle:'Col V · La pièce essentielle',silhouette:'Un V profond, une ligne près du corps. Ein tiefer V-Ausschnitt und lange Ärmel prägen die körpernahe Silhouette des Body.',details:'Das goldfarbene CR-Monogramm setzt einen ruhigen Akzent. Wählen Sie Bordeaux, Schwarz, Grau, Beige oder Navyblau und entdecken Sie die Silhouette aus jeder Perspektive.'},
-  halfzip:{subtitle:'Signature · L’allure moderne',silhouette:'Ein markanter Stehkragen, ein kurzer Reißverschluss und lange Ärmel. Die klare Silhouette des Half-Zip verbindet eine sportliche Form mit dem Ausdruck der Maison.',details:'Ein goldfarbener Reißverschluss und das CR-Monogramm setzen Akzente. Fünf Farbwelten – Bordeaux, Schwarz, Grau, Beige und Navyblau – geben der Silhouette ihren eigenen Charakter.'},
-  trousers:{subtitle:'Jambe large · Une ligne libre',silhouette:'Eine weite Beinform mit fließender Linie. Bund, Kordelzug und die großzügige Silhouette geben der Hose ihren entspannten, klaren Ausdruck.',details:'Goldfarbene Kordelenden und das CR-Monogramm verbinden die Hose mit der Signature-Kollektion. Entdecken Sie das weite Bein in Bordeaux, Schwarz, Grau, Beige oder Navyblau.'}
+  body:{subtitle:'Col V · La pièce essentielle',silhouette:'Un V profond, une ligne près du corps. Ein tiefer V-Ausschnitt und lange Ärmel prägen die körpernahe Silhouette des Body.',details:'Das goldfarbene CR-Monogramm setzt einen ruhigen Akzent. Wählen Sie Beige, Navyblau oder Bordeaux und entdecken Sie die Silhouette aus jeder Perspektive.'},
+  halfzip:{subtitle:'Signature · L’allure moderne',silhouette:'Ein markanter Stehkragen, ein kurzer Reißverschluss und lange Ärmel. Die klare Silhouette des Half-Zip verbindet eine sportliche Form mit dem Ausdruck der Maison.',details:'Ein goldfarbener Reißverschluss und das CR-Monogramm setzen Akzente. Drei Farbwelten – Beige, Navyblau und Bordeaux – geben der Silhouette ihren eigenen Charakter.'},
+  trousers:{subtitle:'Femme · Palazzo',silhouette:'Eine Palazzohose für Damen mit weitem Bein und klaren Bundfalten. Die großzügige Silhouette fällt vom Bund bis zum Saum weit und fließend.',details:'Ein goldfarbener Knopf am Bund und das CR-Monogramm setzen feine Akzente. Entdecken Sie die Damenhose in Beige, Navyblau und Bordeaux.'},
+  'trousers-men':{subtitle:'Homme · Ligne droite',silhouette:'Eine Herrenhose mit gerader, schmalerer Beinform und klaren Bundfalten. Der Schnitt führt das Bein ruhiger und weniger weit als bei der Damen-Palazzohose.',details:'Ein goldfarbener Knopf am Bund und das CR-Monogramm prägen die Herrenhose. Wählen Sie Beige, Navyblau oder Bordeaux.'}
  };
  const variant=()=>product.variants[color];
  function updateURL(){const url=new URL(location.href);url.searchParams.set('product',product.id);url.searchParams.set('color',color);url.searchParams.set('size',size);history.replaceState(null,'',url);}
@@ -56,7 +57,7 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
   photoImage(get('pdp-zoom-image'),image);get('pdp-zoom-caption').textContent=product.name+' · '+variant().name+' · '+(imageIndex+1)+' / '+gallery.length;
  }
  function renderGallery(retry=false){
-  gallery=getGallery();if(retry)gallery.forEach(image=>{if(!image.src.endsWith('.svg'))image.src+='?photo_retry='+Date.now();});
+  gallery=getGallery();if(retry)gallery.forEach(image=>{if(!image.src.endsWith('.svg'))image.src+=(image.src.includes('?')?'&':'?')+'photo_retry='+Date.now();});
   const thumbnails=get('pdp-thumbnails');thumbnails.replaceChildren();
   gallery.forEach((image,i)=>{const button=node('button');button.type='button';button.dataset.pdpImage=String(i);button.setAttribute('aria-label',image.label+' – Bild '+(i+1));button.setAttribute('aria-pressed',String(i===0));const thumb=node('img');photoImage(thumb,{...image,alt:'',fallbackAlt:''});thumb.width=66;thumb.height=83;thumb.loading='lazy';button.append(thumb);button.addEventListener('click',()=>setImage(i));thumbnails.append(button);});
   setImage(0);

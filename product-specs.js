@@ -7,7 +7,7 @@
 //   rows: [{size: 'S', values: {length: 0}}], note: {de: '…', en: '…', fr: '…'}}
 // The example schema above is not product data; no example values are rendered.
 (() => {
- const sizes=Object.freeze(['S','M','L','XL']);
+ const sizes=window.CR_SIZES||Object.freeze(['S','M','L']);
  const label=(de,en,fr)=>Object.freeze({de,en,fr});
  const feature=(name,value)=>Object.freeze({label:name,value});
  const common={sizes,measurementUnit:'cm',composition:null,care:Object.freeze([]),measurements:null};
@@ -26,8 +26,15 @@
   ])}),
   trousers:Object.freeze({...common,features:Object.freeze([
    feature(label('Silhouette','Silhouette','Silhouette'),label('Weites Bein','Wide leg','Jambe ample')),
-   feature(label('Bund','Waistband','Ceinture'),label('Bund mit Kordelzug','Drawstring waistband','Ceinture à cordon de serrage')),
-   feature(label('Akzente','Details','Détails'),label('Goldfarbene Kordelenden und CR-Monogramm','Gold-coloured drawstring tips and CR monogram','Embouts de cordon dorés et monogramme CR'))
+   feature(label('Schnitt','Cut','Coupe'),label('Palazzohose für Damen','Women’s palazzo trousers','Pantalon palazzo pour femme')),
+   feature(label('Bund','Waistband','Ceinture'),label('Bundfalten und goldfarbener Knopf','Pleats and gold-coloured button','Plis et bouton doré')),
+   feature(label('Akzente','Details','Détails'),label('Goldfarbener Knopf und CR-Monogramm','Gold-coloured button and CR monogram','Bouton doré et monogramme CR'))
+  ])}),
+  'trousers-men':Object.freeze({...common,features:Object.freeze([
+   feature(label('Silhouette','Silhouette','Silhouette'),label('Gerades, schmaleres Bein','Straight, narrower leg','Jambe droite et moins ample')),
+   feature(label('Schnitt','Cut','Coupe'),label('Herrenhose mit Bundfalten','Men’s pleated trousers','Pantalon à plis pour homme')),
+   feature(label('Bund','Waistband','Ceinture'),label('Bundfalten und goldfarbener Knopf','Pleats and gold-coloured button','Plis et bouton doré')),
+   feature(label('Akzente','Details','Détails'),label('Goldfarbener Knopf und CR-Monogramm','Gold-coloured button and CR monogram','Bouton doré et monogramme CR'))
   ])})
  });
 })();

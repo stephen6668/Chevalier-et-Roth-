@@ -2,8 +2,8 @@
 (() => {
  const $=selector=>document.querySelector(selector), $$=selector=>[...document.querySelectorAll(selector)];
  const products=window.CR_PRODUCTS,colors=window.CR_COLORS,byId=Object.fromEntries(products.map(p=>[p.id,p]));
- const storage=window.CRPrivacy.selectionStorage,sizes=['S','M','L','XL'];
- const selectedColors=Object.fromEntries(products.map(p=>[p.id,p.id==='halfzip'?'bordeaux':p.id==='body'?'bordeaux':'beige']));
+ const storage=window.CRPrivacy.selectionStorage,sizes=window.CR_SIZES;
+ const selectedColors=Object.fromEntries(products.map(p=>[p.id,p.defaultColor]));
  let cart=[],activePanel=null,panelTrigger=null,toastTimer;
  const create=(tag,text,className)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;};
  const url=(id,color=selectedColors[id],size='M')=>'product.html?'+new URLSearchParams({product:id,color,size});
@@ -17,7 +17,7 @@
  $$('.menu-links a').forEach(link=>link.addEventListener('click',()=>closePanels(false)));
  function renderProducts(filter='all'){
   const grid=$('#product-grid');grid.replaceChildren();
-  ['halfzip','body','trousers'].map(id=>byId[id]).filter(product=>filter==='all'||product.id===filter).forEach((product,index)=>{
+  ['halfzip','body','trousers','trousers-men'].map(id=>byId[id]).filter(product=>filter==='all'||product.id===filter).forEach((product,index)=>{
    const variant=product.variants[selectedColors[product.id]],card=create('article',undefined,'product-card');card.dataset.productId=product.id;
    const imageLink=create('a',undefined,'product-card-image');imageLink.href=url(product.id);imageLink.setAttribute('aria-label',product.name+' ansehen');
    const img=create('img');img.width=600;img.height=750;img.loading='lazy';window.CRPhotos.apply(img,variant,product.name+' in '+variant.name+' — Studiofoto');
@@ -29,7 +29,7 @@
   });
  }
  $$('[data-filter]').forEach(button=>button.addEventListener('click',()=>{$$('[data-filter]').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});renderProducts(button.dataset.filter);}));
- function renderSearch(query){const target=$('#search-results');target.replaceChildren();const term=query.trim().toLocaleLowerCase();const matches=products.filter(p=>[p.name,p.type,p.category,p.description,p.id==='trousers'?'trousers pants pantalon hose':p.id==='body'?'bodysuit body':'half zip pullover',...colors.map(c=>c.aliases)].join(' ').toLocaleLowerCase().includes(term));if(!matches.length){target.append(create('p','Keine passenden Stücke gefunden.','search-empty'));return;}matches.forEach(product=>{const link=create('a',undefined,'search-result');link.href=url(product.id);const image=create('img');window.CRPhotos.apply(image,product.variants[selectedColors[product.id]]);image.width=75;image.height=95;image.alt='';const copy=create('div');copy.append(create('h3',product.name),create('p',product.type));link.append(image,copy);target.append(link);});}
+ function renderSearch(query){const target=$('#search-results');target.replaceChildren();const term=query.trim().toLocaleLowerCase();const matches=products.filter(p=>[p.name,p.type,p.category,p.description,p.id.startsWith('trousers')?'trousers pants pantalon hose hosen damen herren frauen männer women men femme homme':p.id==='body'?'bodysuit body':'half zip pullover',...colors.map(c=>c.aliases)].join(' ').toLocaleLowerCase().includes(term));if(!matches.length){target.append(create('p','Keine passenden Stücke gefunden.','search-empty'));return;}matches.forEach(product=>{const link=create('a',undefined,'search-result');link.href=url(product.id);const image=create('img');window.CRPhotos.apply(image,product.variants[selectedColors[product.id]]);image.width=75;image.height=95;image.alt='';const copy=create('div');copy.append(create('h3',product.name),create('p',product.type));link.append(image,copy);target.append(link);});}
  $('#search-input').addEventListener('input',event=>renderSearch(event.target.value));
  function saveCart(){try{storage.setItem('cr-selection-v3',JSON.stringify(cart));}catch{toast('Ihre Auswahl kann in diesem Browser nicht gespeichert werden.');}renderCart();}
  function renderCart(){const container=$('#cart-items');container.replaceChildren();$('#cart-count').textContent=String(cart.reduce((n,row)=>n+row.qty,0));$('.cart-trigger').setAttribute('aria-label','Persönliche Auswahl öffnen · '+cart.reduce((n,row)=>n+row.qty,0));$('#cart-summary').hidden=!cart.length;if(!cart.length){container.append(create('p','Ihre Auswahl ist noch leer. Entdecken Sie die Kollektion und merken Sie Ihre bevorzugten Stücke auf den Produktseiten vor.','cart-empty'));const link=create('a','Die Kollektion entdecken','text-link');link.href='#collection';link.addEventListener('click',()=>closePanels(false));container.append(link);return;}

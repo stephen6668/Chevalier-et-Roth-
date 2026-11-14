@@ -3,10 +3,11 @@
 const PRODUCTS = Object.freeze({
  body: {name: 'Le Body', backendId: 'p3'},
  halfzip: {name: 'Le Half-Zip', backendId: 'p1'},
- trousers: {name: 'Le Pantalon', backendId: 'p2'}
+ trousers: {name: 'Le Pantalon Femme', backendId: 'p2'},
+ 'trousers-men': {name: 'Le Pantalon Homme', backendId: 'p4'}
 });
-const COLORS = Object.freeze({bordeaux: 'Bordeaux', black: 'Schwarz', gray: 'Grau', beige: 'Beige', navy: 'Navyblau'});
-const SIZES = new Set(['S', 'M', 'L', 'XL']);
+const COLORS = Object.freeze({beige: 'Beige', navy: 'Navyblau', bordeaux: 'Bordeaux'});
+const SIZES = new Set(['S', 'M', 'L']);
 const DEFAULT_SHIPPING_COUNTRIES = Object.freeze(['LU', 'BE', 'FR', 'DE']);
 const MAX_BODY_BYTES = 16384;
 const MAX_UNIT_AMOUNT = 1000000;
@@ -207,7 +208,7 @@ async function createCheckout(request, env, url) {
   form.set(prefix + '[quantity]', String(item.qty));
   form.set(prefix + '[price_data][currency]', 'eur');
   form.set(prefix + '[price_data][unit_amount]', String(catalog.prices[item.product].amount));
-  const localizedColors = {en:{bordeaux:'Bordeaux',black:'Black',gray:'Grey',beige:'Beige',navy:'Navy blue'},fr:{bordeaux:'Bordeaux',black:'Noir',gray:'Gris',beige:'Beige',navy:'Bleu marine'}};
+  const localizedColors = {en:{bordeaux:'Bordeaux',beige:'Beige',navy:'Navy blue'},fr:{bordeaux:'Bordeaux',beige:'Beige',navy:'Bleu marine'}};
   form.set(prefix + '[price_data][product_data][name]', PRODUCTS[item.product].name + ' · ' + (localizedColors[locale]?.[item.color] || COLORS[item.color]) + ' / ' + item.size);
   form.set(prefix + '[price_data][product_data][metadata][product]', item.product);
   form.set(prefix + '[price_data][product_data][metadata][backend_id]', PRODUCTS[item.product].backendId);

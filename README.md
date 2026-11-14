@@ -1,14 +1,16 @@
 # Chevalier & Roth — The First Edition
 
-## Aktueller Stand: Produktfotos statt 3D
+## Aktueller Stand: vier Modelle, drei Farben und drei Größen
 
-Die Website verwendet ausschließlich die vorhandenen Studiofotos für Produktkarten, Suche, persönliche Auswahl, Produktgalerie und Preisübersicht. 3D-Ansichten, 360°-Steuerung und gerenderte Produktposter werden nicht mehr ausgeliefert. Die ursprünglichen Modelldateien bleiben als Quellen im Repository erhalten.
+Die Website zeigt Body, Half-Zip, die Damenhose „Le Pantalon Femme“ mit weitem Palazzo-Bein und die Herrenhose „Le Pantalon Homme“ mit schmalerem, geradem Bein. Alle Produkte sind ausschließlich in Beige, Navyblau und Bordeaux sowie S, M und L auswählbar. Die bisherige Produktkennung `trousers`/`p2` bleibt für die Damenhose bestehen; `trousers-men`/`p4` unterscheidet die Herrenhose in Auswahl, Warteliste und Preisübersicht.
 
-Vorhanden sind zehn Studiofotos: Body in Bordeaux und Beige; Half-Zip sowie Hose jeweils in Bordeaux, Schwarz, Grau und Beige. Für Body in Schwarz/Grau/Navy und Half-Zip/Hose in Navy fehlt noch ein Foto. Diese Varianten erhalten einen neutralen Platzhalter beziehungsweise „Foto folgt“; es wird weder eine andere Farbe noch ein Renderbild eingesetzt.
+Die bisherigen Hosenfotos sind im aktuellen Auftritt durch fünf neue, vom Betreiber gelieferte Aufnahmen ersetzt. Die Dateizuordnung trennt Damen- und Herrenschnitt. Für Damen sind alle drei Farben bebildert, für Herren Beige und Bordeaux. Insgesamt sind neun verwendete Studiofotos vorhanden; Navy-Fotos für Body, Half-Zip und Herrenhose fehlen noch und werden mit „Foto folgt“ gekennzeichnet. Es wird weder eine andere Farbe noch ein gerendertes Produktbild eingesetzt.
 
-`catalog.js` ordnet die Fotos für Karten und Auswahl zu; `gallery.js` verwaltet die Studio-Galerie mit Original-PNG, passendem WebP und neutralem Platzhalter als Rückfall. Zoom, Farb-/Größenwahl, Variantenlinks, Warteliste, lokale Auswahl und Zahlungsfreigaben bleiben erhalten. Der Half-Zip startet auf der Homepage in Bordeaux, wofür ein tatsächliches Foto vorliegt.
+`catalog.js` ordnet die Fotos für Karten und Auswahl zu; `gallery.js` verwaltet die Studio-Galerie. Zoom, Variantenlinks, Warteliste, lokale Auswahl und Zahlungsfreigaben bleiben erhalten. Die beige Darstellung der Bildflächen bleibt auf allen Produktflächen aktiv. Das vom Betreiber gelieferte Hero-Banner bleibt unverändert.
 
-Frontend-Quellen liegen im Repository-Stamm. `node scripts/build-worker.mjs` baut den Worker, `node scripts/stage-worker.mjs` bereitet das generierte Deployment für Sites vor. Aktuelle Marken- und Bildnachweise stehen in [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Site behält ihren privaten Zugriff; offene Verkaufsdaten und Freigaben bleiben unverändert.
+Bestehende Preisvorschauen bleiben Half-Zip 110 €, Body 90 € und Damenhose 100 €. Für die Herrenhose wird kein Preis erfunden. Zahlungen bleiben an die vorhandene serverseitige Freigabe gebunden.
+
+Frontend-Quellen liegen im Repository-Stamm. `node scripts/build-worker.mjs` baut den Worker, `node scripts/stage-worker.mjs` bereitet das generierte Deployment für Sites vor. Aktuelle Marken- und Bildnachweise stehen in [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Site behält ihren privaten Zugriff.
 
 ## Historische Implementierungsnotizen
 

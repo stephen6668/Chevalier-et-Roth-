@@ -6,7 +6,7 @@
   const config = api?.config || {};
   const views = {
     waitlist: {table: config.waitlistTableId, caption: 'WARTELISTE', title: 'Vorfreude auf die Kollektion.', description: 'Anmeldungen mit gewähltem Produkt, Farbe und Größe. Der Status wird direkt in Appwrite gespeichert.'},
-    products: {table: config.productTableId, caption: 'CR_PRODUCTS', title: 'Die Signature-Kollektion.', description: 'Produktdaten und Bestand aus Appwrite. p1 = Half-Zip · p2 = Hose · p3 = Body. Die Produktfotos werden über den lokalen Katalog zugeordnet.'},
+    products: {table: config.productTableId, caption: 'CR_PRODUCTS', title: 'Die Signature-Kollektion.', description: 'Produktdaten und Bestand aus Appwrite. p1 = Half-Zip · p2 = Damenhose · p3 = Body · p4 = Herrenhose. Die Produktfotos werden über den lokalen Katalog zugeordnet.'},
     codes: {table: config.codeTableId, caption: 'CR_CODES', title: 'Besondere Einladungen.', description: 'Codes und ihre Bedingungen zentral verwalten. Eine Einlösung wird erst im serverseitigen Checkout verbindlich geprüft.'},
     orders: {table: config.orderTableId, caption: 'CR_ORDERS', title: 'Bestellungen im Überblick.', description: 'Bestehende Bestellungen aus Appwrite. Diese Ansicht liest die vom Bestellsystem gespeicherten Daten.'},
     giveaway: {table: config.giveawayTableId, caption: 'FIRST COLLECTION GIVEAWAY', title: 'Ein besonderer Auftakt.', description: 'Teilnahmen am First Collection Giveaway. Statusänderungen werden in cr_giveaway gespeichert.'}
@@ -87,7 +87,7 @@
       if (version !== loadVersion || !authenticated || activeTab !== selected) return;
       rows = [...result].sort((a,b) => text(b.$createdAt).localeCompare(text(a.$createdAt)));
       renderRecords(); message('#records-status', `${rows.length} ${rows.length === 1 ? 'Eintrag' : 'Einträge'} · Aktualisiert ${new Date().toLocaleTimeString('de-DE')}`);
-      $('#new-record').disabled = selected === 'products' && ['p1','p2','p3'].every(id => rows.some(row => row.$id === id));
+      $('#new-record').disabled = selected === 'products' && ['p1','p2','p3','p4'].every(id => rows.some(row => row.$id === id));
       return true;
     } catch(error) {
       if (version !== loadVersion) return;
@@ -176,7 +176,7 @@
     $('#edit-title').textContent = `${activeTab === 'products' ? 'Produkt' : 'Code'} ${row ? 'bearbeiten' : 'anlegen'}`;
     const data = row || {};
     if(activeTab === 'products') {
-      const ids = [{value:'p1',label:'p1 · Half-Zip'},{value:'p2',label:'p2 · Hose'},{value:'p3',label:'p3 · Body'}];
+      const ids = [{value:'p1',label:'p1 · Half-Zip'},{value:'p2',label:'p2 · Damenhose'},{value:'p3',label:'p3 · Body'},{value:'p4',label:'p4 · Herrenhose'}];
       if(row) field('id','Appwrite-Produkt-ID',row.$id,{readOnly:true});
       else {const available = ids.filter(id => !rows.some(item=>item.$id === id.value)); if(!available.length) return; field('id','Produkt',available[0].value,{select:available,required:true});}
       field('name','Produktname',data.name || '',{required:true,maxLength:255}); field('category','Kategorie',data.category || '',{required:true,maxLength:64});
@@ -184,8 +184,8 @@
       field('salePrice','Aktionspreis (€ netto) · 0 = keiner',data.salePrice ?? 0,{type:'number',min:0,step:'0.01'}); field('stock','Bestand',data.stock ?? 0,{type:'number',required:true,min:0,step:1});
       field('badge','Label',data.badge || '',{maxLength:64}); field('active','Produkt aktiv',data.active ?? true,{type:'checkbox'});
       field('description','Beschreibung',data.description || '',{textarea:true,wide:true,maxLength:4096});
-      field('sizes','Größen (JSON-Liste)',data.sizes || '["S","M","L","XL"]',{textarea:true,required:true,maxLength:2048,hint:'Beispiel: ["S","M","L","XL"]'});
-      field('colors','Farben (JSON-Liste)',data.colors || '["Bordeaux","Schwarz","Grau","Beige","Navyblau"]',{textarea:true,required:true,maxLength:2048,hint:'Bestehende Daten werden beim Öffnen unverändert übernommen.'});
+      field('sizes','Größen (JSON-Liste)',data.sizes || '["S","M","L"]',{textarea:true,required:true,maxLength:2048,hint:'Beispiel: ["S","M","L"]'});
+      field('colors','Farben (JSON-Liste)',data.colors || '["Beige","Navyblau","Bordeaux"]',{textarea:true,required:true,maxLength:2048,hint:'Bestehende Daten werden beim Öffnen unverändert übernommen.'});
       field('images','Bildpfade (JSON-Liste)',data.images || '[]',{textarea:true,wide:true,required:true,maxLength:4096,hint:'Die Studiofotos der Website werden über den lokalen Katalog zugeordnet. Bestehende Bildpfade nur bei Bedarf ändern.'});
     } else {
       field('code','Code',data.code || '',{required:true,maxLength:64}); field('percent','Rabatt (%)',data.percent ?? 10,{type:'number',required:true,min:0,max:100,step:1});

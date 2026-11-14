@@ -1,19 +1,19 @@
 'use strict';
+window.CR_SIZES = Object.freeze(['S','M','L']);
 window.CR_COLORS = Object.freeze([
- Object.freeze({id:'bordeaux',name:'Bordeaux',swatch:'#651c30',aliases:'bordeaux bordo rot'}),
- Object.freeze({id:'black',name:'Schwarz',swatch:'#1d1e20',aliases:'schwarz black'}),
- Object.freeze({id:'gray',name:'Grau',swatch:'#858588',aliases:'grau gray grey'}),
  Object.freeze({id:'beige',name:'Beige',swatch:'#d2be9e',aliases:'beige sand'}),
- Object.freeze({id:'navy',name:'Navyblau',swatch:'#182b45',aliases:'navy navyblau blau blue'})
+ Object.freeze({id:'navy',name:'Navyblau',swatch:'#182b45',aliases:'navy navyblau marineblau blau blue'}),
+ Object.freeze({id:'bordeaux',name:'Bordeaux',swatch:'#762e3b',aliases:'bordeaux bordo rot burgunder red'})
 ]);
 window.CRPhotos = (()=>{
- const available=new Set(['body:bordeaux','body:beige','halfzip:bordeaux','halfzip:black','halfzip:gray','halfzip:beige','trousers:bordeaux','trousers:black','trousers:gray','trousers:beige']);
+ const available=new Set(['body:bordeaux','body:beige','halfzip:bordeaux','halfzip:beige','trousers:bordeaux','trousers:beige','trousers:navy','trousers-men:bordeaux','trousers-men:beige']);
  const placeholder='assets/studio-photo-pending.svg';
  function variant(product,color){
-  const prefix=product==='trousers'?'hose':product;
-  const original=product==='halfzip'&&color.id==='bordeaux'?'halfzip_weisser_studiohintergrund.png':prefix+'_'+(color.id==='bordeaux'?'mannequin':color.id)+'_studio.png';
-  const known=available.has(product+':'+color.id);
-  const sources=Object.freeze([...(known?['assets/gallery/'+product+'-'+color.id+'-studio.webp']:[]),original,placeholder]);
+  const known=available.has(product+':'+color.id),pants=product.startsWith('trousers');
+  const photo='assets/gallery/'+product+'-'+color.id+'-studio.webp?v=range-20261114';
+  const original=product==='halfzip'&&color.id==='bordeaux'?'halfzip_weisser_studiohintergrund.png':product+'_'+(color.id==='bordeaux'?'mannequin':color.id)+'_studio.png';
+  // New trouser photos never fall back to the superseded drawstring model.
+  const sources=Object.freeze([...(known?[photo]:[]),...(!pants?[original]:[]),placeholder]);
   return Object.freeze({...color,image:sources[0],photoSources:sources,photoAvailable:known});
  }
  function apply(image,variant,alt=''){
@@ -25,7 +25,12 @@ window.CRPhotos = (()=>{
  return Object.freeze({variant,apply,placeholder});
 })();
 window.CR_PRODUCTS = Object.freeze([
- {id:'body',name:'Le Body',type:'Body à col V',category:'Body',description:'Ein tiefer V-Ausschnitt, lange Ärmel und eine körpernahe Silhouette. Fünf Farbwelten treffen auf goldene Akzente.'},
- {id:'halfzip',name:'Le Half-Zip',type:'Half-Zip Signature',category:'Half-Zip',description:'Ein markanter Stehkragen, ein goldener Reißverschluss und eine ruhige Silhouette. Der Half-Zip in fünf Farbwelten.'},
- {id:'trousers',name:'Le Pantalon',type:'Pantalon à jambe large',category:'Hose',description:'Weite Beine, ein fließender Fall und goldene Kordelenden. Eine klare Silhouette in fünf Farbwelten.'}
-].map(product=>Object.freeze({...product,color:'Bordeaux',image:window.CRPhotos.variant(product.id,window.CR_COLORS[0]).image,variants:Object.freeze(Object.fromEntries(window.CR_COLORS.map(color=>[color.id,window.CRPhotos.variant(product.id,color)])))})));
+ {id:'body',name:'Le Body',type:'Body à col V',category:'Body',description:'Ein tiefer V-Ausschnitt, lange Ärmel und eine körpernahe Silhouette. In Beige, Navyblau und Bordeaux.'},
+ {id:'halfzip',name:'Le Half-Zip',type:'Half-Zip Signature',category:'Half-Zip',description:'Ein markanter Stehkragen, ein goldfarbener Reißverschluss und eine ruhige Silhouette. In Beige, Navyblau und Bordeaux.'},
+ {id:'trousers',name:'Le Pantalon Femme',type:'Damen · Weites Bein',category:'Damenhose',gender:'Damen',description:'Palazzohose für Damen mit weitem Bein, Bundfalten, goldfarbenem Knopf und CR-Monogramm. In Beige, Navyblau und Bordeaux.'},
+ {id:'trousers-men',name:'Le Pantalon Homme',type:'Herren · Gerades Bein',category:'Herrenhose',gender:'Herren',description:'Hose für Herren mit geradem, schmalerem Bein, Bundfalten, goldfarbenem Knopf und CR-Monogramm. In Beige, Navyblau und Bordeaux.'}
+].map(product=>{
+ const variants=Object.freeze(Object.fromEntries(window.CR_COLORS.map(color=>[color.id,window.CRPhotos.variant(product.id,color)])));
+ const defaultColor=product.id.startsWith('trousers')?'beige':'bordeaux';
+ return Object.freeze({...product,defaultColor,color:variants[defaultColor].name,image:variants[defaultColor].image,variants});
+}));

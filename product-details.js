@@ -13,7 +13,8 @@
  const localized=value=>typeof value==='string'?value:(value&&typeof value==='object'?String(value[language]||value.de||value.en||''):'');
  const make=(tag,text,className)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=String(text);if(className)element.className=className;return element;};
  const ignore=element=>{element.dataset.i18nIgnore='';return element;};
- const sizes=Array.isArray(specs.sizes)?specs.sizes.filter(size=>['S','M','L','XL'].includes(size)):['S','M','L','XL'];
+ const allowedSizes=window.CR_SIZES||['S','M','L'];
+ const sizes=Array.isArray(specs.sizes)?allowedSizes.filter(size=>specs.sizes.includes(size)):allowedSizes;
  const originalMaterial=[...container.children].filter(element=>element.tagName==='DETAILS')[2];
  if(originalMaterial)originalMaterial.remove();
  const firstDetails=container.querySelector('details');

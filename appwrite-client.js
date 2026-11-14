@@ -1,7 +1,7 @@
 'use strict';
 window.CRBackend = (() => {
  const config = window.CRSiteConfig;
- const productIds = Object.freeze({halfzip: 'p1', trousers: 'p2', body: 'p3'});
+ const productIds = Object.freeze({halfzip: 'p1', trousers: 'p2', body: 'p3', 'trousers-men': 'p4'});
  const allowedTables = new Set([config.waitlistTableId, config.productTableId, config.codeTableId, config.orderTableId, config.giveawayTableId]);
  let services;
  function init() {
@@ -40,8 +40,18 @@ window.CRBackend = (() => {
  }
  function productId(value) {
   const id = productIds[value] || String(value || '');
-  if (!Object.values(productIds).includes(id)) throw new Error('Bitte eines der drei Kollektionsprodukte auswählen.');
+  if (!Object.values(productIds).includes(id)) throw new Error('Bitte eines der vier Kollektionsprodukte auswählen.');
   return id;
+ }
+ function selectionSize(value) {
+  const size = String(value ?? '').trim();
+  if (!['S','M','L'].includes(size)) throw new Error('Bitte S, M oder L auswählen.');
+  return size;
+ }
+ function selectionColor(value) {
+  const colors = {beige:'Beige',navy:'Navyblau',navyblau:'Navyblau',bordeaux:'Bordeaux'}, key = String(value ?? '').trim().toLowerCase();
+  if (!Object.hasOwn(colors,key)) throw new Error('Bitte Beige, Navyblau oder Bordeaux auswählen.');
+  return colors[key];
  }
  async function currentUser() {
   const {account} = init();
@@ -120,8 +130,8 @@ window.CRBackend = (() => {
    email: email(entry.email),
    productId: productId(entry.productId),
    productName: text(entry.productName, 255, 'einen Produktnamen'),
-   size: text(entry.size, 100, 'eine Größe', false) || 'Not selected',
-   color: text(entry.color, 100, 'eine Farbe', false) || 'Not selected',
+   size: selectionSize(entry.size),
+   color: selectionColor(entry.color),
    status: 'waiting'
   };
   return create(config.waitlistTableId, data);
