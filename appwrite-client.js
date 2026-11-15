@@ -90,6 +90,14 @@ window.CRBackend = (() => {
    throw error;
   }
  }
+ async function createAdminJWT() {
+  const {account} = init();
+  // Short-lived Appwrite JWTs are passed directly to the server and never saved.
+  // The server independently verifies the account and confirmed admin membership.
+  const result = await timed(account.createJWT(), 'Admin-Sitzung bestätigen', 10000);
+  if (typeof result?.jwt !== 'string' || result.jwt.length < 20 || result.jwt.length > 8192) throw new Error('Die Admin-Sitzung konnte nicht bestätigt werden. Bitte erneut anmelden.');
+  return result.jwt;
+ }
  async function list(tableId) {
   const args = tableArgs(tableId);
   const {tables, sdk} = init();
@@ -171,5 +179,5 @@ window.CRBackend = (() => {
   if (error instanceof TypeError || /failed to fetch|network|load failed/i.test(error?.message || '')) return 'Die Verbindung konnte nicht hergestellt werden. Bitte prüfen Sie Ihre Internetverbindung oder versuchen Sie es später erneut.';
   return error?.message || 'Die Anfrage konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.';
  }
- return Object.freeze({config, productIds, currentUser, login, logout, isAdmin, list, create, update, remove, addWaitlist, enterGiveaway, publicProducts, errorMessage});
+ return Object.freeze({config, productIds, currentUser, login, logout, isAdmin, createAdminJWT, list, create, update, remove, addWaitlist, enterGiveaway, publicProducts, errorMessage});
 })();

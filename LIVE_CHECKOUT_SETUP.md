@@ -32,3 +32,7 @@ Diese Links sind echte bestehende Zahlungsseiten. Bei der Prüfung enthielten si
 Der Server erwartet zusätzlich `STRIPE_CHECKOUT_MODE=live`, `STRIPE_EXPECTED_ACCOUNT=acct_1UP2TOKqnO4wSRwR`, `STRIPE_PUBLIC_BACKEND=true` und `STRIPE_FULFILLMENT_CONFIRMED=true`. Die letzten beiden Freigaben dürfen erst nach tatsächlicher Prüfung gesetzt werden. Der öffentliche Status nennt die noch fehlenden Voraussetzungen, ohne Schlüssel oder Kundendaten offenzulegen. `STRIPE_STOREFRONT_URL` kann auf die vorhandene GitHub-Pages-Adresse zeigen; nur diese ausdrücklich erlaubte Herkunft erhält CORS-Zugriff.
 
 Zahlungen werden nicht allein durch einen Erfolgsparameter im Browser bestätigt. Bestellungen entstehen ausschließlich nach bestätigten Stripe-Daten über den geprüften Ereigniseingang. Eine vollständige Live-Freigabe setzt außerdem die tatsächlichen Geschäfts-, Liefer- und Produktangaben voraus.
+
+## Ergänzung: synchronisierte Rabattcodes
+
+Admin-Verwaltung und Checkout-Rabatte sind in `DISCOUNT_CODES.md` dokumentiert. Der vorhandene Hosting-Schlüssel benötigt zusätzlich die tatsächlich genutzten Rechte für Coupons und Promotion Codes. Die serverseitige Adminprüfung verwendet kurzlebige Appwrite-JWTs und die konfigurierte Admin-Team-ID; dafür ist kein neuer privilegierter Browser-Schlüssel nötig. Rabattverwaltung und Codeprüfung öffnen die produktive Zahlungsannahme nicht automatisch.

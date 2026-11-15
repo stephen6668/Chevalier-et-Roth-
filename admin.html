@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de">
 <head>
-<link rel="stylesheet" href="fonts.css?v=range-20261114"><link rel="stylesheet" href="privacy.css?v=range-20261114"><link rel="stylesheet" href="footer.css?v=range-20261114"><script src="legal-config.js?v=range-20261114" defer></script><script src="privacy.js?v=range-20261114" defer></script><script src="footer.js?v=range-20261114" defer></script><script src="translations-store.js?v=range-20261114" defer></script><script src="translations-legal.js?v=range-20261114" defer></script><script src="assets/brand/translations.js?v=range-20261114" defer></script><script src="i18n.js?v=range-20261114" defer></script>
+<link rel="stylesheet" href="fonts.css?v=range-20261114"><link rel="stylesheet" href="privacy.css?v=range-20261114"><link rel="stylesheet" href="footer.css?v=range-20261114"><script src="legal-config.js?v=range-20261114" defer></script><script src="privacy.js?v=range-20261114" defer></script><script src="footer.js?v=discounts-20261115" defer></script><script src="translations-store.js?v=range-20261114" defer></script><script src="translations-legal.js?v=range-20261114" defer></script><script src="assets/brand/translations.js?v=range-20261114" defer></script><script src="i18n.js?v=range-20261114" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
@@ -9,11 +9,12 @@
   <title>Administration — Chevalier &amp; Roth</title>
   <link rel="icon" type="image/png" href="assets/brand/cr-navy.png">
   <link rel="stylesheet" href="styles.css?v=range-20261114">
-  <link rel="stylesheet" href="admin.css?v=range-20261114">
+  <link rel="stylesheet" href="admin.css?v=discounts-20261115">
   <script src="vendor/appwrite.js" defer></script>
   <script src="site-config.js?v=range-20261114" defer></script>
-  <script src="appwrite-client.js?v=range-20261114" defer></script>
-  <script src="admin.js?v=range-20261114" defer></script>
+  <script src="appwrite-client.js?v=discounts-20261115" defer></script>
+  <script src="commerce-config.js?v=discount-20261114" defer></script>
+  <script src="admin.js?v=discounts-20261115" defer></script>
 <link rel="stylesheet" href="i18n.css?v=range-20261114"><link rel="stylesheet" href="assets/brand-pages.css?v=range-20261114"></head>
 <body class="admin-page">
   <a class="skip-link" href="#admin-main">Zum Inhalt</a>
@@ -22,6 +23,7 @@
     <a class="home-link" href="./">Zur Kollektion <span aria-hidden="true">↗</span></a>
   </header>
   <main id="admin-main">
+    <p class="hosted-admin-note" id="stripe-admin-hosted" hidden><span>Rabattcodes werden über die gehostete Website verwaltet.</span> <a href="https://chevalier-et-roth-maison.backesst17.chatgpt.site/admin.html">Verwaltung öffnen</a></p>
     <section id="login-view" class="login-card" aria-labelledby="login-title">
       <p class="eyebrow">ESPACE PRIVÉ</p>
       <h1 id="login-title">Willkommen in<br><em>der Maison.</em></h1>
@@ -39,13 +41,14 @@
       <nav class="admin-tabs" aria-label="Verwaltungsbereiche">
         <button type="button" data-tab="waitlist" aria-current="page">Warteliste</button>
         <button type="button" data-tab="products">Produkte</button>
-        <button type="button" data-tab="codes">Codes</button>
+        <button type="button" data-tab="codes">Rabattcodes · Stripe</button>
         <button type="button" data-tab="orders">Bestellungen</button>
         <button type="button" data-tab="giveaway">First Collection Giveaway</button>
       </nav>
       <section class="data-panel" aria-labelledby="section-title" aria-busy="false" id="data-panel">
         <div class="section-head"><div><p class="eyebrow" id="section-caption">WARTELISTE</p><h2 id="section-title">Vorfreude auf <em>die Kollektion.</em></h2></div><div class="section-actions"><button class="outline-button" id="new-record" hidden type="button">Neu anlegen</button><button class="outline-button" id="refresh-records" type="button">Aktualisieren <span aria-hidden="true">↻</span></button></div></div>
         <p class="section-description" id="section-description"></p>
+        <div class="stripe-code-connection" id="stripe-code-connection" hidden><p id="stripe-code-status" class="status" role="status" aria-live="polite"></p><p>Aktivierte Rabattcodes werden direkt bei Stripe gespeichert und beim Checkout automatisch übernommen.</p></div>
         <p class="status" id="records-status" role="status" aria-live="polite"></p>
         <div id="records"></div>
       </section>

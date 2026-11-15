@@ -33,7 +33,7 @@
   grid.append(identity,navigation('The First Edition',[
    ['Alle Stücke','./#collection'],['Le Body','product.html?product=body'],['Le Half-Zip','product.html?product=halfzip'],['Le Pantalon Femme','product.html?product=trousers'],['Le Pantalon Homme','product.html?product=trousers-men']
   ]),navigation('Service',[
-   ['Early Access','./#waitlist'],['Unser Ansatz','./#approach'],['Kontakt','legal.html?page=impressum'],['Versand & Rückgabe','legal.html?page=versand'],['Barrierefreiheit','legal.html?page=barrierefreiheit'],['Teilnahmebedingungen','legal.html?page=giveaway']
+   ['Early Access','./#waitlist'],['Unser Ansatz','./#approach'],['Kontakt','legal.html?page=impressum'],['Versand & Rückgabe','legal.html?page=versand'],['Barrierefreiheit','legal.html?page=barrierefreiheit'],['Teilnahmebedingungen','legal.html?page=giveaway'],['Administration','admin.html']
   ]),navigation('Rechtliches',[
    ['Impressum','legal.html?page=impressum'],['Datenschutz','legal.html?page=datenschutz'],['Cookies & Speicher','legal.html?page=cookies'],['AGB / Nutzung','legal.html?page=agb'],['Widerruf','legal.html?page=widerruf']
   ]));

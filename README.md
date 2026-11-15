@@ -16,6 +16,8 @@ Frontend-Quellen liegen im Repository-Stamm. `node scripts/build-worker.mjs` bau
 
 Aktueller Einstieg: `signature.js` und `signature.css` zeigen „La Signature“ als kurzen nativen Dialog in Navy und Champagnergold. Die Fäden reagieren auf Maus und Berührung. Nach 3,8 Sekunden beginnt die Enthüllung des unveränderten Banners; Eintritt, Direktlink und Escape sind sofort verfügbar. Unter dem Hero kann der Moment ohne Zeitlimit erneut geöffnet werden. Reduzierte Bewegung, Sprungmarken, Panel-Links und interne Rückkehr überspringen den automatischen Einstieg. Kein zusätzlicher Browserspeicher, keine Audiospur und keine neue externe Abhängigkeit.
 
+Aktuelle Rabattverwaltung: Die vorhandene Administration ist im Footer verlinkt. Der Bereich „Rabattcodes · Stripe“ speichert Aktivierungen und Deaktivierungen direkt bei Stripe. Im Checkout wird ein bestätigter Code automatisch an Stripe Checkout übergeben. Die bestehenden Live-Zahlungsfreigaben bleiben gesperrt, bis ihre Voraussetzungen erfüllt sind. Bedienung und Serverkonfiguration: [DISCOUNT_CODES.md](DISCOUNT_CODES.md).
+
 Die folgenden Abschnitte dokumentieren frühere Entwicklungsstände. Angaben zu 3D, Modellpostern, älteren Intros und damaligen Checkout-Konfigurationen sind historische Notizen und beschreiben nicht den oben genannten aktuellen Foto-Auftritt.
 
 Neuaufbau nach dem aktualisierten Markenplan vom 14. November 2026: Navy und Creme, originale transparente CR-Monogramme, redaktioneller Kampagneneinstieg und DE/EN/FR. Umsetzung und Bildnachweis: [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — jeweils in Bordeaux, Schwarz, Grau, Beige und Navyblau mit den hochgeladenen 3D-Farbmodellen.
