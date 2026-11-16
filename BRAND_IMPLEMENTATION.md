@@ -19,3 +19,9 @@ Frontend-Quellen liegen im Repository-Stamm. `node scripts/build-worker.mjs` bau
 ## La Signature · neuer Einstieg
 
 Ein dekoratives Canvas-Feld aus feinen Champagnerfäden umrahmt das unveränderte CR-Monogramm und den Original-Slogan auf Deep Navy. Maus- und Berührungseingaben bewegen die Fäden. Zwei seitlich öffnende Flächen enthüllen danach das originale Banner. Der Einstieg startet bei einem direkten, frischen Startseitenaufruf oder Neuladen und dauert einschließlich Übergang etwa fünf Sekunden; Eintritt, Direktlink und Escape bleiben sofort verfügbar. Sprungmarken, Panel-Aufrufe, interne Ankünfte und Rücknavigation umgehen ihn. Bei reduzierter Bewegung erscheint die Website direkt; die manuell aufrufbare Fassung bleibt statisch. DE/EN/FR, Tastaturbedienung, mobile Breite und Beendigung der Zeichenanimation wurden berücksichtigt. Kein neuer Speicher oder externer Dienst.
+
+## L’Empreinte · persönliche Maison-Karte
+
+Die Startseite ergänzt zwischen Markenleiste und Kollektion ein freiwilliges Gestaltungsritual: Beige, Navy oder Bordeaux wählen, optional bis zu drei Initialen ergänzen und die eigene digitale Markenkarte als PNG mitnehmen. Das originale CR-Monogramm bleibt das Hauptzeichen; Initialen stehen separat als persönliche Widmung. Die Karte behauptet weder Mitgliedschaft noch Produktpersonalisierung.
+
+Vorhandene Logo-PNGs und selbst gehostete Schriften bilden Vorschau und Export. Das Originalbanner wird nicht verändert oder für den Export neu geladen. Die Gestaltung verwendet keine Produkt-Renderings, keine neuen Dienste und keine Speicherung von Initialen. Die Vorschau, Sprachwahl und Verlinkung zur passenden Damenhose folgen der gewählten Farbe. Der bisherige private Zugriff und alle Zahlungsfreigaben bleiben erhalten.

@@ -1,0 +1,38 @@
+/* L'Empreinte — the Maison's three colours, made personal. */
+.empreinte{display:grid;grid-template-columns:1.05fr 1fr;background:#e7dece;isolation:isolate;--empreinte-accent:#c4aa82}
+.empreinte-stage{position:relative;display:grid;place-items:center;min-height:760px;padding:76px 45px 88px;background:#202f43;overflow:hidden;transition:background .5s ease}
+.empreinte-stage::before{content:'';position:absolute;inset:27px;border:1px solid #c4aa8242;pointer-events:none}
+.empreinte-stage::after{content:'';position:absolute;left:50%;top:-20%;width:1px;height:140%;background:#c4aa821e;transform:rotate(33deg);pointer-events:none}
+.empreinte[data-color=beige] .empreinte-stage{background:#cdbb9e}.empreinte[data-color=bordeaux] .empreinte-stage{background:#552832}
+.empreinte-stage-top,.empreinte-stage-bottom{position:absolute;left:49px;right:49px;display:flex;justify-content:space-between;gap:20px;z-index:1;color:#f2ebddbf;font:400 8px/1.6 var(--sans);letter-spacing:2px;pointer-events:none}
+.empreinte-stage-top{top:48px}.empreinte-stage-bottom{bottom:46px;letter-spacing:1.1px}
+.empreinte[data-color=beige] .empreinte-stage-top,.empreinte[data-color=beige] .empreinte-stage-bottom{color:#19283ebd}
+.empreinte-card{position:relative;z-index:2;width:min(80%,390px);aspect-ratio:4/5;background:var(--navy);box-shadow:16px 24px 50px #0005,0 0 0 1px #c4aa8260;transform:perspective(1200px) rotateY(var(--empreinte-ry,-7deg)) rotateX(var(--empreinte-rx,3deg)) rotate(-4deg);transition:transform .55s cubic-bezier(.2,.7,.2,1),box-shadow .5s;will-change:transform}
+.empreinte-card:focus-within,.empreinte-card:hover{box-shadow:20px 30px 65px #0006}
+.empreinte-card canvas{display:block;width:100%;height:100%;aspect-ratio:4/5}
+.empreinte-card::after{content:'';position:absolute;inset:0;pointer-events:none;border:1px solid #fff2;background:linear-gradient(125deg,transparent 20%,#fff0 35%,#fff1 50%,#fff0 65%);opacity:.65}
+.empreinte-copy{align-self:center;padding:70px clamp(30px,5vw,90px);min-width:0}
+.empreinte-copy>.eyebrow{color:var(--brown);margin-bottom:20px}
+.empreinte-copy h2{font-size:clamp(53px,5.1vw,79px);letter-spacing:-2px;line-height:.94;margin-bottom:26px}
+.empreinte-copy h2>span,.empreinte-copy h2>em{display:block}.empreinte-copy h2>em{color:var(--brown);margin-top:3px}
+.empreinte-description{font-size:12px;line-height:1.95;max-width:360px;color:#505b63;margin-bottom:35px}
+.empreinte-step{display:flex;align-items:center;gap:13px;font-size:9px;line-height:1.6;letter-spacing:.8px;margin:0 0 12px}
+.empreinte-step>span[aria-hidden]{font:italic 24px/1 var(--serif);color:var(--brown)}
+.empreinte-palette{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:27px}
+.empreinte-palette button{display:flex;align-items:center;gap:10px;min-height:46px;border:1px solid #19283e30;padding:10px 12px;font-size:10px;transition:border-color .2s,background .2s}
+.empreinte-palette button>i{display:block;width:13px;height:13px;flex:none;border:1px solid #19283e24;border-radius:50%;background:var(--swatch)}
+.empreinte-palette button[aria-pressed=true]{border-color:var(--navy);background:#f2ebdd80}.empreinte-palette button:hover{border-color:var(--navy)}
+.empreinte-personalize{display:grid;grid-template-columns:auto 1fr;gap:0 16px;align-items:center;max-width:360px;margin-bottom:25px}
+.empreinte-personalize label{font-size:10px}.empreinte-personalize input{grid-column:1;grid-row:2;width:100px;min-height:49px;border:0;border-bottom:1px solid #73543f99;background:transparent;padding:7px 0;font:400 30px/1.2 var(--serif);letter-spacing:5px;border-radius:0;text-transform:uppercase}
+.empreinte-personalize input::placeholder{color:#73543f6b;letter-spacing:4px}.empreinte-personalize small{grid-column:2;grid-row:2;font-size:9px;line-height:1.7;color:#646869;max-width:190px}
+.empreinte-save{display:flex;width:100%;max-width:360px;gap:20px;margin-top:6px;text-align:left}
+.empreinte-save:disabled{cursor:progress}.empreinte-save span[aria-hidden]{font-size:20px}
+.empreinte-product{font-size:10px;margin-top:14px;border-color:#19283e55;max-width:360px;width:100%}
+.empreinte-product>span[data-empreinte-text]{font-size:10px}
+.empreinte-note{font-size:8px;line-height:1.8;color:#646869;margin-top:14px;max-width:360px}
+.empreinte-status{font-size:10px;line-height:1.8;color:var(--brown);max-width:360px;margin-top:10px}.empreinte-status:empty{display:none}.empreinte-status[data-state=error]{color:var(--bordeaux)}
+@media(min-width:1600px){.empreinte-stage{min-height:820px}.empreinte-card{width:430px}}
+@media(max-width:1050px){.empreinte-stage{padding-inline:25px;min-height:720px}.empreinte-card{width:86%}.empreinte-copy{padding:55px 35px}.empreinte-copy h2{font-size:59px}.empreinte-palette{gap:6px}.empreinte-palette button{padding-inline:9px;font-size:9px;gap:7px}.empreinte-stage-top,.empreinte-stage-bottom{left:39px;right:39px;font-size:7px;letter-spacing:1px}}
+@media(max-width:760px){.empreinte{grid-template-columns:1fr}.empreinte-stage{min-height:0;padding:70px 35px 80px}.empreinte-card{width:min(70%,320px)}.empreinte-stage::before{inset:18px}.empreinte-stage-top{top:33px;left:33px;right:33px}.empreinte-stage-bottom{bottom:30px;left:33px;right:33px;font-size:7px}.empreinte-copy{padding:49px 7% 55px}.empreinte-copy h2{font-size:60px;line-height:.95;max-width:450px}.empreinte-description{max-width:430px;margin-bottom:27px}.empreinte-palette{gap:9px}.empreinte-palette button{padding:10px 14px;font-size:10px;gap:10px}.empreinte-save,.empreinte-product,.empreinte-personalize{max-width:none}.empreinte-note{max-width:430px}}
+@media(max-width:390px){.empreinte-stage{padding-inline:25px}.empreinte-card{width:77%}.empreinte-copy h2{font-size:53px}.empreinte-palette{gap:6px}.empreinte-palette button{padding-inline:10px;gap:8px}}
+@media(prefers-reduced-motion:reduce){.empreinte *{transition:none!important}.empreinte-card{transform:rotate(-3deg);will-change:auto}}

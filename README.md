@@ -18,6 +18,8 @@ Aktueller Einstieg: `signature.js` und `signature.css` zeigen „La Signature“
 
 Aktuelle Rabattverwaltung: Die vorhandene Administration ist im Footer verlinkt. Der Bereich „Rabattcodes · Stripe“ speichert Aktivierungen und Deaktivierungen direkt bei Stripe. Im Checkout wird ein bestätigter Code automatisch an Stripe Checkout übergeben. Die bestehenden Live-Zahlungsfreigaben bleiben gesperrt, bis ihre Voraussetzungen erfüllt sind. Bedienung und Serverkonfiguration: [DISCOUNT_CODES.md](DISCOUNT_CODES.md).
 
+Aktuelles Markenritual: „L’Empreinte“ unter `#empreinte` gestaltet eine freiwillige Maison-Karte in Beige, Navy oder Bordeaux, mit optionalen Initialen. `empreinte.js` und `empreinte.css` halten Vorschau und PNG-Export zusammen. Verwendet werden nur vorhandene Logos und Schriften; Initialen bleiben auf der geöffneten Seite, ohne neue Dienste oder Speicherung.
+
 Die folgenden Abschnitte dokumentieren frühere Entwicklungsstände. Angaben zu 3D, Modellpostern, älteren Intros und damaligen Checkout-Konfigurationen sind historische Notizen und beschreiben nicht den oben genannten aktuellen Foto-Auftritt.
 
 Neuaufbau nach dem aktualisierten Markenplan vom 14. November 2026: Navy und Creme, originale transparente CR-Monogramme, redaktioneller Kampagneneinstieg und DE/EN/FR. Umsetzung und Bildnachweis: [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — jeweils in Bordeaux, Schwarz, Grau, Beige und Navyblau mit den hochgeladenen 3D-Farbmodellen.

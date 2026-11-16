@@ -24,7 +24,7 @@ const runtimeNames = [
  'fonts.css','footer.js','footer.css','privacy.js','privacy.css',
  'legal.html','legal.js','legal.css','legal-config.js',
  'i18n.js','i18n.css','translations-store.js','translations-legal.js',
- 'motion.js','motion.css','signature.js','signature.css',
+ 'motion.js','motion.css','signature.js','signature.css','empreinte.js','empreinte.css',
  'product-specs.js','product-details.js','product-details.css','commerce-config.js'
 ];
 const output = resolve(root, '.worker-output/dist');
