@@ -25,3 +25,7 @@ Ein dekoratives Canvas-Feld aus feinen Champagnerfäden umrahmt das unverändert
 Die Startseite ergänzt zwischen Markenleiste und Kollektion ein freiwilliges Gestaltungsritual: Beige, Navy oder Bordeaux wählen, optional bis zu drei Initialen ergänzen und die eigene digitale Markenkarte als PNG mitnehmen. Das originale CR-Monogramm bleibt das Hauptzeichen; Initialen stehen separat als persönliche Widmung. Die Karte behauptet weder Mitgliedschaft noch Produktpersonalisierung.
 
 Vorhandene Logo-PNGs und selbst gehostete Schriften bilden Vorschau und Export. Das Originalbanner wird nicht verändert oder für den Export neu geladen. Die Gestaltung verwendet keine Produkt-Renderings, keine neuen Dienste und keine Speicherung von Initialen. Die Vorschau, Sprachwahl und Verlinkung zur passenden Damenhose folgen der gewählten Farbe. Der bisherige private Zugriff und alle Zahlungsfreigaben bleiben erhalten.
+
+## Größentabellen · 17. November 2026
+
+Die vier gelieferten Numbers-Tabellen sind mit ihren 78 S/M/L-Werten fest in den Produktdaten hinterlegt. Die bestätigte Einheit ist cm. Der Auftritt zeigt sie als native HTML-Tabellen mit Maßbezeichnungen links und den drei Größen rechts, in Deutsch, Englisch und Französisch. Der Tabellenbereich ist auf den jeweiligen Produktseiten geöffnet und über die Größenwahl zusätzlich im Dialog zugänglich. Die ursprünglichen Numbers-Dateien und ihre Bildvorschauen werden nicht ausgeliefert. Es wurden keine Messtoleranzen oder Messmethoden ergänzt, die nicht in den Quellen stehen.

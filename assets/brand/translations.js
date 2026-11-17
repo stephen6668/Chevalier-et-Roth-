@@ -3,6 +3,9 @@
   // Exact German DOM text and attribute values for the brand-bible redesign.
   // German remains the source language; campaign copy and product names stay intact.
   const rows = [
+    ['Größentabelle', 'Size chart', 'Guide des tailles'],
+    ['Größentabelle schließen', 'Close size chart', 'Fermer le guide des tailles'],
+    ['Die Größentabelle für dieses Produkt enthält die Angaben für S, M und L.', 'This product’s size chart contains measurements for S, M and L.', 'Le guide des tailles de ce produit présente les mesures pour S, M et L.'],
     ["Damen", "Women", "Femme"],
     ["Herren", "Men", "Homme"],
     ["Ein tiefer V-Ausschnitt, lange Ärmel und eine körpernahe Silhouette. In Beige, Navyblau und Bordeaux.", "A deep V-neck, long sleeves and a close-fitting silhouette. In beige, navy blue and Bordeaux.", "Un décolleté en V profond, des manches longues et une silhouette près du corps. En beige, bleu marine et bordeaux."],
@@ -104,7 +107,7 @@
     ['Kann ich bereits bestellen?', 'Can I place an order yet?', 'Puis-je déjà commander ?'],
     ['Die Website zeigt die Kollektion in Entwicklung. Sie können Stücke entdecken, eine persönliche Auswahl zusammenstellen und sich unverbindlich vormerken. Eine Vormerkung ist keine Bestellung.', 'The website presents the collection in development. You can discover the pieces, put together a personal selection and register your interest without obligation. Registering your interest is not an order.', 'Le site présente la collection en développement. Vous pouvez découvrir les pièces, composer une sélection personnelle et vous inscrire sans engagement. Une inscription ne constitue pas une commande.'],
     ['Wie finde ich meine Größe?', 'How do I find my size?', 'Comment trouver ma taille ?'],
-    ['Die derzeit auswählbaren Größen sind vorläufig. Verbindliche Produktmaße und Hinweise zur Passform folgen nach den Fittings mit der finalen Kollektion.', 'The sizes currently available to select are provisional. Confirmed product measurements and fit information will follow after fittings, with the final collection.', 'Les tailles actuellement proposées sont provisoires. Les mesures définitives et les indications de coupe seront publiées après les essayages, avec la collection finale.'],
+    ['Die Maße für S, M und L finden Sie direkt in der Größentabelle des jeweiligen Produkts.', 'Measurements for S, M and L are shown in each product’s size chart.', 'Les mesures pour S, M et L figurent dans le guide des tailles de chaque produit.'],
     ['Was ist über Material und Herstellung bekannt?', 'What is known about materials and production?', 'Que sait-on des matières et de la fabrication ?'],
     ['Materialien und Produktionspartner werden noch ausgewählt. Europäische Produktion ist unsere bevorzugte Richtung. Konkrete Herkunfts- und Materialangaben veröffentlichen wir, sobald sie bestätigt sind.', 'Materials and production partners are still being selected. European production is our preferred direction. We will publish specific origin and material information once it is confirmed.', 'Les matières et les partenaires de production sont encore en cours de sélection. Nous privilégions une production européenne. Nous publierons les informations précises sur l’origine et les matières dès qu’elles seront confirmées.'],
     ['Impressum', 'Legal notice', 'Mentions légales'],

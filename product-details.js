@@ -5,9 +5,9 @@
  const specs=window.CR_PRODUCT_SPECS?.[requested],container=document.querySelector('.pdp-details');
  if(!product||!specs||!container)return;
  const words={
-  de:{material:'Material & Pflege',measurements:'Maße & Größen',composition:'Stoffzusammensetzung',care:'Pflegehinweise',compositionPending:'Die Herstellerangabe zur Zusammensetzung ist noch nicht bestätigt.',carePending:'Die verbindlichen Pflegehinweise des Herstellers stehen noch aus.',sizes:'Verfügbare Größen',size:'Größe',sizeTitle:'Ihre Größe.',sizeIntro:'Wählen Sie Ihre Größe auf der Produktseite. Die aktuelle Auswahl bleibt bei der Farbauswahl erhalten.',measurementsPending:'Die verbindlichen Produktmaße sind noch nicht bestätigt. Eine Größenauswahl ist bereits möglich.',valuePending:'Noch nicht bestätigt',tableCaption:'Produktmaße',unit:'Maße in',note:'Hinweis zu den Maßen'},
-  en:{material:'Fabric & care',measurements:'Measurements & sizes',composition:'Fabric composition',care:'Care instructions',compositionPending:'The manufacturer’s composition information has not yet been confirmed.',carePending:'Confirmed care instructions from the manufacturer are still pending.',sizes:'Available sizes',size:'Size',sizeTitle:'Your size.',sizeIntro:'Choose your size on the product page. Your current selection is kept when you change colour.',measurementsPending:'Confirmed garment measurements are not yet available. You can already choose a size.',valuePending:'Not yet confirmed',tableCaption:'Garment measurements',unit:'Measurements in',note:'Measurement note'},
-  fr:{material:'Matières et entretien',measurements:'Mesures et tailles',composition:'Composition du tissu',care:'Conseils d’entretien',compositionPending:'La composition indiquée par le fabricant n’a pas encore été confirmée.',carePending:'Les conseils d’entretien définitifs du fabricant restent à confirmer.',sizes:'Tailles proposées',size:'Taille',sizeTitle:'Votre taille.',sizeIntro:'Choisissez votre taille sur la page du produit. Votre sélection est conservée lorsque vous changez de couleur.',measurementsPending:'Les mesures définitives du vêtement ne sont pas encore confirmées. Vous pouvez déjà choisir une taille.',valuePending:'À confirmer',tableCaption:'Mesures du vêtement',unit:'Mesures en',note:'Note sur les mesures'}
+  de:{material:'Material & Pflege',measurements:'Größentabelle',composition:'Stoffzusammensetzung',care:'Pflegehinweise',compositionPending:'Die Herstellerangabe zur Zusammensetzung ist noch nicht bestätigt.',carePending:'Die verbindlichen Pflegehinweise des Herstellers stehen noch aus.',sizes:'Verfügbare Größen',size:'Größe',measure:'Maß',sizeTitle:'Ihre Größentabelle.',sizeIntro:'Vergleichen Sie die Maße für S, M und L. Ihre aktuelle Auswahl bleibt beim Wechsel der Farbe erhalten.',measurementsPending:'Die Maße sind noch nicht hinterlegt. Eine Größenauswahl ist bereits möglich.',valuePending:'Noch nicht bestätigt',tableCaption:'Größentabelle',unit:'Maße in',note:'Hinweis zu den Maßen'},
+  en:{material:'Fabric & care',measurements:'Size chart',composition:'Fabric composition',care:'Care instructions',compositionPending:'The manufacturer’s composition information has not yet been confirmed.',carePending:'Confirmed care instructions from the manufacturer are still pending.',sizes:'Available sizes',size:'Size',measure:'Measurement',sizeTitle:'Your size chart.',sizeIntro:'Compare the measurements for S, M and L. Your current selection is kept when you change colour.',measurementsPending:'Measurements have not been added yet. You can already choose a size.',valuePending:'Not yet confirmed',tableCaption:'Size chart',unit:'Measurements in',note:'Measurement note'},
+  fr:{material:'Matières et entretien',measurements:'Guide des tailles',composition:'Composition du tissu',care:'Conseils d’entretien',compositionPending:'La composition indiquée par le fabricant n’a pas encore été confirmée.',carePending:'Les conseils d’entretien définitifs du fabricant restent à confirmer.',sizes:'Tailles proposées',size:'Taille',measure:'Mesure',sizeTitle:'Votre guide des tailles.',sizeIntro:'Comparez les mesures pour S, M et L. Votre sélection est conservée lorsque vous changez de couleur.',measurementsPending:'Les mesures n’ont pas encore été ajoutées. Vous pouvez déjà choisir une taille.',valuePending:'À confirmer',tableCaption:'Guide des tailles',unit:'Mesures en',note:'Note sur les mesures'}
  };
  let language='de';
  const localized=value=>typeof value==='string'?value:(value&&typeof value==='object'?String(value[language]||value.de||value.en||''):'');
@@ -34,22 +34,35 @@
   const block=make('div',undefined,'cr-spec-sizes'),label=make('p',words.sizes,'cr-spec-label'),list=make('ul');
   sizes.forEach(size=>list.append(make('li',size)));block.append(label,list);return block;
  }
- function measurementContent(words){
-  const block=make('div',undefined,'cr-spec-measurements');block.append(sizeList(words));
+ function measurementData(){
   const data=specs.measurements;
-  const columns=Array.isArray(data?.columns)?data.columns.filter(column=>column&&typeof column.key==='string'&&localized(column.label)):[];
-  const rows=Array.isArray(data?.rows)?data.rows.filter(row=>row&&sizes.includes(row.size)):[];
-  if(!columns.length||!rows.length){block.append(make('p',words.measurementsPending,'cr-spec-pending'));return block;}
+  return {
+   data,
+   columns:Array.isArray(data?.columns)?data.columns.filter(column=>column&&typeof column.key==='string'&&localized(column.label)):[],
+   rows:Array.isArray(data?.rows)?data.rows.filter(row=>row&&sizes.includes(row.size)):[]
+  };
+ }
+ function measurementValue(value){
+  if(typeof value==='number'&&Number.isFinite(value)&&value>=0)return new Intl.NumberFormat(language,{maximumFractionDigits:2}).format(value);
+  if(typeof value==='string'&&value.trim())return value;
+  return null;
+ }
+ function measurementContent(words){
+  const block=make('div',undefined,'cr-spec-measurements');
+  const {data,columns,rows}=measurementData();
+  if(!columns.length||!rows.length){block.append(sizeList(words),make('p',words.measurementsPending,'cr-spec-pending'));return block;}
   const scroll=make('div',undefined,'cr-spec-table-wrap'),table=make('table',undefined,'cr-spec-table');
-  const caption=make('caption',product.name+' · '+words.tableCaption+' ('+(specs.measurementUnit||'cm')+')');table.append(caption);
-  const head=make('thead'),headRow=make('tr'),sizeHead=make('th',words.size);sizeHead.scope='col';headRow.append(sizeHead);
-  columns.forEach(column=>{const cell=make('th',localized(column.label));cell.scope='col';headRow.append(cell);});head.append(headRow);table.append(head);
+  const unit=localized(specs.measurementUnit),captionText=localized(data.title)||product.name+' · '+words.tableCaption;
+  const caption=make('caption',captionText+(unit?' ('+unit+')':''));table.append(caption);
+  const head=make('thead'),headRow=make('tr'),measureHead=make('th',words.measure);measureHead.scope='col';headRow.append(measureHead);
+  sizes.forEach(size=>{const cell=make('th',size);cell.scope='col';headRow.append(cell);});head.append(headRow);table.append(head);
   const body=make('tbody');
-  sizes.forEach(size=>{
-   const row=rows.find(item=>item.size===size),tr=make('tr'),heading=make('th',size);heading.scope='row';tr.append(heading);
-   columns.forEach(column=>{const value=row?.values?.[column.key],confirmed=typeof value==='number'&&Number.isFinite(value)&&value>0;tr.append(make('td',confirmed?new Intl.NumberFormat(language,{maximumFractionDigits:1}).format(value):words.valuePending,confirmed?'':'cr-spec-unconfirmed'));});body.append(tr);
+  columns.forEach(column=>{
+   const tr=make('tr'),heading=make('th',localized(column.label));heading.scope='row';tr.append(heading);
+   sizes.forEach(size=>{const row=rows.find(item=>item.size===size),value=measurementValue(row?.values?.[column.key]);tr.append(make('td',value===null?words.valuePending:value,value===null?'cr-spec-unconfirmed':''));});body.append(tr);
   });table.append(body);scroll.append(table);block.append(scroll);
-  const note=localized(data.note);if(note)block.append(make('p',note,'cr-spec-measure-note'));
+  const notes=[localized(data.note),...(Array.isArray(data.notes)?data.notes.map(localized):[])].filter(Boolean);
+  notes.forEach(note=>block.append(make('p',note,'cr-spec-measure-note')));
   return block;
  }
  function render(){
@@ -62,7 +75,8 @@
   definitions.append(make('dt',text.composition),make('dd',content||text.compositionPending,content?'':'cr-spec-pending'),make('dt',text.care));
   const careCell=make('dd');if(care.length){const list=make('ul',undefined,'cr-spec-care');care.forEach(item=>list.append(make('li',item)));careCell.append(list);}else careCell.append(make('p',text.carePending,'cr-spec-pending'));definitions.append(careCell);material.append(definitions);
   const measurements=disclosure('measurements',text.measurements);measurements.append(measurementContent(text));
-  for(const section of [material,measurements]){section.open=opened.get(section.dataset.productSpecSection)||false;container.append(section);}
+  const currentMeasurements=measurementData(),hasMeasurements=currentMeasurements.columns.length>0&&currentMeasurements.rows.length>0;
+  for(const section of [material,measurements]){section.open=opened.get(section.dataset.productSpecSection)??(section===measurements&&hasMeasurements);container.append(section);}
   const dialog=document.getElementById('pdp-size-dialog');if(!dialog)return;
   const title=document.getElementById('pdp-size-title');if(title){ignore(title);title.textContent=text.sizeTitle;}
   [...dialog.children].filter(element=>element.matches('p:not(.eyebrow),[data-product-size-content]')).forEach(element=>element.remove());

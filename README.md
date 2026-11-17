@@ -20,6 +20,8 @@ Aktuelle Rabattverwaltung: Die vorhandene Administration ist im Footer verlinkt.
 
 Aktuelles Markenritual: „L’Empreinte“ unter `#empreinte` gestaltet eine freiwillige Maison-Karte in Beige, Navy oder Bordeaux, mit optionalen Initialen. `empreinte.js` und `empreinte.css` halten Vorschau und PNG-Export zusammen. Verwendet werden nur vorhandene Logos und Schriften; Initialen bleiben auf der geöffneten Seite, ohne neue Dienste oder Speicherung.
 
+Aktuelle Größentabellen: Die vier vom Betreiber am 17. November 2026 gelieferten Numbers-Dateien sind als feste Daten in `product-specs.js` übernommen. Body und Half-Zip enthalten jeweils fünf, Damen- und Herrenhose jeweils acht Maße für S/M/L. Alle 78 Werte wurden mit den Originalen abgeglichen. Die Einheit cm wurde vom Betreiber bestätigt. `product-details.js` zeigt native HTML-Tabellen direkt auf jeder Produktseite und im Größenfenster, ohne PDF oder externen Tabellenabruf.
+
 Die folgenden Abschnitte dokumentieren frühere Entwicklungsstände. Angaben zu 3D, Modellpostern, älteren Intros und damaligen Checkout-Konfigurationen sind historische Notizen und beschreiben nicht den oben genannten aktuellen Foto-Auftritt.
 
 Neuaufbau nach dem aktualisierten Markenplan vom 14. November 2026: Navy und Creme, originale transparente CR-Monogramme, redaktioneller Kampagneneinstieg und DE/EN/FR. Umsetzung und Bildnachweis: [BRAND_IMPLEMENTATION.md](BRAND_IMPLEMENTATION.md). Die Kollektion zeigt einen langärmligen Body mit V-Ausschnitt, einen Half-Zip und eine weite Hose — jeweils in Bordeaux, Schwarz, Grau, Beige und Navyblau mit den hochgeladenen 3D-Farbmodellen.
