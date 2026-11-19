@@ -14,7 +14,8 @@ window.CRSiteConfig = Object.freeze({
  launchAt: '2027-01-02T00:00:00+01:00',
  tiktokUrl: 'https://www.tiktok.com/@chevalier.roth',
  instagramUrl: 'https://www.instagram.com/chevalierandroth/',
- orderingEnabled: false,
+ // Cart and demo ordering are available; real payments require server readiness.
+ orderingEnabled: true,
  currency: 'EUR',
  vatRate: 0.17,
  pricesIncludeVat: false

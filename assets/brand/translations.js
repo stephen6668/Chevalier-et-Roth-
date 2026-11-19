@@ -3,6 +3,31 @@
   // Exact German DOM text and attribute values for the brand-bible redesign.
   // German remains the source language; campaign copy and product names stay intact.
   const rows = [
+    // Cart and demo checkout, 19 November 2026.
+    ["Ihr Warenkorb.", "Your bag.", "Votre panier."],
+    ["Warenkorb öffnen", "Open bag", "Ouvrir le panier"],
+    ["Warenkorb schließen", "Close bag", "Fermer le panier"],
+    ["Warenkorb", "Bag", "Panier"],
+    ["Ihre Stücke. In Ihrer Farbe und Größe.", "Your pieces. In your colour and size.", "Vos pièces. Dans votre couleur et votre taille."],
+    ["Zwischensumme", "Subtotal", "Sous-total"],
+    ["Beispielpreise im Testbetrieb. Versandkosten und Gesamtpreis finden Sie an der Kasse.", "Example prices for this demo. Shipping and your total are shown at checkout.", "Prix indicatifs pour cette démonstration. Les frais de livraison et le total figurent au paiement."],
+    ["Zur Kasse", "Checkout", "Passer commande"],
+    ["Weiterstöbern", "Continue shopping", "Continuer mes achats"],
+    ["Lieber unverbindlich vormerken", "Join the waiting list instead", "Préférer la liste d’attente sans engagement"],
+    ["Testbetrieb · Es wird keine echte Bestellung oder Zahlung ausgelöst.", "Demo mode · No real order or payment is created.", "Mode démonstration · Aucune commande ni aucun paiement réel."],
+    ["In den Warenkorb", "Add to bag", "Ajouter au panier"],
+    ["Direkt zur Kasse", "Buy now", "Passer directement au paiement"],
+    ["Warenkorb zur Kasse", "Checkout with your bag", "Commander votre panier"],
+    ["Zuzüglich Versand", "Plus shipping", "Hors frais de livraison"],
+    ["Demopreis · keine echte Bestellung", "Demo price · no real order", "Prix de démonstration · aucune commande réelle"],
+    ["Wird an der Kasse bestätigt", "Confirmed at checkout", "Confirmé au paiement"],
+    ["Ihr Warenkorb kann in diesem Browser nicht gespeichert werden.", "Your bag cannot be saved in this browser.", "Votre panier ne peut pas être enregistré dans ce navigateur."],
+    ["Ihr Warenkorb ist noch leer. Entdecken Sie die Kollektion und wählen Sie Ihr erstes Stück.", "Your bag is empty. Explore the collection and choose your first piece.", "Votre panier est vide. Découvrez la collection et choisissez votre première pièce."],
+    ["Stück aus Ihrem Warenkorb entfernt.", "Piece removed from your bag.", "Pièce retirée de votre panier."],
+    ["Ihr Warenkorb enthält bereits 60 Varianten. Bitte entfernen Sie zunächst ein Stück.", "Your bag already contains 60 variants. Please remove a piece first.", "Votre panier contient déjà 60 variantes. Veuillez d’abord retirer une pièce."],
+    ["Der Warenkorb konnte auf diesem Gerät nicht gespeichert werden. Sie können über „Direkt zur Kasse“ fortfahren.", "Your bag could not be saved on this device. You can continue using “Buy now”.", "Votre panier n’a pas pu être enregistré sur cet appareil. Vous pouvez passer directement au paiement."],
+    ["Der Warenkorb und Checkout können im Testbetrieb ausprobiert werden. Es wird keine echte Bestellung oder Zahlung ausgelöst. Sie können sich außerdem weiterhin unverbindlich vormerken.", "You can try the bag and checkout in demo mode. No real order or payment is created. You can also still join the waiting list without obligation.", "Vous pouvez essayer le panier et le paiement en mode démonstration. Aucune commande ni aucun paiement réel n’est créé. Vous pouvez toujours rejoindre la liste d’attente sans engagement."],
+    ["Stück", "piece", "pièce"],
     ['Größentabelle', 'Size chart', 'Guide des tailles'],
     ['Größentabelle schließen', 'Close size chart', 'Fermer le guide des tailles'],
     ['Die Größentabelle für dieses Produkt enthält die Angaben für S, M und L.', 'This product’s size chart contains measurements for S, M and L.', 'Le guide des tailles de ce produit présente les mesures pour S, M et L.'],
@@ -38,7 +63,7 @@
     ["p2 · Damenhose", "p2 · Women’s trousers", "p2 · Pantalon femme"],
     ["p4 · Herrenhose", "p4 · Men’s trousers", "p4 · Pantalon homme"],
     ["Diese Website stellt vier Kollektionsentwürfe vor: Body, Half-Zip, Damenhose mit weitem Bein und Herrenhose mit geraderem Bein. Zur Auswahl stehen Beige, Navyblau und Bordeaux sowie die Größen S, M und L. Produktfotos und Beschreibungen vermitteln die Gestaltung. Stoffzusammensetzungen und Größentabellen sind auf den Produktseiten hinterlegt; verbindliche Pflegehinweise werden noch ergänzt.", "This website presents four collection designs: the bodysuit, Half-Zip, women’s wide-leg trousers and men’s straighter-leg trousers. Beige, navy blue and Bordeaux and sizes S, M and L are available to select. Product photos and descriptions convey the design. Fabric compositions and size charts are available on the product pages; confirmed care instructions will be added.", "Ce site présente quatre modèles de collection : le body, le Half-Zip, le pantalon femme à jambe ample et le pantalon homme à jambe plus droite. Les couleurs proposées sont le beige, le bleu marine et le bordeaux, et les tailles S, M et L. Les photos et descriptions présentent leur conception. Les compositions des tissus et les guides des tailles figurent sur les pages des produits ; les conseils d’entretien confirmés seront ajoutés."],
-    ["Die Preisvorschau verwendet Half-Zip 110 €, Body 90 € und Damenhose 100 €. Der Preis der Herrenhose steht noch nicht fest. Versandkosten sind noch nicht bestätigt. Der Betreiber ist derzeit nicht für die Mehrwertsteuer registriert. Die separat dargestellte 17%-Aufteilung ist ausschließlich eine unverbindliche Rechenvorschau und kein Steuerausweis.", "The price preview uses €110 for the Half-Zip, €90 for the bodysuit and €100 for the women’s trousers. The price of the men’s trousers has not yet been set. Shipping costs have not yet been confirmed. The operator is not currently VAT registered. The separately displayed 17% breakdown is solely an illustrative calculation, not a tax statement.", "L’aperçu des prix utilise 110 € pour le Half-Zip, 90 € pour le body et 100 € pour le pantalon femme. Le prix du pantalon homme n’est pas encore fixé. Les frais de livraison ne sont pas encore confirmés. L’exploitant n’est actuellement pas immatriculé à la TVA. La ventilation à 17 % présentée séparément est uniquement un calcul indicatif et non un décompte de taxe."],
+    ["Der Test-Checkout zeigt Half-Zip 110 €, Body 90 € und Damenhose 100 €. Für die Herrenhose werden ausschließlich in der Demo 100 € als Beispielpreis verwendet. Die 4,90 € Beispiel-Versandkosten und die angezeigte Service-E-Mail sind Platzhalter. Der Testabschluss löst keine echte Bestellung, Zahlung, Nachricht oder Sendung aus. Es wird keine Mehrwertsteuer ausgewiesen.", "The demo checkout shows €110 for the Half-Zip, €90 for the bodysuit and €100 for the women’s trousers. The men’s trousers use a €100 example price in the demo only. The €4.90 example shipping charge and displayed service email are placeholders. Completing the demo creates no real order, payment, message or shipment. No VAT is stated.", "Le paiement de démonstration affiche 110 € pour le Half-Zip, 90 € pour le body et 100 € pour le pantalon femme. Le pantalon homme utilise un prix indicatif de 100 € uniquement dans la démonstration. Les 4,90 € de livraison à titre d’exemple et l’adresse de service affichée sont provisoires. Terminer la démonstration ne crée aucune commande, aucun paiement, aucun message ni aucune expédition réels. Aucune TVA n’est indiquée."],
 
     ["Chevalier & Roth – CR-Monogramm und Wortmarke vor einer Altstadt mit Brücke und Fluss.", "Chevalier & Roth – CR monogram and wordmark against an old town with a bridge and river.", "Chevalier & Roth – monogramme CR et nom de la marque devant une vieille ville, un pont et une rivière."],
     ['Zum Inhalt springen', 'Skip to content', 'Aller au contenu'],
@@ -220,6 +245,12 @@
   const rule = (source, en, fr) => ({re: new RegExp('^' + source + '$'), en, fr});
   window.CR_I18N_PATTERNS ||= [];
   window.CR_I18N_PATTERNS.push(
+    rule('Warenkorb öffnen · (\\d+)',
+      match => 'Open bag · ' + match[1],
+      match => 'Ouvrir le panier · ' + match[1]),
+    rule(product + ' · ' + colour + ' / (S|M|L) wurde Ihrem Warenkorb hinzugefügt\\.',
+      match => match[1] + ' · ' + colours.en[match[2]] + ' / ' + match[3] + ' has been added to your bag.',
+      match => match[1] + ' · ' + colours.fr[match[2]] + ' / ' + match[3] + ' a été ajouté à votre panier.'),
     rule(product + ' in ' + colour + ' – (Studioansicht|Studiofoto folgt)',
       match => match[1] + ' in ' + colours.en[match[2]] + ' – ' + (match[3] === 'Studiofoto folgt' ? 'studio photograph coming soon' : 'studio view'),
       match => match[1] + ' en ' + colours.fr[match[2]] + ' – ' + (match[3] === 'Studiofoto folgt' ? 'photo studio à venir' : 'vue studio')),

@@ -157,6 +157,27 @@ async function digest(value) {
  return [...new Uint8Array(bytes)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
+async function orderIdentity(sessionId) {
+ const rowId=(await digest('stripe-order:'+sessionId)).slice(0,32);
+ return {rowId,number:'CR-'+rowId.slice(0,12).toUpperCase()};
+}
+
+// The return page only reads an order receipt. Only the signed webhook can
+// create an order; a storage delay must never change a confirmed payment.
+async function orderWasSaved(env,session,identity) {
+ const storage=storageConfig(env);
+ if(!storage.ready)return false;
+ const endpoint=storage.endpoint+'/tablesdb/'+encodeURIComponent(storage.database)+'/tables/'+encodeURIComponent(storage.table)+'/rows/'+identity.rowId;
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),5000);
+ try {
+  const response=await fetch(endpoint,{headers:{'X-Appwrite-Project':storage.project,'X-Appwrite-Key':storage.key},signal:controller.signal,redirect:'error'});
+  if(!response.ok)return false;
+  const row=await response.json();
+  let items;try{items=JSON.parse(row.items||'null');}catch{return false;}
+  return row.$id===identity.rowId&&row.number===identity.number&&row.total===session.amount_total/100&&Array.isArray(items)&&items.length>0&&items.every(item=>item&&item.stripeSessionId===session.id);
+ } catch {return false;} finally {clearTimeout(timeout);}
+}
+
 async function stripeFetch(key, path, options = {}) {
  const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 15000);
  try {
@@ -388,10 +409,10 @@ async function createCheckout(request, env, url) {
  const body=await readJson(request),items=normalizedItems(body),{key,mode}=requireModeKey(env),catalog=getCatalog(env);
  const locale = ['de', 'en', 'fr'].includes(body.locale) ? body.locale : 'auto';
  if (!catalog.configured || items.some(item => !catalog.prices[item.product])) throw new CheckoutError(409, 'prices_unconfigured', 'Preise noch nicht hinterlegt.');
- if (items.some(item => !catalog.prices[item.product].available)) throw new CheckoutError(409, 'product_unavailable', 'Ein ausgewähltes Produkt ist derzeit nicht für den Test-Checkout verfügbar.');
+ if (items.some(item => !catalog.prices[item.product].available)) throw new CheckoutError(409, 'product_unavailable', 'Ein ausgewähltes Produkt ist derzeit nicht für den Checkout verfügbar.');
  const readiness=checkoutConfiguration(env,catalog);if(mode==='live'){if(readiness.blockedReasons.length)throw new CheckoutError(503,'live_checkout_unconfigured','Die Zahlung wird noch vorbereitet.');await verifyMerchant(env,key);}
  const total = items.reduce((sum, item) => sum + catalog.prices[item.product].amount * item.qty, catalog.shippingAmount);
- if (!Number.isSafeInteger(total) || total < 50 || total > MAX_TOTAL_AMOUNT) throw new CheckoutError(400, 'invalid_total', 'Der Gesamtbetrag liegt außerhalb des erlaubten Testbereichs.');
+ if (!Number.isSafeInteger(total) || total < 50 || total > MAX_TOTAL_AMOUNT) throw new CheckoutError(400, 'invalid_total', 'Der Gesamtbetrag liegt außerhalb des zulässigen Bereichs.');
  if(body.discountCode!==undefined&&(typeof body.discountCode!=='string'||body.discountCode.length>64))throw new CheckoutError(400,'discount_invalid','Bitte einen gültigen Rabattcode eingeben.');
  const discount=body.discountCode?.trim()?await validatedDiscount(body.discountCode,items,catalog,key,mode):null;
  const payable=total-(discount?.discountAmount||0);
@@ -399,6 +420,8 @@ async function createCheckout(request, env, url) {
  const cartHash = await digest(JSON.stringify({origin:url.origin,storefront:storefront.href,mode,locale,currency: catalog.currency, items: items.map(item => ({...item, amount: catalog.prices[item.product].amount})), shippingAmount: catalog.shippingAmount, shippingCountries: catalog.shippingCountries,discount:discount?{id:discount.promotionCodeId,code:discount.code,amount:discount.discountAmount}:null}));
  const form = new URLSearchParams();
  form.set('mode','payment');
+ form.set('billing_address_collection','required');
+ form.set('phone_number_collection[enabled]','true');
  const integrationHash=await digest(body.attemptId.toLowerCase()+':'+cartHash);
  form.set('integration_identifier','chevalier_checkout_'+integrationHash.slice(0,16).match(/../g).map(value=>String.fromCharCode(97+parseInt(value,16)%26)).join(''));
  form.set('locale', locale);
@@ -432,9 +455,9 @@ async function createCheckout(request, env, url) {
   'idempotency-key': 'cr_checkout_'+mode+'_' + body.attemptId.toLowerCase() + '_' + cartHash
  }});
  let checkoutURL;
- try {checkoutURL = new URL(session.url);} catch {throw new CheckoutError(502, 'stripe_unavailable', 'Stripe hat keinen gültigen Test-Checkout zurückgegeben.');}
+ try {checkoutURL = new URL(session.url);} catch {throw new CheckoutError(502, 'stripe_unavailable', 'Stripe hat keinen gültigen Checkout zurückgegeben.');}
  if (!SESSION_ID.test(String(session.id || '')) || !String(session.id).startsWith('cs_'+mode+'_') || session.livemode !== (mode==='live') || checkoutURL.protocol !== 'https:' || checkoutURL.hostname !== 'checkout.stripe.com') {
-  throw new CheckoutError(502, 'stripe_unavailable', 'Stripe hat keinen gültigen Test-Checkout zurückgegeben.');
+  throw new CheckoutError(502, 'stripe_unavailable', 'Stripe hat keinen gültigen Checkout zurückgegeben.');
  }
  return json({id:session.id,url:checkoutURL.href,mode});
 }
@@ -450,7 +473,10 @@ async function readSession(env, url) {
  }
  const status = ['open', 'complete', 'expired'].includes(session.status) ? session.status : 'unknown';
  const paymentStatus = ['paid', 'unpaid', 'no_payment_required'].includes(session.payment_status) ? session.payment_status : 'unknown';
- return json({id, status, paymentStatus, paid: status === 'complete' && (paymentStatus === 'paid'||(paymentStatus==='no_payment_required'&&session.amount_total===0)), amountTotal: session.amount_total, currency:'eur',testMode:mode==='test',...(mode==='live'?{mode:'live'}:{})});
+ const paid=status==='complete'&&(paymentStatus==='paid'||(paymentStatus==='no_payment_required'&&session.amount_total===0));
+ const identity=paid?await orderIdentity(id):null;
+ const orderSaved=paid&&await orderWasSaved(env,session,identity);
+ return json({id,status,paymentStatus,paid,orderSaved,orderNumber:identity?.number||null,amountTotal:session.amount_total,currency:'eur',testMode:mode==='test',...(mode==='live'?{mode:'live'}:{})});
 }
 
 // Signature verification precedes JSON parsing and any storage/network effect.
@@ -493,7 +519,7 @@ async function webhook(request,env,url) {
  const shipping=session.collected_information?.shipping_details||session.shipping_details;
  if(shipping)items[0].delivery={name:shipping.name||'',address:shipping.address||{},phone:session.customer_details?.phone||''};
  if(session.metadata?.discount_code&&integerAmount(session.total_details?.amount_discount,MAX_TOTAL_AMOUNT,true))items[0].discount={code:String(session.metadata.discount_code).slice(0,64),promotionCodeId:String(session.metadata.promotion_code||'').slice(0,206),amountCents:session.total_details.amount_discount};
- const rowId=(await digest('stripe-order:'+id)).slice(0,32),data={number:'CR-'+rowId.slice(0,12).toUpperCase(),customer:String(session.customer_details?.name||''),email:String(session.customer_details?.email||''),date:new Date(Number(session.created)*1000).toISOString(),status:'paid',items:JSON.stringify(items),total:session.amount_total/100};
+ const {rowId,number}=await orderIdentity(id),data={number,customer:String(session.customer_details?.name||''),email:String(session.customer_details?.email||''),date:new Date(Number(session.created)*1000).toISOString(),status:'paid',items:JSON.stringify(items),total:session.amount_total/100};
  const endpoint=storage.endpoint+'/tablesdb/'+encodeURIComponent(storage.database)+'/tables/'+encodeURIComponent(storage.table)+'/rows';
  const headers={'content-type':'application/json','X-Appwrite-Project':storage.project,'X-Appwrite-Key':storage.key};
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);

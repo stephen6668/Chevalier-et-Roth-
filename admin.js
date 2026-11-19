@@ -15,7 +15,7 @@
   };
   const waitlistStatuses = ['waiting', 'contacted', 'invited', 'converted', 'cancelled'];
   const giveawayStatuses = ['entered', 'winner', 'contacted', 'invalid'];
-  const statusNames = {waiting:'Wartend',contacted:'Kontaktiert',invited:'Eingeladen',converted:'Abgeschlossen',cancelled:'Abgemeldet',entered:'Teilgenommen',winner:'Gewinner',invalid:'Ungültig'};
+  const statusNames = {waiting:'Wartend',contacted:'Kontaktiert',invited:'Eingeladen',converted:'Abgeschlossen',cancelled:'Abgemeldet',entered:'Teilgenommen',winner:'Gewinner',invalid:'Ungültig',paid:'Bezahlt'};
   let authenticated = false, activeTab = 'waitlist', rows = [], loadVersion = 0, authVersion = 0, editor = null, saving = false, stripeConnected = false;
   const money = value => new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(Number(value) || 0);
   const date = value => {const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? String(value || '—') : parsed.toLocaleString('de-DE');};
@@ -28,6 +28,8 @@
     for(const [language,label] of [['en',en],['fr',fr]]) {(window.CR_TRANSLATIONS[language] ||= {})[source] = label;}
   }
   for(const [source,en,fr] of [
+    ['Bezahlt','Paid','Payé'],['Lieferung','Delivery','Livraison'],['Lieferadresse','Delivery address','Adresse de livraison'],['Telefon','Phone','Téléphone'],['Rabattcode','Discount code','Code de réduction'],
+    ['Lieferadresse nicht hinterlegt.','No delivery address recorded.','Aucune adresse de livraison enregistrée.'],
     ['Rabattcodes · Stripe','Discount codes · Stripe','Codes de réduction · Stripe'],
     ['STRIPE · RABATTCODES','STRIPE · DISCOUNT CODES','STRIPE · CODES DE RÉDUCTION'],
     ['Aktivieren, deaktivieren und speichern Sie Rabattcodes direkt bei Stripe. Kunden geben ihren Code einmal im Checkout ein; der bestätigte Rabatt wird automatisch zur Stripe-Zahlung übernommen.','Activate, deactivate and save discount codes directly in Stripe. Customers enter a code once at checkout; the confirmed discount is carried over to Stripe payment.','Activez, désactivez et enregistrez les codes de réduction directement dans Stripe. Le client saisit le code une seule fois ; la réduction confirmée est transmise au paiement Stripe.'],
@@ -102,6 +104,27 @@
   function codePayload(row, active=row.active) {return {id:row._stripe?row.id:undefined,code:String(row.code || '').trim().toUpperCase(),percent:Number(row.percent),active:active===true,minOrder:Number(row.minOrder || 0),start:row.start || '',end:row.end || '',maxUses:Number(row.maxUses || 0)};}
   function addLine(container, value, className) {const line = el('p', value, className); container.append(line); return line;}
   function addRawLine(container, value, className) {const line = raw('p', value, className); container.append(line); return line;}
+  function orderDeliveryDetails(items) {
+    const block=el('section',undefined,'order-delivery');block.append(el('h4','Lieferung'));
+    const safe=value=>typeof value==='string'||typeof value==='number'?String(value).trim():'';
+    const delivery=items?.find(item=>item?.delivery&&typeof item.delivery==='object')?.delivery;
+    const address=delivery?.address&&typeof delivery.address==='object'?delivery.address:{};
+    const lines=[safe(delivery?.name),safe(address.line1),safe(address.line2),[safe(address.postal_code),safe(address.city)].filter(Boolean).join(' '),safe(address.state),safe(address.country)].filter(Boolean);
+    if(lines.length) {
+      block.append(el('p','Lieferadresse','order-delivery-label'));
+      const addressBlock=raw('address',undefined,'order-delivery-address');
+      lines.forEach(line=>addressBlock.append(raw('span',line)));block.append(addressBlock);
+    } else block.append(el('p','Lieferadresse nicht hinterlegt.','record-meta'));
+    const phone=safe(delivery?.phone);
+    if(phone) {const line=el('p',undefined,'order-delivery-contact');line.append(el('span','Telefon'),document.createTextNode(' · '),raw('span',phone));block.append(line);}
+    const discount=items?.find(item=>item?.discount&&typeof item.discount==='object')?.discount;
+    if(discount&&safe(discount.code)) {
+      const line=el('p',undefined,'order-discount');line.append(el('span','Rabattcode'),document.createTextNode(' · '),raw('span',safe(discount.code)));
+      if(Number.isSafeInteger(discount.amountCents)&&discount.amountCents>=0)line.append(document.createTextNode(' · −'+money(discount.amountCents/100)));
+      block.append(line);
+    }
+    return block;
+  }
   function setLoginView(note = '', kind = '') {
     authenticated = false; stripeConnected = false; loadVersion++;
     $('#login-view').hidden = false; $('#admin-view').hidden = true; $('#records').replaceChildren(); rows = [];
@@ -248,13 +271,13 @@
           const toggle=el('button',row.active===true?'Bei Stripe deaktivieren':'Bei Stripe aktivieren','outline-button stripe-toggle');toggle.type='button';toggle.disabled=!stripeConnected;toggle.addEventListener('click',()=>toggleCode(row,toggle));parts.actions.append(toggle);
         }
       } else {
-        parts = recordBase(row.number || row.$id,row); parts.actions.append(raw('span',row.status || '—','badge'),el('strong',money(row.total)));
+        parts = recordBase(row.number || row.$id,row); parts.actions.append(row.status==='paid'?el('span',statusNames.paid,'badge order-paid'):raw('span',row.status || '—','badge'),el('strong',money(row.total)));
         addRawLine(parts.body,[row.customer,row.email].filter(Boolean).join(' · ')); addLine(parts.body,`Bestelldatum: ${date(row.date || row.$createdAt)}`);
         const details = el('details',undefined,'order-items'); details.append(el('summary','Bestellte Artikel ansehen'));
         const items = parseArray(row.items);
         if(items) {const list = el('ul'); items.forEach(item => {const line = el('li'); if(item && typeof item === 'object') {const description = [item.name || item.productName || item.productId || item.id,item.color,item.size].filter(Boolean).join(' · '); if(description) line.append(raw('span',description),document.createTextNode(' · ')); line.append(el('span',`${text(item.quantity ?? item.qty ?? 1)} Stück`));} else line.append(raw('span',text(item) || JSON.stringify(item))); list.append(line);}); details.append(list);}
         else details.append(el('pre',row.items || 'Keine Artikeldetails hinterlegt.'));
-        parts.card.append(details);
+        parts.card.append(details,orderDeliveryDetails(items));
       }
       list.append(parts.card);
     }); container.append(list);

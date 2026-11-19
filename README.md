@@ -1,5 +1,14 @@
 # Chevalier & Roth — The First Edition
 
+## Bestellablauf im Testbetrieb – 19. November 2026
+
+Der Warenkorb und die eigene Checkout-Seite können vollständig als Demo benutzt werden: Artikel und Mengen, Kontakt- und Lieferformular, Beispielversand, Testabschluss und lokale Bestellbestätigung. Es werden keine Zahlungen, echten Bestellungen, E-Mails oder Sendungen ausgelöst. Die Liefer- und Kontaktdaten bleiben nur im Arbeitsspeicher der Checkout-Seite. Die bestehende Warenkorbauswahl bleibt zum Weiterprobieren erhalten.
+
+`commerce-config.js` aktiviert `demoCheckout` mit 4,90 € Beispielversand und der reservierten Platzhalteradresse `service@chevalier-et-roth.example`. Die Herrenhose hat ausschließlich für diese Demo einen Beispielpreis von 100 €. Diese Angaben sind keine Freigabe für den Live-Katalog. Die bisher bestätigten drei Produktpreise bleiben unverändert.
+
+Die künstliche 17%-Rechenvorschau ist aus dem Checkout entfernt. Die bestehende Stripe-Anbindung bleibt serverseitig geschützt; die Demo umgeht die Zahlungsfreigaben nicht. Für echte Zahlungen fehlen weiterhin bestätigte Versanddaten, ein öffentlicher Webhook und die konfigurierte, geprüfte Bestellspeicherung. Die Stripe-App-Verbindung verlangte beim aktuellen Verbindungsversuch eine erneute Anmeldung.
+
+
 ## Aktueller Stand: vier Modelle, drei Farben und drei Größen
 
 Die Website zeigt Body, Half-Zip, die Damenhose „Le Pantalon Femme“ mit weitem Palazzo-Bein und die Herrenhose „Le Pantalon Homme“ mit schmalerem, geradem Bein. Alle Produkte sind ausschließlich in Beige, Navyblau und Bordeaux sowie S, M und L auswählbar. Die bisherige Produktkennung `trousers`/`p2` bleibt für die Damenhose bestehen; `trousers-men`/`p4` unterscheidet die Herrenhose in Auswahl, Warteliste und Preisübersicht.

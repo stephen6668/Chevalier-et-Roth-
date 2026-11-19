@@ -85,17 +85,21 @@ const selectionStorage=window.CRPrivacy.selectionStorage;
  function readSelection(){
   try{const v3=selectionStorage.getItem('cr-selection-v3'),saved=JSON.parse(v3===null?(selectionStorage.getItem('cr-selection-v2')||'[]'):v3);if(!Array.isArray(saved))return [];return saved.map(entry=>v3===null?{...entry,color:'bordeaux'}:entry).filter(entry=>entry&&products.find(p=>p.id===entry.product)?.variants[entry.color]&&validSizes.includes(entry.size)&&Number.isInteger(entry.qty)&&entry.qty>0&&entry.qty<=20).slice(0,60);}catch{return [];}
  }
- function selectionCount(){get('pdp-selection-count').textContent=String(readSelection().reduce((sum,item)=>sum+item.qty,0));}
+ function selectionCount(){const count=readSelection().reduce((sum,item)=>sum+item.qty,0);get('pdp-selection-count').textContent=String(count);get('pdp-selection-count').closest('a').setAttribute('aria-label','Warenkorb öffnen · '+count);}
  get('pdp-selection-add').addEventListener('click',()=>{
   const selection=readSelection(),existing=selection.find(entry=>entry.product===product.id&&entry.color===color&&entry.size===size),status=get('pdp-selection-message');
-  if(existing?.qty>=20){status.textContent='Maximal 20 Stück pro Variante.';return;}if(!existing&&selection.length>=60){status.textContent='Ihre Auswahl enthält bereits 60 Varianten. Bitte entfernen Sie zunächst ein Stück.';return;}
+  get('pdp-cart-feedback').hidden=false;
+  if(existing?.qty>=20){status.textContent='Maximal 20 Stück pro Variante.';return;}if(!existing&&selection.length>=60){status.textContent='Ihr Warenkorb enthält bereits 60 Varianten. Bitte entfernen Sie zunächst ein Stück.';return;}
   if(existing)existing.qty++;else selection.push({product:product.id,color,size,qty:1});
-  try{selectionStorage.setItem('cr-selection-v3',JSON.stringify(selection));selectionCount();status.textContent=product.name+' · '+variant().name+' / '+size+' wurde Ihrer Auswahl hinzugefügt.';}catch{status.textContent='Die Auswahl konnte auf diesem Gerät nicht gespeichert werden. Sie können sich direkt auf der Warteliste vormerken.';}
+  try{selectionStorage.setItem('cr-selection-v3',JSON.stringify(selection));selectionCount();status.textContent=product.name+' · '+variant().name+' / '+size+' wurde Ihrem Warenkorb hinzugefügt.';}catch{status.textContent='Der Warenkorb konnte auf diesem Gerät nicht gespeichert werden. Sie können über „Direkt zur Kasse“ fortfahren.';}
  });
  addEventListener('storage',event=>{if(event.key==='cr-selection-v3'||event.key==='cr-selection-v2')selectionCount();});
  addEventListener('cr:privacychange',selectionCount);
+ addEventListener('pageshow',selectionCount);
  setColor(color);setSize(size);selectionCount();get('pdp-content').hidden=false;
- const approved=window.CR_STORE_PRICES?.products?.[product.id];
- if(Number.isSafeInteger(approved?.amount)&&approved.amount>0){get('pdp-price').textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(approved.amount/100);get('pdp-price-note').textContent='Preisvorschau · Steuerberechnung im Checkout';}
+ const listed=window.CR_STORE_PRICES?.products?.[product.id],example=window.CR_COMMERCE_CONFIG?.demoCheckout?.enabled===true?window.CR_COMMERCE_CONFIG.demoCheckout.productPrices?.[product.id]:null;
+ const approved=listed||(Number.isSafeInteger(example)&&example>0?{amount:example,demo:true}:null);
+ function renderApprovedPrice(){if(Number.isSafeInteger(approved?.amount)&&approved.amount>0){get('pdp-price').textContent=new Intl.NumberFormat(window.CRI18N?.getLanguage()||document.documentElement.lang||'de',{style:'currency',currency:'EUR'}).format(approved.amount/100);get('pdp-price-note').textContent=approved.demo?'Demopreis · keine echte Bestellung':'Zuzüglich Versand';}}
+ renderApprovedPrice();addEventListener('cr:languagechange',renderApprovedPrice);
  if(api?.publicProducts)api.publicProducts().then(rows=>{if(approved)return;const row=rows.find(item=>item.$id===api.productIds[product.id]);if(!row)return;const raw=Number(row.salePrice)>0&&Number(row.salePrice)<=Number(row.price)?Number(row.salePrice):Number(row.price);if(!Number.isFinite(raw)||raw<=0)return;const config=api.config,price=raw*(config.pricesIncludeVat?1:1+config.vatRate);get('pdp-price').textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:config.currency||'EUR'}).format(price);get('pdp-price-note').textContent='Vorläufig · inkl. '+String(Math.round(config.vatRate*100))+' % MwSt. · Kein Verkauf';}).catch(()=>{if(!approved)get('pdp-catalogue-message').textContent='Aktuelle Preisangaben sind gerade nicht erreichbar. Ihre Farb- und Größenauswahl bleibt verfügbar.';});
 })();

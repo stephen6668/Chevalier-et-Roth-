@@ -1,5 +1,12 @@
 # Live-Checkout – vorbereiteter Stand
 
+## Aktueller Testablauf
+
+Seit 19. November 2026 ist der vollständige Browser-Checkout als ausdrücklich gekennzeichnete Demo aktiv. Auf Wunsch des Betreibers stehen Versandkosten und Service-E-Mail noch nicht fest. Deshalb werden 4,90 € Beispielversand, `service@chevalier-et-roth.example` und ein Demo-Preis von 100 € für die Herrenhose eingesetzt. Diese Werte werden ausschließlich vom Demo-Zweig verwendet und niemals als bestätigter Live-Katalog an Stripe gesendet. Die Demo speichert keine Adressdaten und löst keine E-Mail, Zahlung oder echte Bestellung aus.
+
+Der Livebetrieb bleibt an die unten genannten tatsächlichen Verbindungen gebunden. Bei der aktuellen Prüfung war der Stripe-Live-Schlüssel im Hosting bereits als Secret hinterlegt; Webhook-Signaturschlüssel und Appwrite-Serverschlüssel fehlten. Das Hosting ist weiterhin eigentümerprivat. Die Stripe-App verlangte eine erneute Anmeldung. Eine echte End-to-End-Zahlung wurde daher nicht ausgelöst oder als erfolgreich behauptet.
+
+
 Die Website enthält eine funktionierende Preisvorschau und einen technisch vorbereiteten Live-Checkout. Die produktive Zahlungsannahme bleibt gesperrt, bis die unten genannten tatsächlichen Verbindungen bestätigt sind. Ein verbundenes Stripe-Konto über die Chat-Anwendung liefert der Website keinen Server-Schlüssel.
 
 ## Bestätigt
