@@ -1,5 +1,15 @@
 # Live-Checkout – vorbereiteter Stand
 
+Preisbestätigung vom 19. November 2026: Die Herrenhose kostet ebenfalls 100 € und ist jetzt im genehmigten Browser- und Serverkatalog enthalten.
+
+
+## Aktueller Stand: Paketversand
+
+Der bestätigte Tarif beträgt 7 € pro Paket mit bis zu 3 Artikeln; 4–6 Artikel kosten 14 €, 7–9 Artikel 21 €. Versand wird serverseitig aus den normalisierten Artikelmengen berechnet. Das Hosting-Katalogschema nutzt `shippingPerPackage:700` und `itemsPerPackage:3` statt eines pauschalen `shippingAmount`. Ein unvollständiges neues Schema darf nicht auf kostenlosen Versand zurückfallen. Lieferländer bleiben LU/BE/FR/DE.
+
+Der Betreiber hat die fehlende MwSt.-Registrierung erneut bestätigt. Es wird keine 17%-Steuer aktiviert. Die Kasse ist auf den echten Stripe-Ablauf vorbereitet; die Demo ist standardmäßig aus. Fehlende Webhook-/Bestellspeicher-Konfiguration und private Erreichbarkeit sperren weiterhin echte Zahlungen. Die nach Benutzerhinweis erneut getestete Stripe-App meldete weiterhin `UNAUTHORIZED`.
+
+
 ## Aktueller Testablauf
 
 Seit 19. November 2026 ist der vollständige Browser-Checkout als ausdrücklich gekennzeichnete Demo aktiv. Auf Wunsch des Betreibers stehen Versandkosten und Service-E-Mail noch nicht fest. Deshalb werden 4,90 € Beispielversand, `service@chevalier-et-roth.example` und ein Demo-Preis von 100 € für die Herrenhose eingesetzt. Diese Werte werden ausschließlich vom Demo-Zweig verwendet und niemals als bestätigter Live-Katalog an Stripe gesendet. Die Demo speichert keine Adressdaten und löst keine E-Mail, Zahlung oder echte Bestellung aus.

@@ -6,13 +6,14 @@ window.CR_COMMERCE_CONFIG = Object.freeze({
  backendOrigin:null,
  taxRegistered:false,
  illustrativeTaxRate:17,
- shipping:Object.freeze({carrier:'POST Luxembourg',destinationScope:'Europe',confirmed:false,amount:null}),
- // Owner requested placeholder shipping/contact details for a complete demo.
- // These values never authorize a Stripe payment or a real shipment.
+ shipping:Object.freeze({carrier:'POST Luxembourg',destinationScope:'Europe',confirmed:true,shippingPerPackage:700,itemsPerPackage:3}),
+ // Retained for isolated tests. The storefront now opens the Stripe flow;
+ // only the server's complete readiness check can enable real payment.
  demoCheckout:Object.freeze({
-  enabled:true,
+  enabled:false,
   currency:'eur',
-  shippingAmount:490,
+  shippingPerPackage:700,
+  itemsPerPackage:3,
   shippingCountries:Object.freeze(['LU','DE','FR','BE','NL','AT']),
   serviceEmail:'service@chevalier-et-roth.example',
   productPrices:Object.freeze({'trousers-men':10000})

@@ -1,5 +1,17 @@
 # Chevalier & Roth — The First Edition
 
+Preisbestätigung vom 19. November 2026: Die Herrenhose kostet ebenfalls 100 € und ist jetzt im genehmigten Browser- und Serverkatalog enthalten.
+
+
+## Paketversand und Stripe-Freigabe – 19. November 2026
+
+Aktueller Versandtarif: 7 € pro Paket, maximal 3 Artikel pro Paket. Die Paketanzahl ist `ceil(Summe der Artikelmengen / 3)`; unterschiedliche Produktvarianten werden zusammengezählt. Checkout und Stripe verwenden denselben serverseitig berechneten Versandbetrag. Bestehende Lieferländer bleiben Luxemburg, Belgien, Frankreich und Deutschland. Rabattcodes ändern die Paketanzahl nicht.
+
+Der Betreiber hat erneut bestätigt, nicht mehrwertsteuerregistriert zu sein. Deshalb wird keine 17%-MwSt. eingezogen oder als 0%-Steuersatz ausgegeben. Die Demo ist standardmäßig ausgeschaltet. Die Kasse öffnet den echten Stripe-Ablauf erst bei erfolgreicher Serverfreigabe; eine sichtbare Preis-/Versandberechnung erteilt diese Freigabe nicht.
+
+Die erneute Stripe-Anmeldung war im aktuellen Werkzeugzugriff weiterhin nicht bestätigt. Der private Webhook-Endpunkt antwortete ohne Anmeldung mit HTTP 401; Webhook-Signaturschlüssel und Appwrite-Serverschlüssel sind weiterhin nicht hinterlegt. Es wurden weder diese Sperren umgangen noch echte Zahlungen ausgelöst. Ältere Demo-Abschnitte unten dokumentieren den vorherigen Stand.
+
+
 ## Bestellablauf im Testbetrieb – 19. November 2026
 
 Der Warenkorb und die eigene Checkout-Seite können vollständig als Demo benutzt werden: Artikel und Mengen, Kontakt- und Lieferformular, Beispielversand, Testabschluss und lokale Bestellbestätigung. Es werden keine Zahlungen, echten Bestellungen, E-Mails oder Sendungen ausgelöst. Die Liefer- und Kontaktdaten bleiben nur im Arbeitsspeicher der Checkout-Seite. Die bestehende Warenkorbauswahl bleibt zum Weiterprobieren erhalten.

@@ -24,7 +24,7 @@ window.CRLegalConfig = (() => {
   isPreview: true,
   publicReleaseReady: false,
   giveawayReady: false,
-  updatedAt: '2026-11-08'
+  updatedAt: '2026-11-19'
  };
  const controllerComplete = [details.operatorName, details.country, details.address, details.postalCode, details.city, details.email].every(value => String(value).trim());
  const imprintComplete = controllerComplete && [details.managingDirector, details.registerNumber].every(value => String(value).trim());

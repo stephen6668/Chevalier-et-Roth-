@@ -22,7 +22,7 @@
      "increase": "erhöhen",
      "unavailable": "Für diese Auswahl noch nicht verfügbar.",
      "productValue": "Warenwert",
-     "shipping": "Lieferkosten",
+     "shipping": "Versand",
      "shippingPending": "Wird noch berechnet",
      "total": "Gesamtbetrag",
      "plusShipping": "zzgl. Versand",
@@ -77,7 +77,7 @@
      "paymentTitle": "Ihre Zahlungsart",
      "paymentCopy": "Die für Sie verfügbaren Zahlungsmethoden werden direkt bei Stripe angezeigt. Ihre Zahlungsdaten werden verschlüsselt verarbeitet.",
      "deliveryCountries": "Lieferung nach",
-     "currencyNote": "Alle Preise in EUR.",
+     "currencyNote": "Alle Preise in EUR. Keine MwSt. ausgewiesen.",
      "terms": "AGB",
      "withdrawal": "Widerruf",
      "privacy": "Datenschutz",
@@ -87,7 +87,7 @@
      "orderPending": "Ihre Zahlung ist bestätigt. Ihre Bestellung wird noch registriert. Bitte prüfen Sie den Status erneut.",
      "cartCleared": "Die bestellten Stücke wurden aus Ihrem Warenkorb entfernt.",
      "demoBannerTitle": "Demo-Checkout · Keine echte Bestellung",
-     "demoBannerCopy": "Testen Sie den vollständigen Bestellablauf mit Beispielpreisen und Beispiel-Versandkosten. Es wird nichts bezahlt oder versendet.",
+     "demoBannerCopy": "Testen Sie den vollständigen Bestellablauf mit Beispielpreisen. Es wird nichts bezahlt oder versendet.",
      "demoSelection": "IHR BESTELLTEST",
      "demoSummaryTitle": "Ihr Probelauf.",
      "demoHeadingCopy": "Vom Warenkorb bis zur Bestätigung. Einmal vollständig ausprobieren.",
@@ -96,8 +96,8 @@
      "demoReviewText": "Ihre Angaben werden nur für diesen Probelauf auf dieser geöffneten Seite verwendet.",
      "demoNoteTitle": "Ihr Bestelltest.",
      "demoPay": "Demo-Bestellung abschließen",
-     "demoShipping": "Beispiel-Versand",
-     "demoShippingNote": "Die angezeigten Lieferkosten sind ein Beispiel für diesen Test. Endgültige Versandkosten folgen.",
+     "demoShipping": "Versand",
+     "demoShippingNote": "Die Versandkosten richten sich nach der Anzahl der Pakete.",
      "demoSecureNote": "Testzahlung – keine Kartendaten nötig. Es erfolgt keine Abbuchung.",
      "demoPrivacyCopy": "Ihre Testangaben bleiben ausschließlich auf dieser geöffneten Seite. Sie werden weder gespeichert noch an Stripe oder Chevalier & Roth übertragen.",
      "demoPrivacyPreview": "Diese Demo löst keine Bestellung, keine Zahlung und keinen Versand aus.",
@@ -134,7 +134,7 @@
      "demoReceiptNote": "Keine echte Bestellung. Ihre Testangaben bleiben nur auf dieser Seite. Ihr Warenkorb bleibt zum Weiterprobieren erhalten.",
      "demoAgain": "Noch einmal testen",
      "demoFinished": "Demo abgeschlossen. Es wurde nichts bezahlt oder versendet.",
-     "demoCurrencyNote": "Beispielpreise in EUR · Keine Rechnung",
+     "demoCurrencyNote": "Beispielpreise in EUR · Keine MwSt. ausgewiesen · Keine Rechnung",
      "demoNoDiscountConnection": "Rabattcodes können nur über die bestehende Serververbindung geprüft werden."
    },
    "en": {
@@ -204,7 +204,7 @@
      "paymentTitle": "Your payment method",
      "paymentCopy": "Available payment methods are displayed directly at Stripe. Your payment information is encrypted.",
      "deliveryCountries": "Delivery to",
-     "currencyNote": "All prices in EUR.",
+     "currencyNote": "All prices in EUR. No VAT is shown.",
      "terms": "Terms",
      "withdrawal": "Returns & withdrawal",
      "privacy": "Privacy",
@@ -214,7 +214,7 @@
      "orderPending": "Your payment is confirmed. Your order is still being registered. Please check the status again.",
      "cartCleared": "Your ordered pieces have been removed from your bag.",
      "demoBannerTitle": "Demo checkout · No real order",
-     "demoBannerCopy": "Try the complete order journey with example prices and delivery costs. Nothing will be charged or dispatched.",
+     "demoBannerCopy": "Try the complete order journey with example prices. Nothing will be charged or dispatched.",
      "demoSelection": "YOUR ORDER TEST",
      "demoSummaryTitle": "Your trial order.",
      "demoHeadingCopy": "From your bag to confirmation. Try the whole experience.",
@@ -223,8 +223,8 @@
      "demoReviewText": "Your details are used only for this trial on this open page.",
      "demoNoteTitle": "Your order test.",
      "demoPay": "Complete demo order",
-     "demoShipping": "Example delivery",
-     "demoShippingNote": "The delivery cost shown is an example for this test. Final delivery costs will follow.",
+     "demoShipping": "Shipping",
+     "demoShippingNote": "Delivery costs depend on the number of parcels.",
      "demoSecureNote": "Test payment – no card details needed. No money will be charged.",
      "demoPrivacyCopy": "Your test details remain on this open page only. They are neither saved nor sent to Stripe or Chevalier & Roth.",
      "demoPrivacyPreview": "This demo does not create an order, charge or dispatch.",
@@ -261,7 +261,7 @@
      "demoReceiptNote": "No real order. Your test details remain on this page only. Your bag is kept so you can try again.",
      "demoAgain": "Try again",
      "demoFinished": "Demo complete. Nothing has been charged or dispatched.",
-     "demoCurrencyNote": "Example prices in EUR · Not an invoice",
+     "demoCurrencyNote": "Example prices in EUR · No VAT shown · Not an invoice",
      "demoNoDiscountConnection": "Discount codes can only be checked through the existing server connection."
    },
    "fr": {
@@ -331,7 +331,7 @@
      "paymentTitle": "Votre moyen de paiement",
      "paymentCopy": "Les moyens de paiement disponibles sont affichés directement chez Stripe. Vos données de paiement sont chiffrées.",
      "deliveryCountries": "Livraison vers",
-     "currencyNote": "Tous les prix sont en EUR.",
+     "currencyNote": "Tous les prix sont en EUR. Aucune TVA n’est indiquée.",
      "terms": "Conditions générales",
      "withdrawal": "Rétractation",
      "privacy": "Confidentialité",
@@ -341,7 +341,7 @@
      "orderPending": "Votre paiement est confirmé. L’enregistrement de votre commande est en cours. Veuillez vérifier à nouveau son statut.",
      "cartCleared": "Les pièces commandées ont été retirées de votre panier.",
      "demoBannerTitle": "Démonstration · Aucune commande réelle",
-     "demoBannerCopy": "Essayez le parcours complet avec des prix et des frais de livraison donnés à titre d’exemple. Aucun paiement ni envoi ne sera effectué.",
+     "demoBannerCopy": "Essayez le parcours complet avec des prix donnés à titre d’exemple. Aucun paiement ni envoi ne sera effectué.",
      "demoSelection": "VOTRE COMMANDE TEST",
      "demoSummaryTitle": "Votre essai.",
      "demoHeadingCopy": "Du panier à la confirmation. Essayez le parcours complet.",
@@ -350,8 +350,8 @@
      "demoReviewText": "Vos coordonnées servent uniquement à cet essai sur cette page ouverte.",
      "demoNoteTitle": "Votre commande test.",
      "demoPay": "Terminer la commande de démonstration",
-     "demoShipping": "Livraison à titre d’exemple",
-     "demoShippingNote": "Les frais de livraison affichés sont un exemple pour cet essai. Les frais définitifs seront précisés ultérieurement.",
+     "demoShipping": "Livraison",
+     "demoShippingNote": "Les frais de livraison dépendent du nombre de colis.",
      "demoSecureNote": "Paiement test – aucune donnée de carte requise. Aucun prélèvement.",
      "demoPrivacyCopy": "Vos coordonnées de test restent uniquement sur cette page ouverte. Elles ne sont ni enregistrées ni transmises à Stripe ou à Chevalier & Roth.",
      "demoPrivacyPreview": "Cette démonstration ne crée ni commande, ni paiement, ni envoi.",
@@ -388,7 +388,7 @@
      "demoReceiptNote": "Aucune commande réelle. Vos coordonnées restent sur cette page uniquement. Votre panier est conservé pour un nouvel essai.",
      "demoAgain": "Essayer à nouveau",
      "demoFinished": "Démonstration terminée. Aucun paiement ni envoi.",
-     "demoCurrencyNote": "Prix d’exemple en EUR · Pas une facture",
+     "demoCurrencyNote": "Prix d’exemple en EUR · Aucune TVA indiquée · Pas une facture",
      "demoNoDiscountConnection": "Les codes de réduction ne peuvent être vérifiés que via la connexion serveur existante."
    }
  };
@@ -398,6 +398,9 @@
  Object.assign(words.de,{demoServiceTitle:'Demo-Servicekontakt',demoServiceNote:'Eine Platzhalter-Adresse für diese Demo. Hier werden keine Nachrichten versendet oder empfangen.',discountInputLabel:'Rabattcode',demoFill:'Fiktive Beispieldaten einsetzen',demoFillNote:'Sie können den Ablauf vollständig ohne eigene Angaben testen.',demoHeader:'Bestellablauf testen'});
  Object.assign(words.en,{demoServiceTitle:'Demo service contact',demoServiceNote:'A placeholder address for this demo. No messages are sent or received here.',discountInputLabel:'Discount code',demoFill:'Use fictional example details',demoFillNote:'Try the complete journey without entering your own details.',demoHeader:'Try the order journey'});
  Object.assign(words.fr,{demoServiceTitle:'Contact de service fictif',demoServiceNote:'Une adresse fictive pour cette démonstration. Aucun message n’est envoyé ni reçu ici.',discountInputLabel:'Code de réduction',demoFill:'Utiliser des coordonnées fictives',demoFillNote:'Essayez le parcours complet sans saisir vos propres coordonnées.',demoHeader:'Essayer la commande'});
+ Object.assign(words.de,{package:'Paket',packages:'Pakete',packageNote:'{amount} pro Paket · bis zu {count} Artikel pro Paket.'});
+ Object.assign(words.en,{package:'parcel',packages:'parcels',packageNote:'{amount} per parcel · up to {count} items per parcel.'});
+ Object.assign(words.fr,{package:'colis',packages:'colis',packageNote:'{amount} par colis · jusqu’à {count} articles par colis.'});
  const language=()=>{const value=window.CRI18N?.getLanguage()||document.documentElement.lang;return words[value]?value:'de';};
  const demoTextKeys={secureCheckout:'demoHeader',selection:'demoSelection',previewTitle:'demoSummaryTitle',previewNoteTitle:'demoNoteTitle',previewText:'demoReviewText',headingCopy:'demoHeadingCopy',guestCheckout:'demoGuest',progressNote:'demoProgressNote',shipping:'demoShipping',shippingNote:'demoShippingNote',secureNote:'demoSecureNote',privacyCopy:'demoPrivacyCopy',privacyPreview:'demoPrivacyPreview',paymentTitle:'demoPaymentServiceTitle',paymentCopy:'demoPaymentServiceCopy',addressCopy:'demoAddressCopy',stepPayment:'demoStepPayment',currencyNote:'demoCurrencyNote',pay:'demoPay'};
  const text=key=>{const localizedKey=demoMode()&&demoTextKeys[key]||key;return words[language()][localizedKey]||words.de[localizedKey]||localizedKey;};
@@ -415,8 +418,33 @@
  function productURL(item){return 'product.html?'+new URLSearchParams({product:item.product,color:item.color,size:item.size,lang:language()});}
  function price(item){const example=config.demoCheckout?.productPrices?.[item.product];if(demoMode()&&amountValid(example))return {amount:example,available:true};const server=catalog?.currency==='eur'?catalog.prices?.[item.product]:null;const preview=approved.currency==='eur'?approved.products?.[item.product]:null;return amountValid(server?.amount)?server:amountValid(preview?.amount)?preview:null;}
  function liveCatalog(){return catalog?.mode==='live'&&catalog.testMode===false&&catalog.configured===true&&catalog.currency==='eur';}
- function shippingAmount(){if(demoMode()){const demo=config.demoCheckout;return demo.currency==='eur'&&Number.isSafeInteger(demo.shippingAmount)&&demo.shippingAmount>=0&&demo.shippingAmount<=100000?demo.shippingAmount:null;}return liveCatalog()&&catalog.shippingConfirmed===true&&Number.isSafeInteger(catalog.shippingAmount)&&catalog.shippingAmount>=0?catalog.shippingAmount:null;}
- function pricesReady(){return items.length>0&&liveCatalog()&&catalog.ready===true&&catalog.canCharge===true&&catalog.webhookConfigured===true&&catalog.orderStorageConfigured===true&&catalog.backendPublic===true&&shippingAmount()!==null&&items.every(item=>amountValid(catalog.prices?.[item.product]?.amount)&&catalog.prices[item.product].available!==false);}
+ function quoteForShipping(source,authority){
+  if(!source)return null;
+  const fixedModel=source.shippingModel==='fixed'&&source.shippingPerPackage==null&&source.itemsPerPackage==null;
+  const hasPackageRule=!fixedModel&&(source.shippingModel==='per_package'||source.shippingPerPackage!==undefined||source.itemsPerPackage!==undefined);
+  if(hasPackageRule){
+   if(source.shippingModel!==undefined&&source.shippingModel!=='per_package')return null;
+   if(!Number.isSafeInteger(source.shippingPerPackage)||source.shippingPerPackage<1||source.shippingPerPackage>100000||!Number.isSafeInteger(source.itemsPerPackage)||source.itemsPerPackage<1||source.itemsPerPackage>1200)return null;
+   const units=items.reduce((sum,item)=>sum+item.qty,0),packages=Math.ceil(units/source.itemsPerPackage),amount=packages*source.shippingPerPackage;
+   return Number.isSafeInteger(amount)&&amount<=100000?{source:authority,model:'per_package',amount,packages,perPackage:source.shippingPerPackage,itemsPerPackage:source.itemsPerPackage}:null;
+  }
+  if(source.shippingModel!==undefined&&source.shippingModel!=='fixed')return null;
+  return Number.isSafeInteger(source.shippingAmount)&&source.shippingAmount>=0&&source.shippingAmount<=100000?{source:authority,model:'fixed',amount:source.shippingAmount}:null;
+ }
+ function shippingQuote(){
+  if(demoMode())return config.demoCheckout.currency==='eur'?quoteForShipping(config.demoCheckout,'demo'):null;
+  if(catalog!==null)return catalog.currency==='eur'&&catalog.shippingConfirmed===true?quoteForShipping(catalog,'server'):null;
+  return config.shipping?.confirmed===true?quoteForShipping(config.shipping,'public'):null;
+ }
+ function shippingReady(){
+  const quote=shippingQuote();if(quote?.source!=='server')return false;
+  if(config.shipping?.confirmed!==true)return true;
+  const published=quoteForShipping(config.shipping,'public');
+  return !!published&&quote.model===published.model&&(quote.model==='per_package'?quote.perPackage===published.perPackage&&quote.itemsPerPackage===published.itemsPerPackage:quote.amount===published.amount);
+ }
+ function shippingAmount(){return shippingQuote()?.amount??null;}
+ function shippingLabel(quote=shippingQuote()){return quote?.model==='per_package'?text('shipping')+' · '+quote.packages+' '+text(quote.packages===1?'package':'packages')+' × '+money(quote.perPackage):text('shipping');}
+ function pricesReady(){return items.length>0&&liveCatalog()&&catalog.ready===true&&catalog.canCharge===true&&catalog.webhookConfigured===true&&catalog.orderStorageConfigured===true&&catalog.backendPublic===true&&shippingReady()&&items.every(item=>amountValid(catalog.prices?.[item.product]?.amount)&&catalog.prices[item.product].available!==false);}
  const cartSignature=()=>JSON.stringify(items);
  const typedCode=()=>get('checkout-code').value.trim().toUpperCase();
  function subtotalAmount(){return items.length>0&&items.every(item=>price(item))?items.reduce((sum,item)=>sum+price(item).amount*item.qty,0):null;}
@@ -461,6 +489,8 @@
   });
   const subtotal=subtotalAmount(),shipping=shippingAmount(),discountAmount=renderDiscount(),discountedSubtotal=subtotal===null?null:subtotal-discountAmount;
   get('checkout-subtotal').textContent=subtotal===null?'—':money(subtotal);
+  get('checkout-shipping-label').textContent=shippingLabel();
+  const quote=shippingQuote();get('checkout-shipping-note').textContent=quote?.model==='per_package'?text('packageNote').replace('{amount}',money(quote.perPackage)).replace('{count}',String(quote.itemsPerPackage)):text('shippingNote');
   get('checkout-shipping').textContent=shipping===null?text('shippingPending'):money(shipping);
   get('checkout-total').textContent=discountedSubtotal===null?'—':shipping===null?money(discountedSubtotal)+' '+text('plusShipping'):money(discountedSubtotal+shipping);
   get('checkout-total').dataset.final=String(subtotal!==null&&shipping!==null);
@@ -481,7 +511,7 @@
   const columns=el('div',undefined,'checkout-receipt-columns'),address=el('section'),pieces=el('section');address.append(el('h3',text('demoReceiptAddress')));
   const customer=demoReceipt.address;address.append(el('p',[customer.name,customer.street+' '+customer.houseNumber,customer.postal+' '+customer.city,countryName(customer.country),customer.email].join('\n'),'checkout-receipt-address'));
   pieces.append(el('h3',text('demoReceiptItems')));const list=el('ul');demoReceipt.items.forEach(item=>list.append(el('li',byId[item.product].name+' · '+colorName(item.color)+' / '+item.size+' · '+item.qty+' × '+money(item.unitAmount))));pieces.append(list);columns.append(address,pieces);receipt.append(columns);
-  const totals=el('dl',undefined,'checkout-receipt-totals');for(const [label,value] of [[text('productValue'),demoReceipt.subtotal],...(demoReceipt.discountAmount?[[text('discountTitle')+' · '+demoReceipt.discountCode,-demoReceipt.discountAmount]]:[]),[text('shipping'),demoReceipt.shipping],[text('demoReceiptTotal'),demoReceipt.total]]){const row=el('div');row.append(el('dt',label),el('dd',money(value)));totals.append(row);}receipt.append(totals,el('p',text('demoReceiptNote'),'checkout-receipt-note'));get('checkout-demo-again').hidden=false;
+  const totals=el('dl',undefined,'checkout-receipt-totals');for(const [label,value] of [[text('productValue'),demoReceipt.subtotal],...(demoReceipt.discountAmount?[[text('discountTitle')+' · '+demoReceipt.discountCode,-demoReceipt.discountAmount]]:[]),[shippingLabel(demoReceipt.shippingQuote),demoReceipt.shipping],[text('demoReceiptTotal'),demoReceipt.total]]){const row=el('div');row.append(el('dt',label),el('dd',money(value)));totals.append(row);}receipt.append(totals,el('p',text('currencyNote'),'checkout-receipt-note'),el('p',text('demoReceiptNote'),'checkout-receipt-note'));get('checkout-demo-again').hidden=false;
  }
  function completeDemo(){
   if(!demoMode()||!canPay())return;
@@ -489,8 +519,8 @@
   if(!form.reportValidity()){get('checkout-form-message').textContent=text('demoInvalidForm');return;}
   get('checkout-form-message').textContent='';const fields=Object.fromEntries(['email','name','street','houseNumber','postal','city','country'].map(name=>[name,String(new FormData(form).get(name)||'').trim()]));
   if(!shippingCountries().includes(fields.country)){get('checkout-country').setCustomValidity(text('demoInvalidForm'));form.reportValidity();return;}
-  const subtotal=subtotalAmount(),discountAmount=discountMatches()?discount.discountAmount:0,shipping=shippingAmount();
-  demoReceipt={number:'DEMO-'+crypto.randomUUID().replaceAll('-','').slice(0,12).toUpperCase(),address:fields,items:items.map(item=>({...item,unitAmount:price(item).amount})),subtotal,discountAmount,discountCode:discountMatches()?discount.code:'',shipping,total:subtotal-discountAmount+shipping};
+  const subtotal=subtotalAmount(),discountAmount=discountMatches()?discount.discountAmount:0,quote=shippingQuote(),shipping=quote.amount;
+  demoReceipt={number:'DEMO-'+crypto.randomUUID().replaceAll('-','').slice(0,12).toUpperCase(),address:fields,items:items.map(item=>({...item,unitAmount:price(item).amount})),subtotal,discountAmount,discountCode:discountMatches()?discount.code:'',shipping,shippingQuote:quote,total:subtotal-discountAmount+shipping};
   setStep(2);render();get('checkout-result').scrollIntoView?.({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
  }
  function setStep(index){document.querySelectorAll('.checkout-progress li').forEach((step,i)=>{if(i===index)step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');});}

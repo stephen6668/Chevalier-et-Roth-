@@ -93,13 +93,29 @@ function getCatalog(env) {
    prices[id] = {amount: item.amount, available: item.available !== false};
   }
  }
- const shippingAmount = validBase && integerAmount(raw.shippingAmount, MAX_SHIPPING_AMOUNT, true) ? raw.shippingAmount : null;
+ // A partial package rule is a configuration error, never a free/fixed fallback.
+ const hasPackageRule=Boolean(validBase&&(Object.hasOwn(raw,'shippingPerPackage')||Object.hasOwn(raw,'itemsPerPackage')));
+ const packageRuleConfigured=hasPackageRule&&integerAmount(raw.shippingPerPackage,MAX_SHIPPING_AMOUNT)&&integerAmount(raw.itemsPerPackage,1200);
+ const shippingPerPackage=packageRuleConfigured?raw.shippingPerPackage:null;
+ const itemsPerPackage=packageRuleConfigured?raw.itemsPerPackage:null;
+ const shippingAmount=!hasPackageRule&&validBase&&integerAmount(raw.shippingAmount,MAX_SHIPPING_AMOUNT,true)?raw.shippingAmount:null;
+ const shippingModel=packageRuleConfigured?'per_package':shippingAmount!==null?'fixed':'unconfigured';
  const inputCountries = validBase && raw.shippingCountries !== undefined ? raw.shippingCountries : DEFAULT_SHIPPING_COUNTRIES;
  const validCountries = Array.isArray(inputCountries) && inputCountries.length > 0 && inputCountries.length <= 64 && inputCountries.every(code => typeof code === 'string' && /^[A-Z]{2}$/.test(code));
  const shippingCountries = validCountries ? [...new Set(inputCountries)] : [];
  const missingProducts = Object.keys(PRODUCTS).filter(id => !prices[id]);
- return {currency:'eur',prices,shippingAmount,shippingCountries,missingProducts,shippingConfirmed:raw?.shippingConfirmed===true,shippingCountriesConfigured:validBase&&raw.shippingCountries!==undefined&&validCountries,taxRegistered:raw?.taxRegistered===true,taxPresentation:'illustrative',illustrativeTaxRate:17,taxCollected:false,
-  configured: Boolean(validBase && shippingAmount !== null && shippingCountries.length && Object.values(prices).some(item => item.available))};
+ return {currency:'eur',prices,shippingModel,shippingAmount,shippingPerPackage,itemsPerPackage,shippingCountries,missingProducts,shippingConfirmed:raw?.shippingConfirmed===true,shippingCountriesConfigured:validBase&&raw.shippingCountries!==undefined&&validCountries,taxRegistered:raw?.taxRegistered===true,taxPresentation:'illustrative',illustrativeTaxRate:17,taxCollected:false,
+  configured: Boolean(validBase && shippingModel!=='unconfigured' && shippingCountries.length && Object.values(prices).some(item => item.available))};
+}
+
+function shippingForItems(catalog,items) {
+ const unitCount=items.reduce((sum,item)=>sum+item.qty,0);
+ if(!Number.isSafeInteger(unitCount)||unitCount<0||unitCount>1200)throw new CheckoutError(400,'invalid_quantity','Die Stückzahl liegt außerhalb des zulässigen Bereichs.');
+ if(unitCount===0)return {amount:0,packageCount:0,unitCount:0};
+ const packageCount=catalog.shippingModel==='per_package'?Math.ceil(unitCount/catalog.itemsPerPackage):null;
+ const amount=packageCount===null?catalog.shippingAmount:packageCount*catalog.shippingPerPackage;
+ if(!integerAmount(amount,MAX_SHIPPING_AMOUNT,true))throw new CheckoutError(400,'shipping_limit','Die Lieferkosten für diese Auswahl liegen außerhalb des zulässigen Bereichs.');
+ return {amount,packageCount,unitCount};
 }
 
 async function readJson(request) {
@@ -411,13 +427,14 @@ async function createCheckout(request, env, url) {
  if (!catalog.configured || items.some(item => !catalog.prices[item.product])) throw new CheckoutError(409, 'prices_unconfigured', 'Preise noch nicht hinterlegt.');
  if (items.some(item => !catalog.prices[item.product].available)) throw new CheckoutError(409, 'product_unavailable', 'Ein ausgewähltes Produkt ist derzeit nicht für den Checkout verfügbar.');
  const readiness=checkoutConfiguration(env,catalog);if(mode==='live'){if(readiness.blockedReasons.length)throw new CheckoutError(503,'live_checkout_unconfigured','Die Zahlung wird noch vorbereitet.');await verifyMerchant(env,key);}
- const total = items.reduce((sum, item) => sum + catalog.prices[item.product].amount * item.qty, catalog.shippingAmount);
+ const shipping=shippingForItems(catalog,items);
+ const total = items.reduce((sum, item) => sum + catalog.prices[item.product].amount * item.qty, shipping.amount);
  if (!Number.isSafeInteger(total) || total < 50 || total > MAX_TOTAL_AMOUNT) throw new CheckoutError(400, 'invalid_total', 'Der Gesamtbetrag liegt außerhalb des zulässigen Bereichs.');
  if(body.discountCode!==undefined&&(typeof body.discountCode!=='string'||body.discountCode.length>64))throw new CheckoutError(400,'discount_invalid','Bitte einen gültigen Rabattcode eingeben.');
  const discount=body.discountCode?.trim()?await validatedDiscount(body.discountCode,items,catalog,key,mode):null;
  const payable=total-(discount?.discountAmount||0);
  if(payable!==0&&payable<50)throw new CheckoutError(409,'discount_total_too_small','Der Betrag nach Rabatt liegt unter dem Mindestbetrag für eine Stripe-Zahlung.');
- const cartHash = await digest(JSON.stringify({origin:url.origin,storefront:storefront.href,mode,locale,currency: catalog.currency, items: items.map(item => ({...item, amount: catalog.prices[item.product].amount})), shippingAmount: catalog.shippingAmount, shippingCountries: catalog.shippingCountries,discount:discount?{id:discount.promotionCodeId,code:discount.code,amount:discount.discountAmount}:null}));
+ const cartHash = await digest(JSON.stringify({origin:url.origin,storefront:storefront.href,mode,locale,currency: catalog.currency, items: items.map(item => ({...item, amount: catalog.prices[item.product].amount})), shippingModel:catalog.shippingModel,shippingAmount:shipping.amount,packageCount:shipping.packageCount,shippingPerPackage:catalog.shippingPerPackage,itemsPerPackage:catalog.itemsPerPackage,shippingCountries: catalog.shippingCountries,discount:discount?{id:discount.promotionCodeId,code:discount.code,amount:discount.discountAmount}:null}));
  const form = new URLSearchParams();
  form.set('mode','payment');
  form.set('billing_address_collection','required');
@@ -432,6 +449,13 @@ async function createCheckout(request, env, url) {
  form.set('metadata[source]', SOURCE); form.set('metadata[site_origin]', url.origin); form.set('metadata[mode]',mode);form.set('metadata[tax_presentation]','illustrative');
  form.set('metadata[cart_hash]', cartHash); form.set('metadata[variant_count]', String(items.length));
  form.set('metadata[unit_count]', String(items.reduce((sum, item) => sum + item.qty, 0)));
+ form.set('metadata[shipping_model]',catalog.shippingModel);
+ form.set('metadata[shipping_amount]',String(shipping.amount));
+ if(shipping.packageCount!==null){
+  form.set('metadata[package_count]',String(shipping.packageCount));
+  form.set('metadata[shipping_per_package]',String(catalog.shippingPerPackage));
+  form.set('metadata[items_per_package]',String(catalog.itemsPerPackage));
+ }
  if(discount){form.set('discounts[0][promotion_code]',discount.promotionCodeId);form.set('metadata[discount_code]',discount.code);form.set('metadata[promotion_code]',discount.promotionCodeId);}
  items.forEach((item, index) => {
   const prefix = 'line_items[' + index + ']';
@@ -447,8 +471,10 @@ async function createCheckout(request, env, url) {
  });
  catalog.shippingCountries.forEach((country, index) => form.set('shipping_address_collection[allowed_countries][' + index + ']', country));
  form.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
- form.set('shipping_options[0][shipping_rate_data][display_name]', {en:'Shipping',fr:'Livraison'}[locale] || 'Versand');
- form.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', String(catalog.shippingAmount));
+ const shippingName={en:'Shipping',fr:'Livraison'}[locale]||'Versand';
+ const packageLabel={en:shipping.packageCount===1?'package':'packages',fr:'colis'}[locale]||(shipping.packageCount===1?'Paket':'Pakete');
+ form.set('shipping_options[0][shipping_rate_data][display_name]',shippingName+(shipping.packageCount===null?'':' · '+shipping.packageCount+' '+packageLabel));
+ form.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', String(shipping.amount));
  form.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'eur');
  const session = await stripeFetch(key, '/checkout/sessions', {method: 'POST', body: form, headers: {
   'content-type': 'application/x-www-form-urlencoded',
@@ -518,6 +544,10 @@ async function webhook(request,env,url) {
  });
  const shipping=session.collected_information?.shipping_details||session.shipping_details;
  if(shipping)items[0].delivery={name:shipping.name||'',address:shipping.address||{},phone:session.customer_details?.phone||''};
+ if(session.metadata?.shipping_model==='per_package'){
+  const packageCount=Number(session.metadata.package_count),perPackage=Number(session.metadata.shipping_per_package),itemsPerPackage=Number(session.metadata.items_per_package),shippingAmount=Number(session.metadata.shipping_amount),unitCount=items.reduce((sum,item)=>sum+item.quantity,0);
+  if(integerAmount(packageCount,1200)&&integerAmount(perPackage,MAX_SHIPPING_AMOUNT)&&integerAmount(itemsPerPackage,1200)&&integerAmount(shippingAmount,MAX_SHIPPING_AMOUNT,true)&&packageCount===Math.ceil(unitCount/itemsPerPackage)&&shippingAmount===packageCount*perPackage&&session.total_details?.amount_shipping===shippingAmount)items[0].shipping={packageCount,perPackageCents:perPackage,itemsPerPackage,amountCents:shippingAmount};
+ }
  if(session.metadata?.discount_code&&integerAmount(session.total_details?.amount_discount,MAX_TOTAL_AMOUNT,true))items[0].discount={code:String(session.metadata.discount_code).slice(0,64),promotionCodeId:String(session.metadata.promotion_code||'').slice(0,206),amountCents:session.total_details.amount_discount};
  const {rowId,number}=await orderIdentity(id),data={number,customer:String(session.customer_details?.name||''),email:String(session.customer_details?.email||''),date:new Date(Number(session.created)*1000).toISOString(),status:'paid',items:JSON.stringify(items),total:session.amount_total/100};
  const endpoint=storage.endpoint+'/tablesdb/'+encodeURIComponent(storage.database)+'/tables/'+encodeURIComponent(storage.table)+'/rows';
@@ -550,7 +580,7 @@ export async function handleStripeRequest(request,env={}) {
    const catalog=getCatalog(env),state=checkoutConfiguration(env,catalog);let accountVerified=false;
    if(state.mode==='live'&&!state.blockedReasons.length){try{await verifyMerchant(env,getKey(env).value);accountVerified=true;}catch{state.blockedReasons.push('merchant_unverified');}}
    const ready=!state.blockedReasons.length;
-   return decorate(json({...state,ready,canCharge:state.mode==='live'&&ready,accountVerified,pricesConfigured:catalog.configured,currency:catalog.currency,prices:catalog.prices,shippingAmount:catalog.shippingAmount,shippingCountries:catalog.shippingCountries,missingProducts:catalog.missingProducts,taxRegistered:catalog.taxRegistered,taxPresentation:catalog.taxPresentation,illustrativeTaxRate:catalog.illustrativeTaxRate,taxCollected:false}));
+   return decorate(json({...state,ready,canCharge:state.mode==='live'&&ready,accountVerified,pricesConfigured:catalog.configured,currency:catalog.currency,prices:catalog.prices,shippingModel:catalog.shippingModel,shippingAmount:catalog.shippingAmount,shippingPerPackage:catalog.shippingPerPackage,itemsPerPackage:catalog.itemsPerPackage,shippingCountries:catalog.shippingCountries,missingProducts:catalog.missingProducts,taxRegistered:catalog.taxRegistered,taxPresentation:catalog.taxPresentation,illustrativeTaxRate:catalog.illustrativeTaxRate,taxCollected:false}));
   }
   return decorate(url.pathname==='/api/checkout'?await createCheckout(request,env,url):await readSession(env,url));
  }catch(error){
