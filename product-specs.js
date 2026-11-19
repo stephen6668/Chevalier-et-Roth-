@@ -10,6 +10,15 @@
  const sizes=window.CR_SIZES||Object.freeze(['S','M','L']);
  const label=(de,en,fr)=>Object.freeze({de,en,fr});
  const feature=(name,value)=>Object.freeze({label:name,value});
+ // Fabric compositions confirmed by the owner on 19 November 2026.
+ const cotton=label('Baumwolle','cotton','coton');
+ const modal=label('Modal','modal','modal');
+ const elastane=label('Elasthan','elastane','élasthanne');
+ const cottonModal=Object.freeze([
+  Object.freeze({percentage:47,fiber:cotton}),
+  Object.freeze({percentage:47,fiber:modal}),
+  Object.freeze({percentage:6,fiber:elastane})
+ ]);
  const chart=entries=>Object.freeze({
   columns:Object.freeze(entries.map(([key,name])=>Object.freeze({key,label:name}))),
   rows:Object.freeze(['S','M','L'].map((size,index)=>Object.freeze({size,values:Object.freeze(Object.fromEntries(entries.map(([key,,values])=>[key,values[index]])))})))
@@ -23,7 +32,7 @@
    ['hips',label('Hüftumfang','Hip circumference','Tour de hanches'),[86,94,102]],
    ['sleeve',label('Ärmellänge','Sleeve length','Longueur des manches'),[59,60,61]],
    ['torso',label('Rumpfumfang','Torso girth','Tour du tronc'),[143,148,153]]
-  ]),composition:Object.freeze([{percentage:100,fiber:label('Baumwoll-Jersey','cotton jersey','jersey de coton')}]),features:Object.freeze([
+  ]),composition:cottonModal,features:Object.freeze([
    feature(label('Silhouette','Silhouette','Silhouette'),label('Körpernahe Linie','Close-fitting line','Ligne près du corps')),
    feature(label('Ausschnitt','Neckline','Encolure'),label('Tiefer V-Ausschnitt','Deep V-neck','Décolleté en V profond')),
    feature(label('Ärmel','Sleeves','Manches'),label('Langarm','Long sleeves','Manches longues')),
@@ -35,7 +44,7 @@
    ['hem',label('Saumumfang','Hem circumference','Tour de l’ourlet'),[90,98,106]],
    ['length',label('Gesamtlänge','Total length','Longueur totale'),[58,60,62]],
    ['sleeve',label('Ärmellänge','Sleeve length','Longueur des manches'),[59,60,61]]
-  ]),composition:Object.freeze([{percentage:100,fiber:label('Merinowolle','merino wool','laine mérinos')}]),features:Object.freeze([
+  ]),composition:cottonModal,features:Object.freeze([
    feature(label('Kragen','Collar','Col'),label('Stehkragen','Stand collar','Col montant')),
    feature(label('Verschluss','Fastening','Fermeture'),label('Kurzer Reißverschluss','Short zip','Fermeture zippée courte')),
    feature(label('Ärmel','Sleeves','Manches'),label('Langarm','Long sleeves','Manches longues')),
@@ -50,6 +59,10 @@
    ['inseam',label('Innenbeinlänge','Inseam length','Longueur d’entrejambe'),[78,79,80]],
    ['length',label('Gesamtlänge inkl. Bund','Total length including waistband','Longueur totale, ceinture comprise'),[108,110,112]],
    ['waistbandHeight',label('Bundhöhe','Waistband height','Hauteur de ceinture'),[5,5,5]]
+  ]),composition:Object.freeze([
+   Object.freeze({percentage:65,fiber:label('Viskose','viscose','viscose')}),
+   Object.freeze({percentage:30,fiber:label('Polyamid','polyamide','polyamide')}),
+   Object.freeze({percentage:5,fiber:elastane})
   ]),features:Object.freeze([
    feature(label('Silhouette','Silhouette','Silhouette'),label('Weites Bein','Wide leg','Jambe ample')),
    feature(label('Schnitt','Cut','Coupe'),label('Palazzohose für Damen','Women’s palazzo trousers','Pantalon palazzo pour femme')),
@@ -65,6 +78,9 @@
    ['inseam',label('Innenbeinlänge','Inseam length','Longueur d’entrejambe'),[78,80,82]],
    ['length',label('Gesamtlänge inkl. Bund','Total length including waistband','Longueur totale, ceinture comprise'),[104,107,110]],
    ['waistbandHeight',label('Bundhöhe','Waistband height','Hauteur de ceinture'),[4,4,4]]
+  ]),composition:Object.freeze([
+   Object.freeze({percentage:96,fiber:cotton}),
+   Object.freeze({percentage:4,fiber:elastane})
   ]),features:Object.freeze([
    feature(label('Silhouette','Silhouette','Silhouette'),label('Gerades, schmaleres Bein','Straight, narrower leg','Jambe droite et moins ample')),
    feature(label('Schnitt','Cut','Coupe'),label('Herrenhose mit Bundfalten','Men’s pleated trousers','Pantalon à plis pour homme')),

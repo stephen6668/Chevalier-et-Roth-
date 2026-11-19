@@ -167,7 +167,7 @@ Der Bordeaux-Half-Zip verwendet die tatsächlich hochgeladene Datei `halfzip_wei
 
 ## Produktdetails, Licht und Preisvorschau
 
-Die Bildflächen sind weiß; das Licht über dem 3D-Banner wird nach dem Logo-Intro langsam aufgebaut und erscheint bei reduzierter Bewegung sofort. `product-specs.js` enthält die vom Betreiber bestätigten Stoffangaben: Half-Zip 100 % Merinowolle und Body 100 % Baumwoll-Jersey. Für Hose, Pflege und genaue Produktionsmaße bleiben die Angaben ausdrücklich offen. `product-details.js` zeigt diese Informationen und die ergänzbare Größentabelle in Deutsch, Englisch und Französisch.
+Die Bildflächen sind weiß; das Licht über dem 3D-Banner wird nach dem Logo-Intro langsam aufgebaut und erscheint bei reduzierter Bewegung sofort. `product-specs.js` enthält die am 19. November 2026 vom Betreiber bestätigten Stoffangaben: Half-Zip und Body je 47 % Baumwolle, 47 % Modal und 6 % Elasthan; Herrenhose 96 % Baumwolle und 4 % Elasthan; Damenhose 65 % Viskose, 30 % Polyamid und 5 % Elasthan. Die Größentabellen sind hinterlegt; verbindliche Pflegehinweise stehen noch aus. `product-details.js` zeigt diese Informationen und die ergänzbare Größentabelle in Deutsch, Englisch und Französisch.
 
 Die Checkout-Seite zeigt den vollständigen Warenwert schon vor einer API-Antwort. Die gewünschte 17%-Aufteilung ist als Rechenvorschau gekennzeichnet; sie ist kein Steuerausweis, da der Betreiber eine fehlende MwSt.-Registrierung bestätigt hat. Versand wird mit POST Luxembourg nach Europa geplant; ohne bestätigten Versandpreis entsteht keine irreführende kostenlose Lieferung und kein zahlbarer Gesamtbetrag.
 

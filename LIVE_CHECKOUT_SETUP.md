@@ -8,7 +8,7 @@ Die Website enthält eine funktionierende Preisvorschau und einen technisch vorb
 - Produktpreise: Half-Zip 110 €, Body 90 €, Hose 100 €. Der Warenwert bleibt unverändert.
 - Der Betreiber hat erklärt, derzeit nicht mehrwertsteuerregistriert zu sein. Die 17%-Aufteilung ist deshalb ausschließlich eine ausdrücklich beschriftete Rechenvorschau. Es werden weder `automatic_tax` noch tatsächliche Steuersätze aktiviert.
 - Geplant ist POST Luxembourg als Versanddienstleister für Europa. Bestätigte Paketgewichte, Verpackungsdaten und endgültige Versandpreise stehen noch aus. Die Website stellt fehlende Versandkosten nicht als kostenlosen Versand dar.
-- Bestätigte Zusammensetzungen: Half-Zip 100 % Merinowolle, Body 100 % Baumwoll-Jersey. Hose, Pflege und genaue Maße sind noch offen.
+- Bestätigte Zusammensetzungen (19. November 2026): Half-Zip und Body je 47 % Baumwolle, 47 % Modal, 6 % Elasthan; Herrenhose 96 % Baumwolle, 4 % Elasthan; Damenhose 65 % Viskose, 30 % Polyamid, 5 % Elasthan. Die Größentabellen sind hinterlegt; verbindliche Pflegehinweise stehen noch aus.
 
 ## Bereits im Stripe-Konto vorhandene Live-Links
 
